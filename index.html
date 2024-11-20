@@ -59,7 +59,7 @@
 			<br>
 			<h2>{{modInfo.name}} {{VERSION.withoutName}}</h2><br><br>
 			<h3>抵达残局</h3><br><br>
-			<div v-if="!player.timePlayedReset">恭喜你已经浪费了 {{formatTime(player.timePlayed)}} 去玩这个游戏</div>
+			<div v-if="!player.timePlayedReset">恭喜你已经浪费了 {{formatTime(player.timePlayed*1000)}} 去玩这个游戏</div>
 			<br><button class="longUpg can" onclick="keepGoing()">继续</button>
 		</div>
 		<div id="version" onclick="showTab('changelog-tab');getActiveClass('Changelog')" class="overlayThing" style="margin-right: 4px" >
