@@ -3183,7 +3183,7 @@ addLayer("furnace", {
                 player.furnace.burning = true,
                 player.furnace.fuel = this.id
             },
-            unlocked() {return tmp.furnace.layerShown},
+            unlocked() {return hasUpgrade(stone, 35)},
             style() {
                 return {
                     'min-height':'100px',
