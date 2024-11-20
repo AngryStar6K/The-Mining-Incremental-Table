@@ -90,8 +90,8 @@ function textStyle_h2(text, color='ffffff', shadowcolor=color) {
 	return `<h2 style='color: #${color}; text-shadow: 0 0 10px #${shadowcolor}'>${text}</h2>`
 }
 
-function textStyle_h3(text, color='ffffff') {
-	return `<h3 style='color: #${color}; text-shadow: 0 0 10px #${color}'>${text}</h3>`
+function textStyle_h3(text, color='ffffff', shadowcolor=color) {
+	return `<h3 style='color: #${color}; text-shadow: 0 0 10px #${shadowcolor}'>${text}</h3>`
 }
 
 function textStyle_h4(text, color='ffffff', shadowcolor=color) {
