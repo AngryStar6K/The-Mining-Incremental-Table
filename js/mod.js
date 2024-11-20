@@ -38,8 +38,8 @@ var colors = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.1",
-	name: "像前期生存一样",
+	num: "0.2",
+	name: "",
 }
 
 function changelog(){
@@ -109,12 +109,12 @@ var displayThings = [
 
 // You can write stuff here to display them on top-left corner easily
 function displayThingsRes(){
-	return '木头: '+format(player.wood.points)+' | '
+	return ""
 }
 
 // Determines when the game "ends"
 function isEndgame() {
-	return tmp.copper.layerShown
+	return hasNormalAchievement(41)
 }
 
 // 
