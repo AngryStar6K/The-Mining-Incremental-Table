@@ -38,7 +38,7 @@ var ntl = 0
 var p = 50 + document.body.clientWidth
 var l = -100 - (nil * 16)
 var newsTimer = setInterval(function () {
-    if (!player.news || player.tab == 'info-tab' || player.tab == 'changelog-tab' || player.tab == 'options-tab') return;
+    if (player.tab == 'info-tab' || player.tab == 'changelog-tab' || player.tab == 'options-tab') return;
     p -= 1
     if (p <= l) {
         nt = texts[Math.floor(Math.random() * texts.length)]
