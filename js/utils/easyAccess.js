@@ -22,6 +22,10 @@ function challengeCompletions(layer, id) {
 	return (player[layer].challenges[id])
 }
 
+function challengeGoal(layer, id) {
+	return (tmp[layer].challenges[id].goal)
+}
+
 function getBuyableAmount(layer, id) {
 	return (player[layer].buyables[id])
 }
