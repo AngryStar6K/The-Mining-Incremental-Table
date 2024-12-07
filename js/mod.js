@@ -21,7 +21,7 @@ var colors = {
 	button: {
 		width: '253px',//UI Button
 		height: '40px',//UI Button
-		font: '30px',//UI Button
+		font: '25px',//UI Button
 		border: '3px'//UI Button
 	},
 	default: {
@@ -38,7 +38,7 @@ var colors = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.2",
+	num: "0.3",
 	name: "",
 }
 
@@ -46,9 +46,29 @@ function changelog(){
 	return (options.ch || modInfo.languageMod==false)?`
 		<br><br><br><h1>更新日志:</h1><br>(不存在<span style='color: red'><s>剧透警告</s></span>)<br><br>
 		<span style="font-size: 17px;">
-			<h3><s>不,你应该自己写这个</s></h3><br><br>
-			<h3>v3.0 - 史无前例的改动</h3><br>
-				- 开发了 The Modding Table, 这何尝不是一种TMT<br>
+			<h3>v0.3 - 来点硬货</h3><br>
+				- 版本终点：完成全部普通成就，约1e3225经验<br>
+				- 成就总数：44 + 1<br>
+				- 添加世界1层级：铁、镍、铝、铅<br>
+				- 添加了1个隐藏成就，隐藏成就只有完成了才会显示<br>
+				- 现在经验数量可以在统计内查看数字参照<br>
+				- 添加了滚动新闻<br>
+				- 不同的滚动新闻数量：30<br>
+			<br><br>
+			<h3>v0.2 - 初期熔炼与锻造</h3><br>
+				- 版本终点：完成全部普通成就，约1e116经验<br>
+				- 成就总数：22<br>
+				- 添加世界1层级：锡、青铜<br>
+				- 添加制造层级：熔炉、合金炉<br>
+				- 添加能源层级：红石通量<br>
+			<br><br>
+			<h3>v0.1 - 冒险的开始</h3><br>
+				- 版本终点：完成全部普通成就，约1e28经验<br>
+				- 添加杂项层级：统计、成就<br>
+				- 成就总数：11<br>
+				- 添加世界1层级：木头、石头、铜<br>
+				- 添加制造层级：合成台<br>
+				- 使用的数字库是ExpantaNum.js<br>
 			<br><br>
 		`:`
 		<br><br><br><h1>ChangeLog:</h1><br>(No<span style='color: red'><s> Spoiler Warning!</s></span>)<br><br>
@@ -97,24 +117,26 @@ function nextLevelReq() {
 // You can add non-layer related variables that should to into "player" and be saved here, along with default values
 function addedPlayerData() { return {
 	level: d(0),
+	news: true,
 }}
 
 // Display extra things at the top of the page
 var displayThings = [
 	function() {
 		if(options.ch==undefined && modInfo.otherLanguageMod==true){return '<big><br>You should choose your language first<br>你需要先选择语言</big>'}
-		return '<div class="res">'+displayThingsRes()+'</div><br><div class="vl2"></div></span>'
+		return displayThingsRes()+'<br><div class="vl2"></div></span>'
+		//<div class="res">'+displayThingsRes()+'</div>
 	}
 ]
 
 // You can write stuff here to display them on top-left corner easily
 function displayThingsRes(){
-	return ""
+	return `<div id="news" class="news" v-if="player.news"><span id="newsText" class="newsContent" style="left: ${ntl}px;">${nt}</span></div>`
 }
 
 // Determines when the game "ends"
 function isEndgame() {
-	return hasNormalAchievement(41)
+	return hasNormalAchievement(72)
 }
 
 // 
@@ -132,7 +154,7 @@ function getPointsDisplay(){
 		if(canGenPoints()){
 			a += `<br><span class="overlayThing">(`+(tmp.other.oompsMag != 0 ? format(tmp.other.oomps) + " OoM" + (tmp.other.oompsMag < 0 ? "^^2" : tmp.other.oompsMag > 1 ? "^" + tmp.other.oompsMag : "") + "s" : formatSmall(getPointGen()))+`/sec)</span>`
 		}
-		a += `<br><span class="overlayThing">等级<h2  class="overlayThing" id="points">${formatWhole(player.level)}</h2></span>`
+		a += `<br><span class="overlayThing">等级<h2  class="overlayThing" id="points"> ${formatWhole(player.level)}</h2></span>`
 		a += `<br><span class="overlayThing">${format(player.points)}/${format(nextLevelReq())}</span>`
 		a += `<div style="margin-top: 3px"></div>`
 	}
@@ -157,3 +179,9 @@ function maxTickLength() {
 // you can cap their current resources with this.
 function fixOldSave(oldVersion){
 }
+
+ExpantaNum.prototype.hexate = function(x) {
+	return this.arrow(4)(x)
+}
+
+
