@@ -1504,7 +1504,7 @@ addLayer("wood", {
                     ["display-text", function() {if (hasUpgrade(wood, 31)) return `破坏一次木头可额外产出 ${textStyle_h2(formatWhole(tmp.wood.logGain.spruce), '826038')} 云杉原木 （基于橡木原木获取，开始于105橡木原木/次）`}],
                     ["display-text", function() {if (hasMilestone(wood, 2)) return `破坏一次木头可额外产出 ${textStyle_h2(formatWhole(tmp.wood.logGain.birch), 'ceb77c')} 白桦原木 （基于云杉原木获取，开始于320云杉原木/次）`}],
                     ["display-text", function() {if (hasUpgrade(bronze, 23)) return `破坏一次木头可额外产出 ${textStyle_h2(formatWhole(tmp.wood.logGain.jungle), '9f844d')} 丛林原木 （基于白桦原木获取，开始于1,860,000白桦原木/次）`}],
-                    ["display-text", function() {if (hasUpgrade(bronze, 23)) return `破坏一次木头可额外产出 ${textStyle_h2(formatWhole(tmp.wood.logGain.acacia), 'ba5d3b')} 金合欢原木 （基于丛林原木获取，开始于1.8200e15丛林原木/次）`}],
+                    ["display-text", function() {if (hasCraftingItem(152)) return `破坏一次木头可额外产出 ${textStyle_h2(formatWhole(tmp.wood.logGain.acacia), 'ba5d3b')} 金合欢原木 （基于丛林原木获取，开始于1.8200e15丛林原木/次）`}],
                 ]               
             },
         },
@@ -1780,7 +1780,7 @@ addLayer("stone", {
             title: "聚合奇点-石头",
             cost(x) { return d(Number.MAX_VALUE).pow(x.max(0).pow(5)).times(Number.MAX_VALUE) },
             display() { 
-                let display = `加成木头获取<br>
+                let display = `加成石头获取<br>
                 效果公式：${format(this.effBase())}<sup>x</sup><br>
                 购买数量：${formatWhole(player[this.layer].buyables[this.id])}<br>
                 凝聚需求量：${format(this.cost())} 石头`
@@ -3651,7 +3651,7 @@ addLayer("nickel", {
             onEnter() {     
                 resetBronzePowerAndBuyables()  
             },
-            unlocked() {return hasCraftingItem(142)},
+            unlocked() {return hasUpgrade(nickel, 22)},
             nerf() {
                 if (inChallenge(this.layer, this.id)) {
                     if (!hasUpgrade(aluminum, 12)) {
