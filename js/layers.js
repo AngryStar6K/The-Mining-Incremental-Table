@@ -6577,6 +6577,7 @@ addLayer("furnace", {
         //熔炼速度
         let speed = d(40)
         if (hasCraftingItem(52)) speed = speed.times(10)
+	if (hasUpgrade(iron, 21)) speed = speed.times(3)
         if (hasUpgrade(aluminum, 22)) speed = speed.times(1.5)
         player.furnace.speed = speed
             
