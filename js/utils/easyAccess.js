@@ -90,6 +90,10 @@ function rarity(layer) {
 	return player[layer].rarity
 }
 
+function singularity(layer) {
+	return player[layer].singularity
+}
+
 function textStyle_h2(text, color='ffffff', shadowcolor=color) {
 	return `<h2 style='color: #${color}; text-shadow: 0 0 10px #${shadowcolor}'>${text}</h2>`
 }
