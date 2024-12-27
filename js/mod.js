@@ -38,7 +38,7 @@ var colors = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.3",
+	num: "0.4",
 	name: "",
 }
 
@@ -46,6 +46,14 @@ function changelog(){
 	return (options.ch || modInfo.languageMod==false)?`
 		<br><br><br><h1>更新日志:</h1><br>(不存在<span style='color: red'><s>剧透警告</s></span>)<br><br>
 		<span style="font-size: 17px;">
+			<h3>v0.4 - 多合金储备</h3><br>
+				- 版本终点：获得第3锌升级，约1e62000经验<br>
+				- 成就总数：61 + 1<br>
+				- 添加世界1层级：康铜、殷钢、铝黄铜、锌<br>
+				- 添加杂项层级：地图<br>
+				- 完善之前矿物层级的位置要求（目前不对游戏过程产生影响）<br>
+				- 不同的滚动新闻数量：50<br>
+			<br><br>
 			<h3>v0.3 - 来点硬货</h3><br>
 				- 版本终点：完成全部普通成就，约1e3225经验<br>
 				- 成就总数：44 + 1<br>
@@ -136,7 +144,7 @@ function displayThingsRes(){
 
 // Determines when the game "ends"
 function isEndgame() {
-	return hasNormalAchievement(72)
+	return hasUpgrade(zinc, 13)
 }
 
 // 
