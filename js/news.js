@@ -58,7 +58,7 @@ var p = 50 + document.body.clientWidth
 var l = -50
 var newsTimer = setInterval(function () {
     if (player.tab == 'info-tab' || player.tab == 'changelog-tab' || player.tab == 'options-tab') return;
-    p -= 2
+    p -= 1.5
     if (p <= l || nt == "") {
         nt = texts[Math.floor(Math.random() * texts.length)]
         newsText.style.width = (newsText.innerText.length * 16).toString() + "px"
