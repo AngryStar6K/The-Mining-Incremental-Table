@@ -38,12 +38,12 @@ function regularFormat(num, precision) {
 
 // Basically does the opposite of what standardize in ExpantaNum does
 // Set smallTop to true to force the top value in the result below 10
-function polarize(array, smallTop=false) {
-    if (FORMAT_DEBUG >= 1) console.log("Begin polarize: "+JSON.stringify(array)+", smallTop "+smallTop)
-    if (array.length == 0) array = [[0,0]]
-    
+function polarize(array, smallTop = false) {
+    if (FORMAT_DEBUG >= 1) console.log("Begin polarize: " + JSON.stringify(array) + ", smallTop " + smallTop)
+    if (array.length == 0) array = [[0, 0]]
+
     let bottom = array[0][0] == 0 ? array[0][1] : 10, top = 0, height = 0
-    if (!Number.isFinite(bottom)) {}
+    if (!Number.isFinite(bottom)) { }
     else if (array.length <= 1 && array[0][0] == 0) {
         while (smallTop && bottom >= 10) {
             bottom = Math.log10(bottom)
@@ -70,17 +70,17 @@ function polarize(array, smallTop=false) {
                     if (bottom >= 1e10) bottom = Math.log10(Math.log10(Math.log10(bottom))) + 2
                     else bottom = Math.log10(Math.log10(bottom)) + 1
                     // Apply the remaining increments
-                    for (i=2;i<height;i++) bottom = Math.log10(bottom) + 1
+                    for (i = 2; i < height; i++) bottom = Math.log10(bottom) + 1
                 }
                 else bottom = 1 // The increment result is indistinguishable from 1
-                
+
                 top += 1
-                if (FORMAT_DEBUG >= 1) console.log("Bottom mode: bottom "+bottom+", top "+top+", height "+height+", elem "+elem)
+                if (FORMAT_DEBUG >= 1) console.log("Bottom mode: bottom " + bottom + ", top " + top + ", height " + height + ", elem " + elem)
             }
             else { // Top mode: height is increased by one, or until the next nonzero value
                 // Prevent running top mode more times than necessary
-                if (elem == array.length-1 && array[elem][0] == height && !(smallTop && top >= 10)) break
-                
+                if (elem == array.length - 1 && array[elem][0] == height && !(smallTop && top >= 10)) break
+
                 bottom = Math.log10(bottom) + top
                 height += 1
                 if (elem < array.length && height > array[elem][0]) elem += 1
@@ -89,7 +89,7 @@ function polarize(array, smallTop=false) {
                     else if (bottom < 10) { // Apply top mode multiple times
                         let diff = array[elem][0] - height
                         if (diff < MAX_LOGP1_REPEATS) {
-                            for (i=0;i<diff;i++) bottom = Math.log10(bottom) + 1
+                            for (i = 0; i < diff; i++) bottom = Math.log10(bottom) + 1
                         }
                         else bottom = 1 // The increment result is indistinguishable from 1
                         height = array[elem][0]
@@ -98,19 +98,19 @@ function polarize(array, smallTop=false) {
                     else top = 1
                 }
                 else top = 1
-                if (FORMAT_DEBUG >= 1) console.log("Top mode: bottom "+bottom+", top "+top+", height "+height+", elem "+elem)
+                if (FORMAT_DEBUG >= 1) console.log("Top mode: bottom " + bottom + ", top " + top + ", height " + height + ", elem " + elem)
             }
         }
     }
-    
-    if (FORMAT_DEBUG >= 1) console.log("Polarize result: bottom "+bottom+", top "+top+", height "+height)
-    return {bottom: bottom, top: top, height: height}
+
+    if (FORMAT_DEBUG >= 1) console.log("Polarize result: bottom " + bottom + ", top " + top + ", height " + height)
+    return { bottom: bottom, top: top, height: height }
 }
 
 // Search for the value at the requested height of an ExpantaNum array,
 // and return the value if it exists; otherwise return a default value.
 function arraySearch(array, height) {
-    for (i=0;i<array.length;i++) {
+    for (i = 0; i < array.length; i++) {
         if (array[i][0] == height) return array[i][1]
         else if (array[i][0] > height) break
     }
@@ -120,13 +120,13 @@ function arraySearch(array, height) {
 // Search for the value at the requested height of an ExpantaNum array,
 // and set it to zero if it exists.
 function setToZero(array, height) {
-    for (i=0;i<array.length;i++) {
+    for (i = 0; i < array.length; i++) {
         if (array[i][0] == height) break
     }
-    if (i<array.length) array[i][1] = 0
+    if (i < array.length) array[i][1] = 0
 }
 
-function format(num, precision=2, small=false) {
+function format(num, precision = 2, small = false) {
     if (ExpantaNum.isNaN(num)) return "NaN"
     let precision2 = Math.max(4, precision) // for e
     let precision3 = Math.max(6, precision) // for F, G, H
@@ -142,15 +142,17 @@ function format(num, precision=2, small=false) {
     else if (num.lt(1e12)) return commaFormat(num)
     else if (num.lt("10^^5")) { // 1e9 ~ 1F5
         let bottom = arraySearch(array, 0)
-        let rep = arraySearch(array, 1)-1
-        if (bottom >= 1e7) {
+        let rep = arraySearch(array, 1) - 1
+        if (bottom >= 1e12) {
             bottom = Math.log10(bottom)
             rep += 1
         }
-        let m = 10**(bottom-Math.floor(bottom))
+        let m = 10 ** (bottom - Math.floor(bottom))
         let e = Math.floor(bottom)
-        let p = bottom < 1000 ? precision2 : precision2 - Math.floor(Math.log10(bottom)) + 2;
-        return "e".repeat(rep) + regularFormat(m, p) + "e" + commaFormat(e)
+        let p = bottom < 1000 ? precision2 : precision2 - Math.floor(Math.min((Math.log10(bottom) - 1) / 2, 4));
+        let f = "e".repeat(rep) + regularFormat(m, p) + "e" + commaFormat(e)
+        if (bottom > 1e9) f = "e".repeat(rep) + "e" + commaFormat(e)
+        return f
     }
     else if (num.lt("10^^1000000000")) { // 1F5 ~ F1,000,000
         let pol = polarize(array)
@@ -202,7 +204,7 @@ function format(num, precision=2, small=false) {
     else if (num.lt("J^4 10")) { // J1,000,000 ~ 1K5
         let rep = num.layer
         if (rep >= 1) return "J".repeat(rep) + format(array, precision)
-        let n = array[array.length-1][0]
+        let n = array[array.length - 1][0]
         if (num.gte("J" + (n + 1))) n += 1
         return "J" + format(n, precision)
     }
@@ -245,8 +247,8 @@ function formatWhole(num) {
     return format(num, 0)
 }
 
-function formatSmall(num, precision=2) { 
-    return format(num, precision, true)    
+function formatSmall(num, precision = 2) {
+    return format(num, precision, true)
 }
 
 function formatTime(ms) {
@@ -258,5 +260,5 @@ function formatTime(ms) {
 }
 
 function formatPercent(num) {
-    return format(num.times(100))+"%"
+    return format(num.times(100)) + "%"
 }
