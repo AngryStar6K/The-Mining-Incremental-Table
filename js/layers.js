@@ -1014,7 +1014,7 @@ addLayer("achievements", {
         },
         77: {
             name: "OoM暴涨？",
-            tooltip: "获得第9钢康铜升级<br> 奖励：1.0000e125成就点数",
+            tooltip: "获得第9康铜升级<br> 奖励：1.0000e125成就点数",
             done() { return hasUpgrade(constantan, 24) && this.unlocked() },
             onComplete() {
                 return player.achievements.points = player.achievements.points.add(1e125)
@@ -4677,13 +4677,6 @@ addLayer("lead", {
             canAfford() { return player.level.gte(502) },
             cost() { return new ExpantaNum(140) },
             unlocked() { return tmp.lead.layerShown },
-            effect() {
-                let eff = d(3)
-                return eff
-            },
-            effectDisplay() {
-                return `${format(upgradeEffect(this.layer, this.id))}x`
-            },
         },
         21: {
             title: "铅锭加成",
