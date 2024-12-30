@@ -10851,7 +10851,7 @@ addLayer("sing_fus", {
                 let effect = ExpantaNum.pow(this.effBase(), x.max(0))
                 return effect
             },
-            unlocked() { return hasMilestone(constantan, 1) },
+            unlocked() { return hasMilestone(sing_fus, 1) },
             canAuto() { return hasMilestone(sing_fus, 3) },
             auto() {
                 if (this.canAuto())
@@ -10901,7 +10901,7 @@ addLayer("sing_fus", {
                 let effect = ExpantaNum.pow(this.effBase(), x.max(0))
                 return effect
             },
-            unlocked() { return hasMilestone(constantan, 2) },
+            unlocked() { return hasMilestone(sing_fus, 2) },
             canAuto() { return hasMilestone(sing_fus, 4) },
             auto() {
                 if (this.canAuto())
