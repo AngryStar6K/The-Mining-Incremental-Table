@@ -2164,7 +2164,7 @@ addLayer("stone", {
             canAfford() { return player[this.layer].points.gte(this.cost()) },
             buyMax() {
                 if (this.canAfford())
-                    return setBuyableAmount(stone, 12, player.stone.points.div(Number.MAX_VALUE).max(1).logBase(Number.MAX_VALUE).root(5).floor().add(1))
+                    return setBuyableAmount(stone, 21, player.stone.points.div(Number.MAX_VALUE).max(1).logBase(Number.MAX_VALUE).root(5).floor().add(1))
             },
             canBuyMax() { return hasMilestone(sing_fus, 0) },
             buy() {
