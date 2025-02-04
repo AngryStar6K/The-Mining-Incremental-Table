@@ -17,6 +17,9 @@ function getStartOptions() {
 		tooltipForcing: true,
 		ch: undefined,
 		mouse: true,
+		textShadowShown: true,
+		cursive: false,
+		biggerUpgs: false,
 	}
 }
 
@@ -28,10 +31,15 @@ function toggleOpt(name) {
 	if(name == 'mouse'){
 		mouseSetting()
 	}
+	if(name == 'cursive'){
+		cursiveSetting()
+	}
 	if (name == "hqTree")
 		changeTreeQuality();
 	if (name == "oldStyle")
 		updateStyle();
+	if (name == "biggerUpgs")
+		upgSizeSetting();
 }
 var styleCooldown = 0;
 function updateStyle() {
@@ -39,6 +47,15 @@ function updateStyle() {
 	let css = document.getElementById("styleStuff");
 	css.href = options.oldStyle ? "oldStyle.css" : "style.css";
 	needCanvasUpdate = true;
+}
+function cursiveSetting(){
+	let on = options.cursive
+	document.body.style.setProperty('--font', on ? 'cursive, "bahnschrift", "Inconsolata", monospace' : '"bahnschrift", "Inconsolata", monospace');
+}
+function upgSizeSetting(){
+	let on = options.biggerUpgs
+	document.body.style.setProperty('--upgheight', on ? '150px' : '120px');
+	document.body.style.setProperty('--upgwidth', on ? '150px' : '120px');
 }
 function changeTreeQuality() {
 	var on = options.hqTree;
@@ -119,4 +136,12 @@ function mouseSetting(){
 			}
 		}
 	}
+}
+
+function switchTextShadowShown() {
+	options.textShadowShown = !options.textShadowShown
+}
+
+function switchDefaultUpgSize() {
+	options.biggerUpgs = !options.biggerUpgs
 }
