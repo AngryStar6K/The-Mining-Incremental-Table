@@ -1,7 +1,7 @@
 
 * {
 	text-align: center;
-	font-family: cursive, "bahnschrift", "Inconsolata", 'Noto Sans SC', monospace;
+	font-family: var(--font);
 	font-weight: bold;
 	table-align: center;
 	margin: auto;
@@ -23,6 +23,7 @@ h1, h2, h3, b, input, .pesterlog > * > * {
 html, body {
 	min-height: 100%;
 	height: 100%;
+	font-size: 18px;
 }
 
 td {
