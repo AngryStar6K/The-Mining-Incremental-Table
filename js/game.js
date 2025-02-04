@@ -5,7 +5,7 @@ var needCanvasUpdate = true;
 const TMT_VERSION = {
 	tmtNum: "2.6.6.2",
 	tmtName: "Fixed Reality",
-	newtmtNum: "3.0.8.3",
+	newtmtNum: "3.0.10.0",
 }
 
 function getResetGain(layer, useType = null) {
@@ -383,7 +383,7 @@ function gameLoop(diff) {
 }
 
 function hardReset(resetOptions) {
-	if (!confirm("你确定要这样做吗，你将丢失所有进度！")) return
+	if (prompt("输入“再见了，挖矿增量”进行硬重置") != "再见了，挖矿增量") return
 	player = null
 	if(resetOptions) options = null
 	save(true);
