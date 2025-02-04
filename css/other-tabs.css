@@ -65,8 +65,6 @@
 	color: var(--points);
 	text-shadow: 0 0 10px var(--points);
 	cursor: pointer;
-	transition: 0.4s;
-    mix-blend-mode: difference;
 }
 
 #version:hover {
@@ -82,13 +80,13 @@ a {
 
 .link {
 	display: block;
+	font-size: 20px;
 	color: #41f5f5;
 	cursor: pointer;
-	font-family: "Courier New", "Courier Prime", "Lucida Console",'Noto Sans SC', monospace;
+	font-family: "Lucida Console", "Courier New", monospace;
 	-webkit-text-stroke-width: 1px;
 	-webkit-text-stroke-color: #02f2f2;
 	text-decoration: none;
-	transition: 0.4s;
 }
 
 .link:hover {
@@ -99,41 +97,15 @@ a {
 
 .opt {
 	height: 100px;
-	width: 200px;
-	border-radius: 1%;
-	border: 2px solid;
-	border-color: rgba(0, 0, 0, 0.185);
-	color: rgba(0, 0, 0, 0.781);
+	width: 100px;
+	border-radius: 25%;
+	border: 4px solid;
+	background-color: var(--color);
+	border-color: rgba(0, 0, 0, 0.125);
+	color: rgba(0, 0, 0, 0.5);
 	cursor: pointer;
-	transition: 0.4s;
-	font-size: 16px;
 }
 
 .opt:hover {
-	background-color: #ffffff;
-	color: rgb(0, 0, 0);
-}
-
-#loading {
-    position: absolute;
-    background: rgb(0, 0, 0);
-    top: 0px;
-    left: 0px;
-    width: 100%;
-    height: 100%;
-    z-index: 999999999999999999999;
-}
-
-.loader {
-    width: 250px;
-    height: 50px;
-    line-height: 50px;
-    text-align: center;
-    position: absolute;
-    top: 45%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-weight: 90;
-    color: rgb(255, 255, 255);
-    letter-spacing: 4px;
+	background-color: #439ea3;
 }
