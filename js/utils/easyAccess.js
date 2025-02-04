@@ -95,17 +95,35 @@ function singularity(layer) {
 }
 
 function textStyle_h2(text, color='ffffff', shadowcolor=color) {
-	return `<h2 style='color: #${color}; text-shadow: 0 0 10px #${shadowcolor}'>${text}</h2>`
+	let shadow = `0 0 10px #${shadowcolor}`
+	if (!options.textShadowShown) shadow = "none"
+	return `<h2 style='color: #${color}; text-shadow: ${shadow}'>${text}</h2>`
 }
 
 function textStyle_h3(text, color='ffffff', shadowcolor=color) {
-	return `<h3 style='color: #${color}; text-shadow: 0 0 10px #${shadowcolor}'>${text}</h3>`
+	let shadow = `0 0 10px #${shadowcolor}`
+	if (!options.textShadowShown) shadow = "none"
+	return `<h3 style='color: #${color}; text-shadow: ${shadow}'>${text}</h3>`
 }
 
 function textStyle_h4(text, color='ffffff', shadowcolor=color) {
-	return `<h4 style='color: #${color}; text-shadow: 0 0 10px #${shadowcolor}'>${text}</h4>`
+	let shadow = `0 0 10px #${shadowcolor}`
+	if (!options.textShadowShown) shadow = "none"
+	return `<h4 style='color: #${color}; text-shadow: ${shadow}'>${text}</h4>`
 }
 
 function textStyle_b(text, color='ffffff', shadowcolor=color) {
-	return `<b style='color: #${color}; text-shadow: 0 0 10px #${shadowcolor}'>${text}</b>`
+	let shadow = `0 0 10px #${shadowcolor}`
+	if (!options.textShadowShown) shadow = "none"
+	return `<b style='color: #${color}; text-shadow: ${shadow}'>${text}</b>`
+}
+
+function textColor(text, color='ffffff') {
+	return `<span style='color: #${color}'>${text}</span>`
+}
+
+function textResourceStyle(text, type = 'b2', style = 'overlayThing') { //调用components.css
+	let shadow = ""
+	if (!options.textShadowShown) shadow = "style='text-shadow: none'"
+	return `<${type} class = "${style}" ${shadow} > ${text} </${type}>`
 }
