@@ -21,6 +21,11 @@ function constructNodeStyle(layer){
 	if(tmp[layer].notify && player[layer].unlocked)
 		style.push({'box-shadow': 'var(--hqProperty2a), 0 0 20px ' + tmp[layer].trueGlowColor})
 	style.push(tmp[layer].nodeStyle)
+	if(player.tab==layer){
+		style.push(tmp[layer].activeStyle)
+	}else if(player.hoverTab==layer){
+		style.push(tmp[layer].hoverStyle)
+	}
     return style
 }
 
@@ -76,7 +81,7 @@ function updateOomps(diff)
 	var pp = new ExpantaNum(player.points);
 	var lp = tmp.other.lastPoints || new ExpantaNum(0);
 	if (pp.gt(lp)) {
-		if (pp.gte("10^^8")) {
+		if (pp.gte("10^^20")) {
 			pp = pp.slog(1e10)
 			lp = lp.slog(1e10)
 			tmp.other.oomps = pp.sub(lp).div(diff)
