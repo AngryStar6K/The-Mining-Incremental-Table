@@ -13260,7 +13260,7 @@ addLayer("furnace", {
                 }
             },
         },
-        31: {
+        32: {
             title() {
                 let t = "银锭"
                 return t
