@@ -9438,7 +9438,8 @@ addLayer("gold", {
     },
 
     chainMult() {
-        let m = d(10)
+        let m = d(1)
+        if (hasUpgrade(gold, 13)) m = d(10)
         m = m.floor()
         return m
     },
