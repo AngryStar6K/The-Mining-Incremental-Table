@@ -9122,7 +9122,7 @@ addLayer("silver", {
             return 0
         },
         getUnlocked(id) { // Default
-            return hasCraftingItem(231)
+            return hasCraftingItem(312)
         },
         getCanClick(data, id) {
             return data == 1
