@@ -1,0 +1,174 @@
+/* 通用：文本、升级、购买项、点击项分类box*/
+.displayBox {
+  border-color: white;
+  position: relative;
+  background-color: rgba(0, 0, 0, 0);
+  min-height: 120px;
+}
+
+.wide480px {
+  width: 480px;
+}
+
+.wide600px {
+  width: 600px;
+}
+
+.wide720px {
+  width: 720px;
+}
+
+.background-overworld {
+  background: linear-gradient(to bottom, #6b99ff 40%, #548049 40%, #548049 41%, #5f452f 41%, #5f452f 44%, #4a4a4a 44%, #4a4a4a 71.5%, #252525 71.5%, #252525 99%, #0d0d0d 99%, #0d0d0d 100%);
+}
+
+.background-overworld::before {
+  content: "";
+  position: absolute;
+  top: 40%;
+  left: 75%;
+  width: 25%;
+  height: 4%;
+  background-color: #d6cf97
+}
+
+.automation-clickables {
+  min-height: 160px;
+  width: 210px;
+}
+
+/* 金层级：时钟页面 */
+/* 钟表外框 */
+.clock {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  position: relative;
+  background-color: var(--clockBg);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-clip: content-box;
+}
+
+.clockBg {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  position: relative;
+  right: 10px;
+  bottom: 10px;
+  background: linear-gradient(45deg, #b26411 0%, #fdf55f 10%, #fffde0 20%, #fdf55f 30%, #fdf55f 80%, #752802 100%);
+  z-index: -1;
+}
+
+/* 指针通用样式 */
+.hour-hand,
+.minute-hand,
+.second-hand {
+  position: absolute;
+  background: #333;
+  transform-origin: bottom center;
+  /* 旋转中心在底部 */
+}
+
+/* 时针 */
+.hour-hand {
+  width: 6px;
+  height: 60px;
+  top: 40px;
+  left: 97px;
+  transform: var(--hourDeg);
+}
+
+/* 分针 */
+.minute-hand {
+  width: 4px;
+  height: 80px;
+  top: 20px;
+  left: 98px;
+  transform: var(--minuteDeg);
+}
+
+/* 秒针 */
+.second-hand {
+  width: 2px;
+  height: 90px;
+  top: 10px;
+  left: 99px;
+  background-color: red;
+  transform: var(--secondDeg);
+}
+
+/* 红石层级：附魔光效 */
+@keyframes enchant-glow {
+  0% {
+    background-position: 0% 300%;
+    /* 动画起始位置 */
+  }
+
+  100% {
+    background-position: 300% 0%;
+    /* 动画结束位置 */
+  }
+}
+
+/* minecraft流体背景图，等比放大且有动态效果实现 （熔融红石） */
+@keyframes liquid-animation {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: 0 -5658px;
+  }
+}
+
+@keyframes molten-animation {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: 0 -3182px;
+  }
+
+}
+
+.fluid-pixels {
+  image-rendering: pixelated;
+  background-size: 100% auto;
+  background-repeat: no-repeat;
+}
+
+.bbmm {
+  background-blend-mode: multiply;
+}
+
+.liquid-animation {
+  animation: liquid-animation 3.2s steps(32) infinite alternate;
+}
+
+.molten-animation {
+  animation: molten-animation 1.8s steps(18) infinite alternate;
+}
+
+/* 红石琥珀金层级：文本样式 */
+.text-redstoneElectrum {
+  color: #fffcbc;
+  text-shadow: 0 0 10px #fc0000;
+}
+
+/* 拆解神秘花clickables */
+.mysticalFlowerClickables {
+  min-height: 60px;
+  width: 200px;
+  border-radius: 5px;
+  font-size: 15px;
+}
+
+  /* 魔力钢层级：文本样式 */
+  .text-manasteel {
+    background: linear-gradient(to bottom, #005ee0 0%, #7db4ff 20%, #006bff 80%, #0045a3 100%);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 10px #005ee0;
+  }

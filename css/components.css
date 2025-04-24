@@ -184,10 +184,3 @@
 	border: 2px solid;
 	border-color: rgba(0, 0, 0, 0.125);
 }
-
-.text-manasteel {
-	background: linear-gradient(to bottom, #005ee0 0%, #7db4ff 20%, #006bff 80%, #0045a3 100%);
-	-webkit-background-clip: text;
-	-webkit-text-fill-color: transparent;
-	text-shadow: 0 0 10px #005ee0;
-}

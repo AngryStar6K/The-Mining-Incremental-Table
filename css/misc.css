@@ -79,7 +79,7 @@
 
 /* Horizontal/vertical lines */
 .vl {
-	border-left: 5px solid #ffffff;
+	border-left: 5px solid var(--color);
 	height: 100%;
 	position: absolute;
 	left: calc(var(--tabWidth) - 3px);
@@ -88,25 +88,25 @@
 }
 
 .vl2 {
-	border-top: 5px solid #ffffff;
+	border-top: 5px solid var(--color);
     left: -0px;
-    width: calc(100%);
+    width: max(100%, 960px);
     border-left: none;
     position: absolute;
     z-index: -1;
 }
 
 .vl3 {
-	border-top: 3px solid #ffffff;
+	border-top: 3px solid var(--color);
     left: 0px;
-    width: calc(100%);
+    width: max(100%, 960px);
     border-left: none;
     position: absolute;
     margin-top: 52px;
 }
 
 .vlBlock {
-    width: calc(100% - 20px);
+    width: calc(max(100%, 960px) - 20px);
     height: 16px;
     margin-top: 75px;
     position: absolute;
@@ -137,5 +137,5 @@
     position: fixed;
     z-index: 9;
     pointer-events: none;
-    mix-blend-mode: difference;
+    /*mix-blend-mode: difference;*/
 }

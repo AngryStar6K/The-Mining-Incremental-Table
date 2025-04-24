@@ -379,18 +379,31 @@ function gameLoop(diff) {
 		if (layers[layer].milestones) updateMilestones(layer);
 		if (layers[layer].achievements) updateAchievements(layer)
 	}
-
 }
 
 function hardReset(resetOptions) {
-	if (prompt("输入“再见了，挖矿增量”进行硬重置") != "再见了，挖矿增量") return
+	let hardresetcomfirm = prompt("输入“永别了，挖矿增量”或者\"Farewell, Mining Incremental\"进行硬重置")
+	if (hardresetcomfirm != "再见了，挖矿增量" && hardresetcomfirm != "Farewell, Mining Incremental") return
 	player = null
 	if(resetOptions) options = null
 	save(true);
 	window.location.reload();
 }
 
+function gameSpeedCost() {
+	let cost = (player.gameSpeed - 1) ** 2
+	return cost
+}
+
 var ticking = false
+
+//帧数显示
+var pastTickTimes = []
+function updatePastTickTimes() {
+	pastTickTimes = [Date.now() - now].concat(pastTickTimes.slice(0, 9))
+}
+
+var diffout = 0
 
 var interval = setInterval(function() {
 	if (player===undefined||tmp===undefined) return;
@@ -400,16 +413,24 @@ var interval = setInterval(function() {
 	let now = Date.now()
 	let diff = (now - player.time) / 1e3
 	let trueDiff = diff
+	diffout = diff
+	diffout = Math.min(diffout, maxTickLength ? maxTickLength() : 3600)
 	if (player.offTime !== undefined) {
-		if (player.offTime.remain > modInfo.offlineLimit * 3600) player.offTime.remain = modInfo.offlineLimit * 3600
+		if (player.offTime.remain > tmp.offline_progress.offlineLimit * 3600) player.offTime.remain = tmp.offline_progress.offlineLimit * 3600
 		if (player.offTime.remain > 0) {
-			let offlineDiff = Math.max(player.offTime.remain / 10, diff)
-			player.offTime.remain -= offlineDiff
+			let offlineDiff = diff
+			offlineDiff *= player.gameSpeed - 1
+			let speedCost = diff * gameSpeedCost()
+			player.offTime.remain = Math.max((player.offTime.remain - speedCost), 0)
 			diff += offlineDiff
+			diffout += offlineDiff
 		}
-		if (!options.offlineProd || player.offTime.remain <= 0) player.offTime = undefined
+		else player.gameSpeed = 1
+		if (player.offTime.remain < 0) player.offTime.remain = Math.min(player.offTime.remain, -1),
+		diff = 0,
+		diffout = 0 //时间逆行惩罚
 	}
-	if (player.devSpeed) diff *= player.devSpeed
+	// if (player.devSpeed) diff *= Math.min(player.devSpeed, 1) 禁用devSpeed
 	player.time = now
 	if (needCanvasUpdate){ resizeCanvas();
 		needCanvasUpdate = false;
@@ -424,6 +445,7 @@ var interval = setInterval(function() {
 	adjustPopupTime(trueDiff)
 	updateParticles(trueDiff)
 	ticking = false
+	pastTickTimes = [Date.now() - now].concat(pastTickTimes.slice(0, 9))
 }, 50)
 
 setInterval(function() {needCanvasUpdate = true}, 500)

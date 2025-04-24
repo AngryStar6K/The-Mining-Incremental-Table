@@ -118,12 +118,42 @@ function textStyle_b(text, color='ffffff', shadowcolor=color) {
 	return `<b style='color: #${color}; text-shadow: ${shadow}'>${text}</b>`
 }
 
+
 function textColor(text, color='ffffff') {
 	return `<span style='color: #${color}'>${text}</span>`
 }
 
-function textResourceStyle(text, type = 'b2', style = 'overlayThing') { //调用components.css
+function textResourceStyle(text, style = 'overlayThing', type = 'h2') { //调用components.css
 	let shadow = ""
 	if (!options.textShadowShown) shadow = "style='text-shadow: none'"
-	return `<${type} class = "${style}" ${shadow} > ${text} </${type}>`
+	return `<${type} class = "${style}" ${shadow} >${text}</${type}>`
+}
+
+function sortExpantaNumArray(arr, order = "desc") {
+    // 确保输入是数组
+    if (!Array.isArray(arr)) {
+        throw new Error("输入必须是一个数组");
+    }
+
+    // 将数组中的元素统一转换为 ExpantaNum 类型
+    const expantaNumArray = arr.map(item => {
+        if (item instanceof ExpantaNum) {
+            return item;
+        } else if (typeof item === "number") {
+            return new ExpantaNum(item);
+        } else {
+            throw new Error("数组中的元素必须是 Number 或 ExpantaNum 类型");
+        }
+    });
+
+    // 根据排序顺序进行排序
+    return expantaNumArray.sort((a, b) => {
+        if (order === "asc") {
+            return a.cmp(b); // 升序：a 小于 b 返回负值
+        } else if (order === "desc") {
+            return b.cmp(a); // 降序：b 小于 a 返回负值
+        } else {
+            throw new Error("排序顺序必须是 'asc' 或 'desc'");
+        }
+    });
 }

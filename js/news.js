@@ -1,4 +1,4 @@
-var textlength = 57
+var textlength = 70
 var texts =
     [
         "欢迎来到挖矿增量！",
@@ -50,27 +50,67 @@ var texts =
         "此记数法最长的数字是JJJHHHGGGFFFeee100,000,000,000。哇是真的长",
         "1.000 OcNnScIc-SxSeScEnc-SxSeScOtc-SxSeScHpc-SxSeScHec-SxSeScPec-SxSeScTec-SxSeScTrc-SxSeScDuc-SxSeScMec-SxSeScVec-SxSeScXn-SxSeScYc-SxSeScZp-SxSeScAt-SxSeScFm-SxSeScPc-SxSeScNa-SxSeScMc-SxSeScMi-QtSeSc",
         "10<sup>10<sup>10<sup>10<sup>10<sup>10<sup>10<sup>10<sup>10<sup>10<sup>10</sup></sup></sup></sup></sup></sup></sup></sup></sup></sup>看看可以叠多高",
-        "<span style=\"color:#222;text-shadow: 1px 1px 2px #222, -1px -1px 2px #444, 0 0 24px #666\">\n 看不到我，嘿嘿！</span>",
+        "<span style=\"color:#222;text-shadow: 1px 1px 2px #222, -1px -1px 2px #444, 0 0 24px #666\">\n 看不到我，嘿嘿！（什么？你看到了？你是不是用其他主题了？好吧你赢了）</span>",
         "这条新闻你只能在2025年或者之后才能看见，因为这条新闻就是在2025年1月1日写的",
         "请输入新闻文本",
         "呼呼！你的GTNH机械跳电了！",
         "EnOtcOHtIka'-MePCnTeHNeDa'-HeHCnHHeYoDa'-HeHCnHHeZeDa'-HeHCnHHeExDa'-HeHCnHHePeDa'-HeHCnHHeTeDa'-HeHCnHHeTrDa'-HeHCnHHeDoka'-HeHCnHHeHna'-HeHCnHHeDka'-HeHCnHHeXea'-HeHCnHHeYta'-HeHCnHHeZta'-HeHCnHHeExa'-HeHCnHHePta'-HeHCnHHeTera'-HeHCnHHeGia'-HeHCnHHeMga'-HeHCnHHeKla'-HeHCnHHe",
         "log对应^，slog对应^^，那么什么对应^^^？",
         "请说出接下来的词的颜色         <span style=\"color:red\">绿色</span> <span style=\"color:yellow\">红色</span> <span style=\"color:magenta\">灰色</span> <span style=\"color:cyan\">紫色</span> <span style=\"color:grey\">黄色</span> <span style=\"color:pink\">橙色</span>",
-        "葛立恒函数的增长率是ω+1，TREE函数的增长率是φ(ω@ω)。天差地别，不要拿葛立恒函数嵌套来碰瓷TREE函数。"
+        "葛立恒函数的增长率是ω+1，TREE函数的增长率是φ(ω@ω)。天差地别，不要拿葛立恒函数嵌套来碰瓷TREE函数。",
+        "所以说挖矿增量能不能到K9.0000e15？",
+        "<span onclick=\"player.tab = 'statistics'\" style=\"color:#0080ff\">点此</span>查看你的统计数据，但是你可以直接在左侧层级栏点击“统计数据”",
+        "<a href=\"https://www.bilibili.com/video/BV1GJ411x7h7\" target=\"_blank\" style=\"color:#0080ff\" onclick=\"player.achievements.SA6 = true; window.open(this.href, '_blank'); return false;\">点此</a>到达挖矿增量版本终点", //60
+        "那我问你",
+        "I块！没有你我怎么活啊！(Game Over)",
+        "<span style=\"color:#31b282\">I</span> <span style=\"color:#5239ce\">J</span> <span style=\"color:#b46432\">L</span> <span style=\"color:#b39931\">O</span> <span style=\"color:#83b332\">S</span> <span style=\"color:#a43d9a\">T</span> <span style=\"color:#b3333a\">Z</span>",
+        "Unfamilar item: 你需要达成一定的进度才能解锁这个物品。说的就是你，黑曜石！水和熔岩接触时会生成黑曜石，但是解锁水和熔岩就获得黑曜石就是跳科技了！",
+        "一组=64、一（潜影）盒=1728、一箱盒=46656、一大箱盒=93312。生电玩家的单位 “才几个大箱盒啊，根本不够用”",
+        "——————————袭击——————————",
+        "突击检查！你的同伴符文还在吗？",
+        "加纳",
+        "<span style=\"color:#a43d9a\">T-SPIN</span> DOUBLE &emsp;&emsp; <span style=\"color:#a43d9a\">T-SPIN</span> DOUBLE &emsp;&emsp; QUAD &emsp;&emsp; <span style=\"color:#b3333a\">MINI Z-SPIN</span> SINGLE &emsp;&emsp; B2B x 3",
+        "你还在这里吗？",
     ]
 var nt = ""
 var ntl = 0
 var p = 50 + document.body.clientWidth
 var l = -50
-var newsTimer = setInterval(function () {
+/*var newsTimer = setInterval(function () {
     if (player.tab == 'info-tab' || player.tab == 'changelog-tab' || player.tab == 'options-tab') return;
-    p -= 1.5
+    p -= 7.5
     if (p <= l || nt == "") {
         nt = texts[Math.floor(Math.random() * texts.length)]
+        //nt = texts[62]
+        //测试用
         newsText.style.width = (newsText.innerText.length * 16).toString() + "px"
         l = -50 - (nt.length * 16)
         p = 50 + document.body.clientWidth
     }
     ntl = p.toFixed(1)
-}, 10)
+}, 50)*/
+var lastTime = performance.now();
+var invl = 50; // 目标间隔时间（毫秒）
+
+function updateNews() {
+    var currentTime = performance.now();
+    var deltaTime = currentTime - lastTime;
+
+    if (deltaTime >= invl) {
+        lastTime = currentTime - (deltaTime % invl); // 修正时间偏差
+
+        if (player.tab == 'info-tab' || player.tab == 'changelog-tab' || player.tab == 'options-tab') return;
+        p -= 7.5;
+        if (p <= l || nt == "") {
+            nt = texts[Math.floor(Math.random() * texts.length)];
+            newsText.style.width = (newsText.innerText.length * 16).toString() + "px";
+            l = -50 - (nt.length * 16);
+            p = 50 + document.body.clientWidth;
+        }
+        ntl = p.toFixed(1);
+    }
+
+    requestAnimationFrame(updateNews);
+}
+
+requestAnimationFrame(updateNews);

@@ -169,6 +169,8 @@ function fixData(defaultData, newData) {
 			if (newData[item] === undefined)
 				newData[item] = defaultData[item];
 
+			else if (Array.isArray(newData[item])) //专门给额外升级卡做的，所以为什么grid的getStartData和当前data类型不一致不行哼哼哼啊啊啊啊 2025.4.1
+				newData[item][0] = new ExpantaNum(newData[item][0]);
 			else
 				newData[item] = new ExpantaNum(newData[item]);
 		}
@@ -300,6 +302,7 @@ function exportSave() {
 function importSave(imported = undefined, forced = false) {
 	if (imported === undefined)
 		imported = prompt("Paste your save here");
+	if (imported == '哼哼哼，啊啊啊啊啊啊啊啊') player.homo = true
 	try {
 		tempPlr = Object.assign(getStartPlayer(), JSON.parse(LZString.decompressFromBase64(imported)));
 		if (tempPlr.versionType != modInfo.id && !forced && !confirm("This save appears to be for a different mod! Are you sure you want to import?")) // Wrong save (use "Forced" to force it to accept.)

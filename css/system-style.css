@@ -272,14 +272,13 @@ button > * {
 }
 
 .news { /*滚动新闻*/
-    color: #ffffff;
-    width: 720px;
-    left: 5%;
+    color: var(--color);
+    width: 960px;
     top: 4px;
     bottom: 4px;
     height: 15px;
     position: relative;
-    border: 2px solid #cccccc;
+    border: 2px solid var(--color);
     border-radius: 6px;
     background-color: rgba(0,0,0,0);
     padding-top: 4px;

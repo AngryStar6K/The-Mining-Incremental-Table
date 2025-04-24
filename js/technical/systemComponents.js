@@ -1,13 +1,13 @@
-function getActiveClass(layer){
-	if(layer=='info-tab'){layer = 'Information'}
-	if(layer=='options-tab'){layer = 'Setting'}
-	if(layer=='changelog-tab'){layer = 'Changelog'}
+function getActiveClass(layer) {
+	if (layer == 'info-tab') { layer = 'Information' }
+	if (layer == 'options-tab') { layer = 'Setting' }
+	if (layer == 'changelog-tab') { layer = 'Changelog' }
 	$("button").removeClass("active");
-	$('#'+layer).addClass('active')
+	$('#' + layer).addClass('active')
 }
 
-function geti18n(){
-	return options.ch || modInfo.languageMod==false
+function geti18n() {
+	return options.ch || modInfo.languageMod == false
 }
 
 var systemComponents = {
@@ -72,6 +72,8 @@ var systemComponents = {
 				else {run(layers[layer].onClick, layers[layer])}
 
 				getActiveClass(layer)
+
+				updateNews()
 			}"
 
 
@@ -98,7 +100,7 @@ var systemComponents = {
 		</button>
 		`
 	},
-	
+
 	'layer-tab': {
 		props: ['layer', 'back', 'spacing', 'embedded'],
 		template: `<div v-bind:style="[tmp[layer].style ? tmp[layer].style : {}, (tmp[layer].tabFormat && !Array.isArray(tmp[layer].tabFormat)) ? tmp[layer].tabFormat[player.subtabs[layer].mainTabs].style : {}]">
@@ -137,10 +139,10 @@ var systemComponents = {
 	'overlay-head': {
 		template: `
 		`
-    },
+	},
 
-    'info-tab': {
-        template: `
+	'info-tab': {
+		template: `
         <div><br><br><br>
         <h1>{{geti18n()?modInfo.name:modInfo.nameI18N}}</h1>
         <br><br><br>
@@ -200,11 +202,14 @@ var systemComponents = {
 			<a class="link" href="https://discord.gg/F3xveHV" target="_blank">{{ geti18n()?"点击跳转":"Click Here" }}</a><br>
 			<h6 style="color:#aaa">({{ geti18n()?"就是这些":"That\'s all" }})</h6>
 		</div>
+		<br><br><br><br>
+		<h2>快捷键：</h2><br>
+        <span v-for="key in hotkeys" v-if="player[key.layer].unlocked && tmp[key.layer].hotkeys[key.id].unlocked"><br>{{key.description}}</span></div>
     `
-    },
+	},
 
-    'options-tab': {
-        template: ` 
+	'options-tab': {
+		template: ` 
         <table><br><br><br><br><br><br>
             <tr>
 				<td><h1>{{geti18n()?'存档':'Save'}}&nbsp;&nbsp;&nbsp;</h1></td>
@@ -226,7 +231,12 @@ var systemComponents = {
 			    <td><button class="opt" onclick="toggleOpt('cursive')">{{geti18n()?'全页面草书字体':'Cursive Font'}}: {{ options.cursive?(geti18n()?"已开启":"ON"):(geti18n()?"已关闭":"OFF") }}<br><h6>{{geti18n()?"(注: 字体会根据你的浏览器的默认字体而改变, 对于不同浏览器可能会有不同效果, 对于部分浏览器可能无效)":"(Note: The font will change according to your browser's default font. Effects may vary across different browsers, and may not work in some browsers)"}}</h6></button></td>
 				<td><button class="opt" onclick="switchTextShadowShown()">{{geti18n()?'显示文本阴影':'Show Text Shadow'}}: {{options.textShadowShown?(geti18n()?"是":"ON"):(geti18n()?"否":"OFF")}}</button></td>
 				<td><button class="opt" onclick="switchDefaultUpgSize();upgSizeSetting()">{{geti18n()?'升级按钮默认大小':'Default Upgrade Size'}}: {{options.biggerUpgs?"150px":"120px"}}<br><h6>{{geti18n()?"(注: 原版TMT升级大小为120px，为了显示不突兀，提供150px的选项。但部分升级不适用)":"(Placeholder)"}}</h6></button></td>
-				</tr> <br>
+			</tr><br>
+			<tr>
+				<td><h1>{{''}}&nbsp;&nbsp;&nbsp;</h1></td>
+				<td><button class="opt" onclick="changeNotation()">{{geti18n()?'记数法(暂时不可用)':'Notation'}}: {{notationsZH[notations.indexOf(options.notation)]}}</button></td>
+				<td><button class="opt" onclick="switchTheme()">主题: {{ getThemeName() }}<br><h6>(注：部分主题可能会导致一些资源文字难以看清)</br></button></td>
+				</tr><br>
 			<tr>
 				<td><button class="opt" v-if="modInfo.otherLanguageMod==true" onclick="
                 options.ch=!options.ch;
@@ -236,23 +246,23 @@ var systemComponents = {
                 ">{{geti18n()?'语言':'Language'}}: {{ geti18n()?"中文(Chinese)":"英文(English)" }}</button></td>
 			</tr>
         </table>`
-    },
+	},
 
-    'back-button': {
-        template: `
+	'back-button': {
+		template: `
         <button v-bind:class="back" onclick="goBack()">←</button>
         `
-    },
+	},
 
 
-	'tooltip' : {
+	'tooltip': {
 		props: ['text'],
 		template: `<div class="tooltip" v-html="text"></div>
 		`
 	},
 
 	'node-mark': {
-		props: {'layer': {}, data: {}, offset: {default: 0}, scale: {default: 1}},
+		props: { 'layer': {}, data: {}, offset: { default: 0 }, scale: { default: 1 } },
 		template: `<div v-if='data'>
 			<div v-if='data === true' class='star' v-bind:style='{position: "absolute", left: (offset-10) + "px", top: (offset-10) + "px", transform: "scale( " + scale||1 + ", " + scale||1 + ")"}'></div>
 			<img v-else class='mark' v-bind:style='{position: "absolute", left: (offset-22) + "px", top: (offset-15) + "px", transform: "scale( " + scale||1 + ", " + scale||1 + ")"}' v-bind:src="data"></div>

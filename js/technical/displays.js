@@ -37,7 +37,7 @@ function challengeStyle(layer, id) {
 }
 
 function challengeButtonText(layer, id) {
-    return (player[layer].activeChallenge==(id)?(canCompleteChallenge(layer, id)?"Finish":"Exit Early"):(hasChallenge(layer, id)?"Completed":"Start"))
+    return (player[layer].activeChallenge==(id)?(canCompleteChallenge(layer, id)?"完成挑战":"提前退出"):(hasChallenge(layer, id)?"已完成":"开始"))
 
 }
 
