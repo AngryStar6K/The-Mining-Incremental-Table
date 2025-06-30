@@ -15961,7 +15961,7 @@ addLayer("crafting_table", {
                 需要材料：1黄铜齿轮 + 200石头 + 200木头<br>
                 复杂度：${formatWhole(this.complexity)}<br>
                 倍率：${fw(this.mult())}<br>
-                数量：${fw(player[ct].items[282])} ${hasUpgrade(steel, 11) ? `(${fw(this.mult())}/s)` : ""}<br>
+                数量：${fw(player[ct].items[281])} ${hasUpgrade(steel, 11) ? `(${fw(this.mult())}/s)` : ""}<br>
                 效果：需要合成应力表后才可发挥用途`
                 return d
             },
