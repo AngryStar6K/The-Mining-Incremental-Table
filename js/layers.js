@@ -15933,11 +15933,14 @@ addLayer("crafting_table", {
                 if (hasUpgrade(brass, 24)) m = player.brass.points.max(1).pow(0.3).floor()
                 return m
             },
-            canClick() { return player.crafting_table.points.gte(1) && player.brass.points.gte(d(4).times(this.mult())) && !player.crafting_table.crafting && hasCraftingItem(271) && hasCraftingItem(181) },
+            effectiveMult() {
+                return this.mult().min(player.brass.points.div(4).floor())
+            },
+            canClick() { return player.crafting_table.points.gte(1) && player.brass.points.gte(d(4)) && !player.crafting_table.crafting && hasCraftingItem(271) && hasCraftingItem(181) },
             onClick() {
                 player.crafting_table.crafting = true,
                     player.crafting_table.craftingItem = this.id,
-                    player.brass.points = player.brass.points.sub(d(4).times(this.mult()))
+                    player.brass.points = player.brass.points.sub(d(4).times(this.effectiveMult()))
             },
             unlocked() { return hasUpgrade(ct, 112) },
             style() {
