@@ -290,7 +290,15 @@ function loadVue() {
 		data() { return { interval: false, time: 0,}},				
 		methods: {
 			start() {
-				if (!this.interval) {
+				if (!this.interval && layers[this.layer].buyables[this.data].holdBuy_diff && layers[this.layer].buyables[this.data].enableHoldBuy_diff()) {
+					this.interval = setInterval((function() {
+						let b = layers[this.layer].buyables[this.data]
+						if(this.time >= 5 && b.canAfford) {
+							run(b.holdBuy_diff, b)
+						}	
+						this.time = this.time+(diffout/0.02/player.gameSpeed)
+					}).bind(this), options.updatingRate)}
+				else if (!this.interval) {
 					this.interval = setInterval((function() {
 						if(this.time >= 5)
 							buyBuyable(this.layer, this.data)
@@ -298,6 +306,7 @@ function loadVue() {
 					}).bind(this), 20)}
 			},
 			stop() {
+				if (layers[this.layer].buyables[this.data].holdBuy_stop) run(layers[this.layer].buyables[this.data].holdBuy_stop, layers[this.layer].buyables[this.data])
 				clearInterval(this.interval)
 				this.interval = false
 			  	this.time = 0
@@ -357,6 +366,14 @@ function loadVue() {
 						}	
 						this.time = this.time+1
 					}).bind(this), 25)}
+				else if (!this.interval && layers[this.layer].clickables[this.data].onHold_diff) {
+					this.interval = setInterval((function() {
+						let c = layers[this.layer].clickables[this.data]
+						if(this.time >= 5 && run(c.canClick, c)) {
+							run(c.onHold_diff, c)
+						}	
+						this.time = this.time+options.updatingRate/25
+					}).bind(this), options.updatingRate)}
 			},
 			stop() {
 				clearInterval(this.interval)
@@ -609,6 +626,7 @@ function loadVue() {
 	Vue.component('tooltip', systemComponents['tooltip'])
 	Vue.component('particle', systemComponents['particle'])
 	Vue.component('bg', systemComponents['bg'])
+	Modal.load()
 
 
 	app = new Vue({
@@ -659,8 +677,58 @@ function loadVue() {
 			ctrlDown,
 			run,
 			gridRun,
-			
-            getPointsDisplay
+            getPointsDisplay,
+			Modal,
 		},
 	})
 }
+
+const Modal = {
+	load() {
+		Vue.component('modal', {
+			data: () => {
+				return {
+					Modal
+				};
+			},
+			template: `<div class="modal" v-if="Modal.showing" style='Modal.data.style' v-bind:style='[{"border-color": Modal.data.color}]'>
+				<div class="modal-top" v-bind:style='[{"border-color": Modal.data.color}]'>
+					<span v-html="Modal.data.title()" style="padding-left: 7px; font-size: 20px"></span>
+				</div>
+				<div v-if="Modal.data.bind" :is="Modal.data.bind" :data="Modal.data.bindData"></div>
+				<div v-html="Modal.data.text()" style="text-align: left; padding: 10px"></div>
+				<div style="position: absolute; bottom: 120px; left: 50%; width:100%; transform: translateX(-50%); text-align: center">
+					<button class='modalButton' v-for="(btn,i) in Modal.data.buttons" @click="btn.onClick" style="min-width: 5px; margin: 0 5px" v-bind:style='[{"border-color": Modal.data.color,"opacity": btn.unlocked()? "1":"0","visibility": btn.unlocked()? "visible":"hidden"}]'>{{btn.text}}</button>
+				</div>
+				<div v-bind:style='[{"border-color": Modal.data.color}]' style="border: 2px solid white;border-radius:5px; height: 25px; position: absolute; bottom: 10px; left: 44%; width: 100px; font-size:20px; padding:10px"
+					onclick="Modal.closeFunc()">确定
+				</div>
+			</div>`
+		});
+	},
+	show({title, text="", bind="",color="white", bindData={}, style={}, buttons=[], close=function () {Modal.close();}}) {
+		Modal.data.title = title;
+		Modal.data.color = color;
+		Modal.data.text = text;
+		Modal.data.bind = bind;
+		Modal.data.bindData = bindData;
+		Modal.data.buttons = buttons;
+		Modal.data.style = style;
+		Modal.closeFunc = close;
+		Modal.showing = true;
+	},
+	close() {
+		Modal.showing = false;
+	},
+	closeFunc() {
+		Modal.close();
+	},
+	showing: false,
+	data: {
+		title: "",
+		text: "",
+		bind: "",
+		buttons: [],
+		style: {}
+	}
+};

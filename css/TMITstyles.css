@@ -37,6 +37,31 @@
   width: 210px;
 }
 
+.showStoryButton {
+  border-radius: 100%;
+  font-size: 24px;
+  width: 100px;
+  min-height: 100px;
+  background-color: #fcfdf5;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.modalButton {
+  background-color: transparent;
+  color: #fff;
+  font-size: 25px;
+  font-family: var(--font);
+  padding: 8px 20px;
+  padding-bottom: 18px;
+  margin: 5px;
+  border: 3px solid;
+  border-radius: 5px;
+  transition: 0.4s;
+  transform: translateY(10px);
+  cursor: pointer;
+}
+
 /* 金层级：时钟页面 */
 /* 钟表外框 */
 .clock {
@@ -111,7 +136,7 @@
   }
 }
 
-/* minecraft流体背景图，等比放大且有动态效果实现 （熔融红石） */
+/* minecraft流体背景图，等比放大且有动态效果实现 （熔融红石） 但是貌似有问题*/
 @keyframes liquid-animation {
   from {
     background-position: 0 0;
@@ -165,10 +190,45 @@
   font-size: 15px;
 }
 
-  /* 魔力钢层级：文本样式 */
-  .text-manasteel {
-    background: linear-gradient(to bottom, #005ee0 0%, #7db4ff 20%, #006bff 80%, #0045a3 100%);
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 10px #005ee0;
-  }
+/* 魔力钢层级：文本样式 */
+.text-manasteel {
+  background: linear-gradient(to bottom, #005ee0 0%, #7db4ff 20%, #006bff 80%, #0045a3 100%);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #005ee0;
+}
+
+.text-platinum {
+  background: linear-gradient(to bottom, #62d1f3 0%, #c8fbff 30%, #ffffff 50%, #aae3ff 80%, #476fbe 100%);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #c8fbff;
+}
+
+.text-terrasteel {
+  background: linear-gradient(to bottom, #2f8300 0%, #9fff57 15%, #53f900 80%, #39bc00 90%, #277c00 100%);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #53f900;
+}
+
+.platinum45deg {
+  background: linear-gradient(45deg, #62d1f3 0%, #c8fbff 30%, #ffffff 50%, #aae3ff 80%, #476fbe 100%);
+}
+
+.upg.obsidian.can {
+  color: white
+}
+
+.enemyClickables {
+  line-height: 60%;
+  min-height: 150px;
+  width: 200px;
+  border-radius: 5px;
+}
+
+.attackClickables {
+  min-height: 150px;
+  width: 200px;
+  border-radius: 5px;
+}

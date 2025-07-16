@@ -20,7 +20,7 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.6",
+	num: "0.7",
 	name: "",
 }
 
@@ -28,6 +28,18 @@ function changelog() {
 	return (options.ch || modInfo.languageMod == false) ? `
 		<br><br><br><h1>更新日志:</h1><br>(含有<span style='color: red'>剧透</span>，请谨慎查看)<br><br>
 		<span style="font-size: 17px;">
+			<h3>v0.7 - 珍贵的宝石、知识的迸发</h3><br>
+				- 版本终点：获得1泰拉钢锭，约e1.000e7,800经验<br>
+				- 成就总数：113 + 8<br>
+				- 添加世界1层级：铂、钻石、黑曜石、绿宝石、知识精华<br>
+				- 添加世界2层级：泰拉钢<br>
+				- 添加杂项层级：故事<br>
+				- 添加2个显示设置项：更新频率、滚动新闻（可显示或隐藏）<br>
+				- 优化、更正游戏文本<br>
+				- 低TPS在进行限时挑战时会基于TPS进行批量购买平衡，以保证一秒能够升50级<br>
+				- 修复因为数字库改为ExpantaNum.js而导致经验下方(xxx OoM/s, xxx OoM^2/s... etc)显示有差距的问题，并且现在10OoM/s就能变为显示数量级<br>
+				- 不同的滚动新闻数量：73<br>
+				<br><br>
 			<h3>v0.6 - 能源与魔法</h3><br>
 				- 版本终点：获得1魔力钢锭，约e5.8000e21经验<br>
 				- 成就总数：96 + 6<br>
@@ -157,7 +169,9 @@ function addedPlayerData() {
 		notationTest: d(0),
 		homo: false,
 		console: false,
-	}
+		StevesLavaChicken: d(0),
+		random: -1, //每秒刷新随机数0~10000. //熔岩烤鸡使用0~30 概率0.3%
+		}
 }
 
 // Display extra things at the top of the page
@@ -210,12 +224,12 @@ function displayThingsRes() {
 	d = '<div class="res">'+ d +'</div>'
 	r += d
 
-	return r
+	return options.newsShown ? r : d
 }
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.manasteel.points.gte(1)
+	return player.terrasteel.points.gte(1)
 }
 
 var date = {
@@ -249,11 +263,11 @@ function getTpsDisplay() {
 	let p1 = ""
 	let p2 = ""
 	let warn = ""
-	if (mspt > 50) {
-		let slow = (20 - tps) / 20
+	if (mspt > options.updatingRate) {
+		let slow = mspt / options.updatingRate - 1
 		p1 = "<bdi style='color: #cc0000'>"
 		p2 = "</bdi> "
-		warn = `<br>警告：TPS小于20，你的游戏速度比预期慢了${fp(slow)}！`
+		warn = `<br>提醒：你的过去的10游戏刻相比于设定的帧刷新率平均偏长了${fp(slow)}！`
 	}
 
 	let display = "TPS: " + p1 + f(tps) + p2 + ", " + "MSPT: " + p1 + f(mspt) + p2 + warn
@@ -280,9 +294,10 @@ function getPointsDisplay() {
 			a += `<br><span class="overlayThing">(` + (tmp.other.oompsMag != 0 ? format(tmp.other.oomps) + " OoM" + (tmp.other.oompsMag < 0 ? "^^2" : tmp.other.oompsMag > 1 ? "^" + tmp.other.oompsMag : "") + "s" : formatSmall(getPointGen())) + `/sec)</span>`
 		}
 		a += `<br><span class="overlayThing">等级<h2  class="overlayThing" id="points" ${noShadow}> ${formatWhole(player.level)}</h2></span>`
-		if (player.points.lt('ee12')) a += `<br><span class="overlayThing">${format(player.points)}/${format(nextLevelReq())}</span>`
+		if (player.points.lt('ee12') && !tmp.experience.layerShown) a += `<br><span class="overlayThing">${format(player.points)}/${format(nextLevelReq())}</span>`
 		if (hasAchievement('achievements', 123)) a += `<br><span class="overlayThing">二阶等级<h2  class="overlayThing" id="points" ${noShadow}> ${formatWhole(player.tiers[0])}</h2></span>`,
 			a += `<br><span class="overlayThing">${format(player.level)}/${format(nextTiersReq(1))}</span>`
+			if (player.points.gte('e1.7976e308') && player.experience.crystal.lte(0)) a += `<br><br><span class="overlayThing">我不会让你走得更远了</span>`
 		a += `<div style="margin-top: 3px"></div>`
 	}
 	a += '<br><div class="vl2"></div>'

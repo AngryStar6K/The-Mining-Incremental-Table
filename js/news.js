@@ -1,4 +1,4 @@
-var textlength = 70
+var textlength = 73
 var texts =
     [
         "欢迎来到挖矿增量！",
@@ -60,7 +60,7 @@ var texts =
         "葛立恒函数的增长率是ω+1，TREE函数的增长率是φ(ω@ω)。天差地别，不要拿葛立恒函数嵌套来碰瓷TREE函数。",
         "所以说挖矿增量能不能到K9.0000e15？",
         "<span onclick=\"player.tab = 'statistics'\" style=\"color:#0080ff\">点此</span>查看你的统计数据，但是你可以直接在左侧层级栏点击“统计数据”",
-        "<a href=\"https://www.bilibili.com/video/BV1GJ411x7h7\" target=\"_blank\" style=\"color:#0080ff\" onclick=\"player.achievements.SA6 = true; window.open(this.href, '_blank'); return false;\">点此</a>到达挖矿增量版本终点", //60
+        "<a href=\"https://www.bilibili.com/video/BV1GJ411x7h7\" target=\"_blank\" style=\"color:#0080ff;text-decoration:underline\" onclick=\"player.achievements.SA6 = true; window.open(this.href, '_blank'); return false;\">点此</a>到达挖矿增量版本终点", //60
         "那我问你",
         "I块！没有你我怎么活啊！(Game Over)",
         "<span style=\"color:#31b282\">I</span> <span style=\"color:#5239ce\">J</span> <span style=\"color:#b46432\">L</span> <span style=\"color:#b39931\">O</span> <span style=\"color:#83b332\">S</span> <span style=\"color:#a43d9a\">T</span> <span style=\"color:#b3333a\">Z</span>",
@@ -71,6 +71,9 @@ var texts =
         "加纳",
         "<span style=\"color:#a43d9a\">T-SPIN</span> DOUBLE &emsp;&emsp; <span style=\"color:#a43d9a\">T-SPIN</span> DOUBLE &emsp;&emsp; QUAD &emsp;&emsp; <span style=\"color:#b3333a\">MINI Z-SPIN</span> SINGLE &emsp;&emsp; B2B x 3",
         "你还在这里吗？",
+        "FLOOR 1 HALL OF BEGINNINGS, FLOOR 2 THE HOTEL, FLOOR 3 THE CASINO, FLOOR 4 THE ARENA, FLOOR 5 THE MUSEUM, FLOOR 6 ABANDONED OFFICES, FLOOR 7 THE LABORATORY, FLOOR 8 THE CORE, FLOOR 9 CORRUPTED, FLOOR 10 PLATFORM OF GODS",
+        "!!!!",
+        "<a href=\"https://angrystar6k.github.io/The-Mario-Maker-2-Tree\" target=\"_blank\" style=\"color:#0080ff;text-decoration:underline\" onclick=\"; window.open(this.href, '_blank'); return false;\">点此</a>游玩作者的另一个增量游戏作品：The Mario Maker 2 Tree",
     ]
 var nt = ""
 var ntl = 0

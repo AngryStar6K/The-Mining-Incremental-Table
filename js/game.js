@@ -405,6 +405,9 @@ function updatePastTickTimes() {
 
 var diffout = 0
 
+var startIntervalDelay = 0
+var startIntervalDelayCap = 1
+
 var interval = setInterval(function() {
 	if (player===undefined||tmp===undefined) return;
 	if (ticking) return;
@@ -446,6 +449,57 @@ var interval = setInterval(function() {
 	updateParticles(trueDiff)
 	ticking = false
 	pastTickTimes = [Date.now() - now].concat(pastTickTimes.slice(0, 9))
-}, 50)
+
+	startIntervalDelay = startIntervalDelay + diff
+	if (startIntervalDelay >= startIntervalDelayCap) {
+		startInterval();
+	}
+
+}, options.updatingRate || 50)
+
+function startInterval() {
+	if (interval) clearInterval(interval)
+	interval = setInterval(function() {
+		if (player===undefined||tmp===undefined) return;
+		if (ticking) return;
+		if (tmp.gameEnded&&!player.keepGoing) return;
+		ticking = true
+		let now = Date.now()
+		let diff = (now - player.time) / 1e3
+		let trueDiff = diff
+		diffout = diff
+		diffout = Math.min(diffout, maxTickLength ? maxTickLength() : 3600)
+		if (player.offTime !== undefined) {
+			if (player.offTime.remain > tmp.offline_progress.offlineLimit * 3600) player.offTime.remain = tmp.offline_progress.offlineLimit * 3600
+			if (player.offTime.remain > 0) {
+				let offlineDiff = diff
+				offlineDiff *= player.gameSpeed - 1
+				let speedCost = diff * gameSpeedCost()
+				player.offTime.remain = Math.max((player.offTime.remain - speedCost), 0)
+				diff += offlineDiff
+				diffout += offlineDiff
+			}
+			else player.gameSpeed = 1
+			if (player.offTime.remain < 0) player.offTime.remain = Math.min(player.offTime.remain, -1),
+			diff = 0,
+			diffout = 0 //时间逆行惩罚
+		}
+		player.time = now
+		if (needCanvasUpdate){ resizeCanvas();
+			needCanvasUpdate = false;
+		}
+		tmp.scrolled = document.getElementById('treeTab') && document.getElementById('treeTab').scrollTop > 30
+		updateTemp();
+		updateOomps(diff);
+		updateWidth()
+		updateTabFormats()
+		gameLoop(diff)
+		fixNaNs()
+		adjustPopupTime(trueDiff)
+		updateParticles(trueDiff)
+		ticking = false
+		pastTickTimes = [Date.now() - now].concat(pastTickTimes.slice(0, 9))
+	}, options.updatingRate || 50)
+}
 
 setInterval(function() {needCanvasUpdate = true}, 500)

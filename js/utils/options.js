@@ -21,6 +21,8 @@ function getStartOptions() {
 		cursive: false,
 		biggerUpgs: false,
 		notation: 'Scientific',
+		updatingRate: 50,
+		newsShown: true,
 	}
 }
 
@@ -29,10 +31,10 @@ function toggleOpt(name) {
 		return;
 
 	options[name] = !options[name];
-	if(name == 'mouse'){
+	if (name == 'mouse') {
 		mouseSetting()
 	}
-	if(name == 'cursive'){
+	if (name == 'cursive') {
 		cursiveSetting()
 	}
 	if (name == "hqTree")
@@ -49,11 +51,11 @@ function updateStyle() {
 	css.href = options.oldStyle ? "oldStyle.css" : "style.css";
 	needCanvasUpdate = true;
 }
-function cursiveSetting(){
+function cursiveSetting() {
 	let on = options.cursive
 	document.body.style.setProperty('--font', on ? 'cursive, "bahnschrift", "Inconsolata", monospace' : '"bahnschrift", "Inconsolata", monospace');
 }
-function upgSizeSetting(){
+function upgSizeSetting() {
 	let on = options.biggerUpgs
 	document.body.style.setProperty('--upgheight', on ? '150px' : '120px');
 	document.body.style.setProperty('--upgwidth', on ? '150px' : '120px');
@@ -67,7 +69,7 @@ function changeTreeQuality() {
 }
 function toggleAuto(toggle) {
 	Vue.set(player[toggle[0]], [toggle[1]], !player[toggle[0]][toggle[1]]);
-	needCanvasUpdate=true
+	needCanvasUpdate = true
 }
 
 const MS_DISPLAYS = ["所有", "最后一个, 自动化, 未完成", "自动化, 未完成", "未完成", "无"];
@@ -102,37 +104,37 @@ function milestoneShown(layer, id) {
 	return false;
 }
 
-function mouseSetting(){
-	if(options.mouse==true){
-		document.oncontextmenu = function(event){
+function mouseSetting() {
+	if (options.mouse == true) {
+		document.oncontextmenu = function (event) {
 			event.preventDefault()
 		}
-	
-		if(document.all){
-			document.onselectstart = function(){
+
+		if (document.all) {
+			document.onselectstart = function () {
 				return false
 			}
-		}else{
-			document.onmousedown = function(){
+		} else {
+			document.onmousedown = function () {
 				return false
 			}
-			document.onmouseup = function(){
+			document.onmouseup = function () {
 				return true
 			}
 		}
-	}else{
-		document.oncontextmenu = function(event){
+	} else {
+		document.oncontextmenu = function (event) {
 		}
-	
-		if(document.all){
-			document.onselectstart = function(){
+
+		if (document.all) {
+			document.onselectstart = function () {
 				return true
 			}
-		}else{
-			document.onmousedown = function(){
+		} else {
+			document.onmousedown = function () {
 				return true
 			}
-			document.onmouseup = function(){
+			document.onmouseup = function () {
 				return false
 			}
 		}
@@ -151,4 +153,15 @@ var notations = ['Scientific', 'Hyper-E', 'Letter', 'Emoji'] //想在ExpantaNum.
 var notationsZH = ['科学(FGH-JK)', '超-E', '字母', 'Emoji']
 function changeNotation() {//记数法没有修好
 	//options.notation = notations[(notations.indexOf(options.notation) + 1) % notations.length]
+}
+
+function setUpdatingRate() {
+	let rate = prompt("请输入更新频率（下限50 上限200 单位毫秒）")
+	rate = Number(rate)
+	if (!isNaN(rate)) options.updatingRate = Math.max(50, Math.min(200, Math.round(rate)))
+	startInterval()
+}
+
+function newsSetting() {
+	options.newsShown = !options.newsShown
 }

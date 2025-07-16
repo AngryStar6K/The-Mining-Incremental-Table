@@ -184,3 +184,29 @@
 	border: 2px solid;
 	border-color: rgba(0, 0, 0, 0.125);
 }
+
+.modal {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	height: 600px;
+	width: 1024px;
+	z-index: 30002;
+	background-color: var(--background);
+	border: 2px solid white;
+	border-radius: 10px;
+}
+.modal-top {
+	text-align: left;
+	font-size: 30px;
+	height: 40px;
+	width: 100%;
+	border-bottom: 2px solid white;
+	display: flex;
+	justify-content: left;
+	align-items: center;
+}
+.modal-top > * {
+	margin: 0;
+}

@@ -590,7 +590,7 @@ var formatExtremeSmallNum = fesn = function (num, precision = 2) { //伪装成�
 
 function roman(num) { //附魔等级，显示1~3999级，4000+正常显示
     num = new ExpantaNum(num)
-    if (num.gte(4000) || num.lte(0)) return "EnchantmentLv." + formatWhole(num)
+    if (num.gte(4000) || num.lte(0)) return "Lv." + formatWhole(num)
     let n = num.toNumber()
 
     let k = Math.floor(n / 1000)

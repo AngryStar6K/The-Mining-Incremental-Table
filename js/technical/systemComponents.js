@@ -236,6 +236,8 @@ var systemComponents = {
 				<td><h1>{{''}}&nbsp;&nbsp;&nbsp;</h1></td>
 				<td><button class="opt" onclick="changeNotation()">{{geti18n()?'记数法(暂时不可用)':'Notation'}}: {{notationsZH[notations.indexOf(options.notation)]}}</button></td>
 				<td><button class="opt" onclick="switchTheme()">主题: {{ getThemeName() }}<br><h6>(注：部分主题可能会导致一些资源文字难以看清)</br></button></td>
+				<td><button class="opt" onclick="setUpdatingRate()">更新频率: {{ options.updatingRate }}ms<br><h6></br></button></td>
+				<td><button class="opt" onclick="newsSetting()">滚动新闻: {{ options.newsShown ? "显示" : "隐藏" }}<br><h6></br></button></td>
 				</tr><br>
 			<tr>
 				<td><button class="opt" v-if="modInfo.otherLanguageMod==true" onclick="

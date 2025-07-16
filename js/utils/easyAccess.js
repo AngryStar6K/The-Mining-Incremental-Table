@@ -58,6 +58,10 @@ function upgradeEffect(layer, id) {
 	return (tmp[layer].upgrades[id].effect)
 }
 
+function upgradeEffect2(layer, id) {
+	return (tmp[layer].upgrades[id].effect2)
+}
+
 function challengeEffect(layer, id) {
 	return (tmp[layer].challenges[id].rewardEffect)
 }
@@ -127,6 +131,12 @@ function textResourceStyle(text, style = 'overlayThing', type = 'h2') { //调用
 	let shadow = ""
 	if (!options.textShadowShown) shadow = "style='text-shadow: none'"
 	return `<${type} class = "${style}" ${shadow} >${text}</${type}>`
+}
+
+function textStyle_story(text, color='ffffff', shadowcolor=color) {
+	let shadow = `0 0 10px #${shadowcolor}`
+	if (!options.textShadowShown) shadow = "none"
+	return `<h3 style='color: #${color}; text-shadow: ${shadow}; font-family: "Lucida Console", "Courier New", monospace'>${text}</h3>`
 }
 
 function sortExpantaNumArray(arr, order = "desc") {

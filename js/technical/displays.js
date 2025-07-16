@@ -87,9 +87,9 @@ function updateOomps(diff)
 			tmp.other.oomps = pp.sub(lp).div(diff)
 			tmp.other.oompsMag = -1;
 		} else {
-			while (pp.div(lp).log(10).div(diff).gte("100") && tmp.other.oompsMag <= 5 && lp.gt(0)) {
-				pp = pp.log(10)
-				lp = lp.log(10)
+			while (pp.div(lp).logBase(10).div(diff).gte("10") && tmp.other.oompsMag <= 5 && lp.gt(0)) {
+				pp = pp.logBase(10)
+				lp = lp.logBase(10)
 				tmp.other.oomps = pp.sub(lp).div(diff)
 				tmp.other.oompsMag++;
 			}
