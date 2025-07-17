@@ -16405,6 +16405,7 @@ addLayer("obsidian", {
                     "blank",
                     ["display-text", function () { return `想要获得黑曜石，你需要先在上方面板产生一个黑曜石。它不能通过寻找获得` }],
                     ["display-text", function () { return `流体会流动，黑曜石通过水流向熔岩源获得。你也可以直接将熔岩倒在水上或者将水倒在熔岩源上` }],
+                    ["display-text", function () { return `版面上最多只能同时存在1格水源和1格熔岩源` }],
                     ["display-text", function () { return `产生黑曜石必然会消耗一个熔岩源` }],
                     ["display-text", function () { return `若水接触流动熔岩会产生石头，还请注意` }],
                     ["display-text", function () { return `流体放置有5秒冷却，黑曜石不能被直接移除` }],
