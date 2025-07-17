@@ -15656,7 +15656,10 @@ function resetFlowingProgress(id) {
 }
 
 function mineObsidian() {
-    let obsarr = Object.values(player.obsidian.grid).filter(id => id.block == 4)
+    let obsarr = []
+    for (let id in player.obsidian.grid) {
+        if (player.obsidian.grid[id].block == 4) obsarr.push(id)
+    }
     if (obsarr.length == 0) return
     let id = obsarr[Math.floor(Math.random() * obsarr.length)]
     player.obsidian.grid[id].block = 0 //挖掉黑曜石
