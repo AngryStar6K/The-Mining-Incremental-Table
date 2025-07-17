@@ -24152,13 +24152,18 @@ addLayer("alloy_s", {
                 if (hasUpgrade(bronze, 22)) m = player.copper.points.max(0).div(30).min(player.tin.points.max(0).div(10)).ceil()
                 return m
             },
+            effectiveMult() {
+                let m = this.mult()
+                m = m.min(player.copper.points.div(3)).min(player.tin.points).floor().max(1)
+                return m
+            },
             result(diff) {
                 if (player.alloy_s.temperature.gte(alloyingItemTemp(alloyingItemID())) && isAlloyingItem() && alloyingItemID() == this.id)
-                    player.bronze.points = player.bronze.points.add(this.mult().min(player.tin.points.times(4)).times(4)),
-                        player.copper.points = player.copper.points.sub(this.mult().times(3).min(player.copper.points)),
-                        player.tin.points = player.tin.points.sub(this.mult().min(player.tin.points)),
+                    player.bronze.points = player.bronze.points.add(this.effectiveMult().times(4)),
+                        player.copper.points = player.copper.points.sub(this.effectiveMult().times(3)),
+                        player.tin.points = player.tin.points.sub(this.effectiveMult()),
                         player.alloy_s.temperature = d(20)
-                if ((player.copper.points.lt(d(3).times(this.mult())) || player.tin.points.lt(d(1).times(this.mult()))) && alloyingItemID() == this.id) stopAlloying()
+                if ((player.copper.points.lt(3) || player.tin.points.lt(1) && alloyingItemID() == this.id)) stopAlloying()
             },
             canClick() { return player.copper.points.gte(3) && player.tin.points.gte(1) && player.furnace.burning && !player.alloy_s.alloying },
             onClick() {
