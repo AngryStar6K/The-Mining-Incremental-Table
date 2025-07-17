@@ -2837,7 +2837,7 @@ addLayer("offline_progress", {
 
     offlineLimit() { //将离线时间上限转到这里控制
         let limit = 1
-        if (hasAchievement('achievements', 100017)) limit = 1e15
+        if (hasAchievement('achievements', 100017)) limit = 2
         return limit
     },
 
