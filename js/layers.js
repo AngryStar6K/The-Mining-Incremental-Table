@@ -24489,7 +24489,7 @@ addLayer("alloy_s", {
                         player.lead.points = player.lead.points.sub(this.effectiveMult()),
                         player.obsidian.dust = player.obsidian.dust.sub(this.effectiveMult().times(4)),
                         player.alloy_s.temperature = d(20)
-                if ((player.lead.points.lt(1) || player.obsidian.dust.lt(4) && alloyingItemID() == this.id)) stopAlloying()
+                if (((player.lead.points.lt(1) || player.obsidian.dust.lt(4)) && alloyingItemID() == this.id)) stopAlloying()
             },
             canClick() { return player.lead.points.gte(1) && player.obsidian.dust.gte(4) && player.furnace.burning && !player.alloy_s.alloying },
             onClick() {
