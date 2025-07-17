@@ -33,7 +33,7 @@ function getEveryGridIDArray(row, col) {
     let r = 0
     for (r = 0; r < row; r++) {
         for (c = 0; c < col; c++) {
-            arr.splice(arr.length, 0, 1 + c + (100 * (r + 1)))
+            arr[r * col + c] = 1 + c + (100 * (r + 1))
         }
     }
     return arr
@@ -210,6 +210,9 @@ addLayer("statistics", {
                     "blank",
                     ["display-text", function () { return `你的经验相当于${textStyle_h3(EN_compare(player.points), 'ffffff')}` }],
                     ["display-text", function () { return `如果你每秒写3个数字，那么你需要${textStyle_h3(ftl(player.points.max(1).log10().add(1).div(3)), 'ffffff')}来写完你的经验数量` }],
+                    "blank",
+                    "blank",
+                    ["display-text", function () { return `如果你在游玩的过程中遇到了bug，请提issue！` }],
                 ]
             },
             "world1": {
@@ -1166,10 +1169,10 @@ addLayer("stories", {
             hasUpgrade(emerald, 15),
             player.map.battle.drops.ender_pearl.gte(1),
         ]
-        let story = 1
-        for (let i = 1; i < condition.length; i++) {
-            if (condition[i]) story += 1
-        }
+        let story
+        let locked = condition.indexOf(false)
+        if (locked != -1) story = locked
+        else story = condition.length
 
         return story
     },
@@ -2834,7 +2837,7 @@ addLayer("offline_progress", {
 
     offlineLimit() { //将离线时间上限转到这里控制
         let limit = 1
-        if (hasAchievement('achievements', 100017)) limit = 2
+        if (hasAchievement('achievements', 100017)) limit = 1e15
         return limit
     },
 
@@ -2982,8 +2985,8 @@ addLayer("map", {
             battle: {
                 enemy: undefined,
                 curHP: d(20),
-                atkCooldown: d(0),
-                revival: d(-1), //复活时间
+                atkCooldown: 0,
+                revival: -1, //复活时间
                 battleText: ["", "", "", "", "", "", "", "", "", ""],
                 drops: {
                     ender_pearl: d(0)
@@ -3039,7 +3042,7 @@ addLayer("map", {
                 let d = `探索冷却：${ftl(player.map.botania.exploreCooldown)}/${ftl(cd)}`
                 return d
             },
-            canClick() { return player.map.botania.exploreCooldown.eq(0) },
+            canClick() { return player.map.botania.exploreCooldown == 0 },
             onClick() {
                 let range = [-1, 80, 85, 90, 95, 100]
                 if (hasUpgrade(manasteel, 14)) range = [-1, 40, 55, 70, 85, 100] //魔力钢升级序号14（第4）增加神秘花获取概率
@@ -3054,7 +3057,7 @@ addLayer("map", {
                     player.map.botania.exploreText = [`你在神秘森林中发现了${foundZH[id]}，+${fw(tmp.map.flowerMult)}${foundZH[id]}`].concat(player.map.botania.exploreText.slice(0, 4))
 
                 let cd = hasUpgrade(manasteel, 23) ? 1 : 3
-                player.map.botania.exploreCooldown = d(cd)
+                player.map.botania.exploreCooldown = cd
             },
             unlocked() { return hasCraftingItem(371) },
             style() {
@@ -3244,7 +3247,7 @@ addLayer("map", {
             display() {
                 return enemyClickablesText('enderman')
             },
-            canClick() { return !player.map.battle.enemy && (isAtLocation('overworld') || isAtLocation('nether') || isAtLocation('the_end')) && player.map.battle.revival.eq(-1) },
+            canClick() { return !player.map.battle.enemy && (isAtLocation('overworld') || isAtLocation('nether') || isAtLocation('the_end')) && player.map.battle.revival == -1 },
             onClick() {
                 startBattle('enderman')
             },
@@ -3263,7 +3266,7 @@ addLayer("map", {
     },
 
     update(diff) {
-        if (player.map.botania.exploreCooldown.gt(0)) player.map.botania.exploreCooldown = player.map.botania.exploreCooldown.sub(diff).max(0)
+        if (player.map.botania.exploreCooldown > 0) player.map.botania.exploreCooldown = Math.max(player.map.botania.exploreCooldown - diff, 0)
 
         let pb = player.map.battle
         let tb = tmp.map.battle
@@ -3272,16 +3275,16 @@ addLayer("map", {
             else player.map.battle.curHP = player.map.battle.curHP.add(tb.HP.div(5).times(diff)).min(tb.HP) //脱战5s回满
         }
         else if (pb.curHP.lte(0)) {
-            if (pb.revival.eq(-1)) loseBattle()
-            else if (pb.revival.gt(0)) player.map.battle.revival = pb.revival.sub(diff).max(0)
-            else if (pb.revival.eq(0)) {
+            if (pb.revival == -1) loseBattle()
+            else if (pb.revival > 0) player.map.battle.revival = pb.revival.sub(diff).max(0)
+            else if (pb.revival == 0) {
                 player.map.battle.curHP = tb.HP //复活后生命值回满
                 player.map.battle.enemy = undefined //复活后清除敌人
-                player.map.battle.atkCooldown = d(0) //复活后清除攻击冷却
-                player.map.battle.revival = d(-1) //复活时间-1表示没死
+                player.map.battle.atkCooldown = 0 //复活后清除攻击冷却
+                player.map.battle.revival = -1 //复活时间-1表示没死
             }
         }
-        if (pb.atkCooldown.gt(0)) player.map.battle.atkCooldown = pb.atkCooldown.sub(diff).max(0)
+        if (pb.atkCooldown > 0) player.map.battle.atkCooldown = Math.max(pb.atkCooldown - diff, 0)
         if (pb.enemy_hp.eq(0)) {
             winBattle() //如果敌人血量为0则胜利
         }
@@ -3320,7 +3323,7 @@ addLayer("map", {
 
     atkspd() { //攻击速度
         let atkspd = d(1).div(tmp.map.battle.SPD)
-        return atkspd
+        return atkspd.toNumber
     },
 
     tabFormat: [
@@ -3516,22 +3519,25 @@ function getLayerNodeStyle(layer) {
 function jumpToNextLayer(way) {
     var layersName = ['statistics', 'stories', 'achievements', 'offline_progress', 'map', 'wood', 'stone', 'copper', 'tin', 'bronze', 'iron',
         'nickel', 'aluminum', 'lead', 'constantan', 'invar', 'alumbrass', 'zinc', 'brass', 'steel',
-        'silver', 'gold', 'electrum', 'redstone', 'red_ele', 'platinum', 'diamond', 'obsidian', 'emerald', 'manasteel', 'crafting_table', 'furnace', 'alloy_s', 'sing_fus', 'blast_furnace', 'botania', 'rf', 'mana',]
+        'silver', 'gold', 'electrum', 'redstone', 'red_ele', 'platinum', 'diamond', 'obsidian', 'emerald', 'experience', 'manasteel', 'terrasteel', 'crafting_table', 'furnace', 'alloy_s', 'sing_fus', 'blast_furnace', 'botania', 'rf', 'mana',]
 
-    if ((layersName.indexOf(player.tab)) != -1) {
+    let unlocked = []
+    for (let layer = 0; layer < layersName.length; layer++) {
+        if (tmp[layersName[layer]].layerShown) unlocked.push(layersName[layer])
+    }
+
+    if ((unlocked.indexOf(player.tab)) != -1) {
         if (way == 'down') {
-            for (i = 1; i < layersName.length; i++) {
-                if (tmp[layersName[(layersName.indexOf(player.tab) + i) % layersName.length]].layerShown)
-                    player.tab = layersName[(layersName.indexOf(player.tab) + i) % layersName.length]
+            for (i = 1; i < unlocked.length; i++) {
+                player.tab = unlocked[(unlocked.indexOf(player.tab) + i) % unlocked.length]
                 return player.tab
             }
         }
         if (way == 'up') {
-            for (i = 1; i < layersName.length; i++) {
-                let pos = (layersName.indexOf(player.tab) - i)
-                if (pos < 0) pos += layersName.length
-                if (tmp[layersName[pos % layersName.length]].layerShown)
-                    player.tab = layersName[pos % layersName.length]
+            for (i = 1; i < unlocked.length; i++) {
+                let pos = (unlocked.indexOf(player.tab) - i)
+                if (pos < 0) pos += unlocked.length
+                player.tab = unlocked[pos % unlocked.length]
                 return player.tab
             }
         }
@@ -4147,7 +4153,7 @@ addLayer("wood", {
 
     tabFormat: [
         ["display-text", function () { return getPointsDisplay() }],
-        ["display-text", function () { return `你有 ${textStyle_h2(format(player.wood.points), 'b8945e')} 木头` }],
+        ["display-text", function () { return `你有 ${textStyle_h2(formatWhole(player.wood.points), 'b8945e')} 木头` }],
         ["display-text", function () { if (hasUpgrade(rf, 92)) return `你有 ${textStyle_h2(format(player.wood.chips), 'b8945e')} 木屑` }],
         "blank",
         ["display-text", () => `你同时最多拥有 ${formatWhole(player.wood.best)} 木头`],
@@ -4883,7 +4889,7 @@ addLayer("copper", {
     requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
     // Also the amount required to unlock the layer.
 
-    type: "normal",                         // Determines the formula used for calculating prestige currency.
+    type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
@@ -5241,7 +5247,7 @@ addLayer("tin", {
     requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
     // Also the amount required to unlock the layer.
 
-    type: "normal",                         // Determines the formula used for calculating prestige currency.
+    type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
@@ -5497,7 +5503,7 @@ addLayer("bronze", {
     requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
     // Also the amount required to unlock the layer.
 
-    type: "normal",                         // Determines the formula used for calculating prestige currency.
+    type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
     layerShown() { return hasNormalAchievement(37) },
 
@@ -6097,7 +6103,7 @@ addLayer("iron", {
     requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
     // Also the amount required to unlock the layer.
 
-    type: "normal",                         // Determines the formula used for calculating prestige currency.
+    type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
@@ -6488,25 +6494,25 @@ function resetBronzePowerAndBuyables() {
 
 function buyBuyableRateText() {
     let len = pastTickTimes.length
-	if (len <= 3) return " "
-	let a = 0
-	for (i = 0; i < len; i++) {
-		a += pastTickTimes[i]
-	}
+    if (len <= 3) return " "
+    let a = 0
+    for (i = 0; i < len; i++) {
+        a += pastTickTimes[i]
+    }
     let mspt = a / len
     let p1 = ""
-	let p2 = ""
-	let warn = ""
+    let p2 = ""
+    let warn = ""
     let buyRate = 50
     let slow = 0
     let bulk = options.updatingRate / 20
-	if (mspt > options.updatingRate) {
-		slow = options.updatingRate / mspt
-		p1 = "<bdi style='color: #cc0000'>"
-		p2 = "</bdi> "
+    if (mspt > options.updatingRate) {
+        slow = options.updatingRate / mspt
+        p1 = "<bdi style='color: #cc0000'>"
+        p2 = "</bdi> "
         buyRate = buyRate * slow
         warn = "，建议前往设置界面调整更新频率"
-	}
+    }
     let text = `MSPT: ${p1 + f(mspt) + p2}，设定的更新频率：${fw(options.updatingRate)}ms，按住的批量购买倍数：${f(bulk)}x，每秒购买项升级预期: ${p1 + f(buyRate) + p2}${warn}`
     return text
 }
@@ -6545,7 +6551,7 @@ addLayer("nickel", {
     requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
     // Also the amount required to unlock the layer.
 
-    type: "normal",                         // Determines the formula used for calculating prestige currency.
+    type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
@@ -7001,7 +7007,7 @@ addLayer("aluminum", {
     requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
     // Also the amount required to unlock the layer.
 
-    type: "normal",                         // Determines the formula used for calculating prestige currency.
+    type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
@@ -7315,7 +7321,7 @@ addLayer("lead", {
     requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
     // Also the amount required to unlock the layer.
 
-    type: "normal",                         // Determines the formula used for calculating prestige currency.
+    type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
@@ -7664,7 +7670,7 @@ addLayer("constantan", {
     requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
     // Also the amount required to unlock the layer.
 
-    type: "normal",                         // Determines the formula used for calculating prestige currency.
+    type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
     layerShown() { return hasNormalAchievement(75) },
 
@@ -8222,7 +8228,7 @@ addLayer("invar", {
     requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
     // Also the amount required to unlock the layer.
 
-    type: "normal",                         // Determines the formula used for calculating prestige currency.
+    type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
     layerShown() { return hasNormalAchievement(75) },
 
@@ -9284,7 +9290,7 @@ addLayer("alumbrass", {
     requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
     // Also the amount required to unlock the layer.
 
-    type: "normal",                         // Determines the formula used for calculating prestige currency.
+    type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
     layerShown() { return hasNormalAchievement(92) },
 
@@ -9676,7 +9682,7 @@ addLayer("zinc", {
     requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
     // Also the amount required to unlock the layer.
 
-    type: "normal",                         // Determines the formula used for calculating prestige currency.
+    type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
@@ -10095,7 +10101,7 @@ addLayer("brass", {
     requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
     // Also the amount required to unlock the layer.
 
-    type: "normal",                         // Determines the formula used for calculating prestige currency.
+    type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
     layerShown() { return hasNormalAchievement(97) },
 
@@ -10537,7 +10543,7 @@ addLayer("steel", {
     requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
     // Also the amount required to unlock the layer.
 
-    type: "normal",                         // Determines the formula used for calculating prestige currency.
+    type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
     layerShown() { return hasMilestone(blast_furnace, 0) },
 
@@ -10843,6 +10849,18 @@ addLayer("steel", {
     },
 })
 
+const gridSquare = {
+    1: getEveryGridIDArray(1, 1),
+    2: getEveryGridIDArray(2, 2),
+    3: getEveryGridIDArray(3, 3),
+    4: getEveryGridIDArray(4, 4),
+    5: getEveryGridIDArray(5, 5),
+    6: getEveryGridIDArray(6, 6),
+    7: getEveryGridIDArray(7, 7),
+    8: getEveryGridIDArray(8, 8),
+    9: getEveryGridIDArray(9, 9)
+}
+
 //世界1层16：银
 addLayer("silver", {
     startData() {
@@ -10860,7 +10878,7 @@ addLayer("silver", {
             finding: false,
             found: false,
             vein: d(0),
-            veinCooldown: d(0),
+            veinCooldown: 0,
             singularity: d(0),
         }
     },
@@ -10878,7 +10896,7 @@ addLayer("silver", {
     requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
     // Also the amount required to unlock the layer.
 
-    type: "normal",                         // Determines the formula used for calculating prestige currency.
+    type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
@@ -11043,11 +11061,7 @@ addLayer("silver", {
             cost() { return new ExpantaNum(244) },
             unlocked() { return hasUpgrade(this.layer, 25) },
             effect() {
-                let v = 0
-                for (i = 0; i < 49; i++) {
-                    if (getGridData(silver, getEveryGridIDArray(7, 7)[i]) == 1)
-                        v++
-                }
+                let v = Object.values(player.silver.grid).filter(v => v == 1).length
                 v = d(v)
                 if (hasUpgrade(silver, 33)) v = v.pow(2)
                 return v.max(1)
@@ -11156,11 +11170,11 @@ addLayer("silver", {
                 冷却：${ftl(player.silver.veinCooldown)}/${ftl(30)}`
                 return d
             },
-            canClick() { return tmp.silver.vein_in_mine.round().eq(0) && player.silver.veinCooldown.lte(0) },
+            canClick() { return tmp.silver.vein_in_mine.round().eq(0) && player.silver.veinCooldown <= 0 },
             onClick() {
                 for (i = 0; i < 49; i++) {
-                    player.silver.grid[getEveryGridIDArray(7, 7)[i]] = d(Math.random()).lte(tmp.silver.chainChance) ? 1 : 2,
-                        player.silver.veinCooldown = d(30)
+                    player.silver.grid[gridSquare[7]][i] = d(Math.random()).lte(tmp.silver.chainChance) ? 1 : 2,
+                        player.silver.veinCooldown = 30
                 }
             },
             unlocked() { return hasCraftingItem(312) },
@@ -11245,11 +11259,7 @@ addLayer("silver", {
     },
 
     vein_in_mine() {
-        let v = 0
-        for (i = 0; i < 49; i++) {
-            if (getGridData(silver, getEveryGridIDArray(7, 7)[i]) == 1)
-                v++
-        }
+        let v = Object.values(player.silver.grid).filter(v => v == 1).length
         return d(v)
     },
 
@@ -11312,8 +11322,7 @@ addLayer("silver", {
 
         if (player.silver.points.gt(player.silver.best)) player.silver.best = player.silver.points
 
-        if (player.silver.veinCooldown.gt(0.06)) player.silver.veinCooldown = player.silver.veinCooldown.sub(diff).max(0)
-        else player.silver.veinCooldown = d(0)
+        if (player.silver.veinCooldown > 0) player.silver.veinCooldown = Math.max(player.silver.veinCooldown - diff, 0)
 
         if (goldSkillActived(2)) player.silver.vein = player.silver.vein.add(tmp.silver.veinMult.times(0.01).times(diff))
     },
@@ -11437,11 +11446,7 @@ function activeGoldSkill(id) { //当技能可永久激活时可以随时开关
 }
 
 function inAnyGoldChallenge() { //绷不住了，提前设置好的function到头来只有1个金挑战
-    let inChal = 0
-    for (let id in player.gold.challenges) {
-        if (inChallenge(gold, id)) inChal += 1
-    }
-    return inChal >= 1
+    return inChallenge(gold, 11)
 }
 
 function goldSkillCanActive(id) {
@@ -11523,7 +11528,7 @@ addLayer("gold", {
     requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
     // Also the amount required to unlock the layer.
 
-    type: "normal",                         // Determines the formula used for calculating prestige currency.
+    type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
@@ -12609,7 +12614,7 @@ addLayer("electrum", {
     requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
     // Also the amount required to unlock the layer.
 
-    type: "normal",                         // Determines the formula used for calculating prestige currency.
+    type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
     layerShown() { return hasNormalAchievement(123) },
 
@@ -12870,12 +12875,8 @@ addLayer("electrum", {
 
     row3upgsbought() {
         let upgs = player.electrum.upgrades
-        let amt = d(0)
-        for (let i = 0; i < upgs.length; i++) {
-            let id = upgs[i]
-            if (id >= 41) break
-            if (Math.floor(id / 10) == 3) amt = amt.add(1)
-        }
+        let amt = upgs.filter(id => id >= 31).length
+        amt = d(amt)
         if (hasCraftingItem(362)) amt = amt.add(tmp.red_ele.toElectrumUpgRow3)
         return amt
     },
@@ -12970,7 +12971,7 @@ addLayer("redstone", {
     requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
     // Also the amount required to unlock the layer.
 
-    type: "normal",                         // Determines the formula used for calculating prestige currency.
+    type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
     layerShown() { return hasNormalAchievement(126) },
 
@@ -13177,12 +13178,9 @@ addLayer("redstone", {
             cost() { return new ExpantaNum(1.44e62) },
             effect() {
                 let upgs = player.redstone.upgrades
-                let eff = d(1)
-                for (let i = 0; i < upgs.length; i++) {
-                    let id = upgs[i]
-                    if (id >= 41) break
-                    if (Math.floor(id / 10) == 3) eff = eff.add(1)
-                }
+                let eff = 1
+                eff += upgs.filter(id => id >= 31 && id < 40).length
+                eff = d(eff)
                 if (hasUpgrade(platinum, 24)) eff = eff.pow(upgradeEffect(platinum, 24))
                 return eff
             },
@@ -13681,23 +13679,19 @@ addLayer("redstone", {
             canClick() {
                 let grid = tmp.redstone.grid
                 let slots = grid.rows * grid.cols
-                let empty = 0
                 for (let i = 0; i < slots; i++) {
-                    if (player.redstone.grid[getEveryGridIDArray(grid.rows, grid.cols)[i]] instanceof ExpantaNum) {
-                        if (player.redstone.grid[getEveryGridIDArray(grid.rows, grid.cols)[i]].eq(0))
-                            empty += 1
-                    }
+                    if (player.redstone.grid[gridSquare[grid.rows][i]] == d(0)) return true
                 }
-                return empty >= 1
+                return false
             },
             onClick() {
                 let grid = tmp.redstone.grid
                 let slots = grid.rows * grid.cols
                 let emptyPos = []
                 for (let i = 0; i < slots; i++) {
-                    if (player.redstone.grid[getEveryGridIDArray(grid.rows, grid.cols)[i]].array) {
-                        if (player.redstone.grid[getEveryGridIDArray(grid.rows, grid.cols)[i]].eq(0))
-                            emptyPos.push(getEveryGridIDArray(grid.rows, grid.cols)[i])
+                    if (player.redstone.grid[gridSquare[grid.rows][i]].array) {
+                        if (player.redstone.grid[gridSquare[grid.rows][i]].eq(0))
+                            emptyPos.push(gridSquare[grid.rows][i])
                     }
                 }
                 let len = emptyPos.length
@@ -13731,10 +13725,10 @@ addLayer("redstone", {
                 let extraCardArray = []
                 let cardPowerArray = []
                 for (let i = 0; i < slots; i++) {
-                    if (player.redstone.grid[getEveryGridIDArray(grid.rows, grid.cols)[i]].array)
-                        fortunesArray.push(player.redstone.grid[getEveryGridIDArray(grid.rows, grid.cols)[i]])
-                    if (player.redstone.grid[getEveryGridIDArray(grid.rows, grid.cols)[i]] instanceof Array)
-                        cardPowerArray.push(player.redstone.grid[getEveryGridIDArray(grid.rows, grid.cols)[i]][0])
+                    if (player.redstone.grid[gridSquare[grid.rows][i]].array)
+                        fortunesArray.push(player.redstone.grid[gridSquare[grid.rows][i]])
+                    if (player.redstone.grid[gridSquare[grid.rows][i]] instanceof Array)
+                        cardPowerArray.push(player.redstone.grid[gridSquare[grid.rows][i]][0])
                 }
 
                 cardPowerArray = sortExpantaNumArray(cardPowerArray)
@@ -13746,7 +13740,7 @@ addLayer("redstone", {
                 fortunesArray = fortunesArray.concat(extraCardArray)
                 console.log(fortunesArray.toString())
                 for (let i = 0; i < slots; i++) {
-                    player.redstone.grid[getEveryGridIDArray(grid.rows, grid.cols)[i]] = fortunesArray[i]
+                    player.redstone.grid[gridSquare[grid.rows][i]] = fortunesArray[i]
                 }
                 player.redstone.chosenID = undefined
             },
@@ -13888,18 +13882,25 @@ addLayer("redstone", {
                 'width': '75px',
             }
             if (id == player.redstone.chosenID) s['border-color'] = '#fc0000'
+            s['word-wrap'] = 'break-word'
             return s
+        },
+        getTooltip(data, id) {
+            if (data instanceof ExpantaNum) {
+                if (data.eq(0)) return '空槽位'
+                else return '时运 Lv.' + fw(data)
+            }
+            if (data instanceof Array) return '额外等级卡<br>力量：' + fw(data[0])
         },
     },
 
     highestFortuneLv() {
         if (hasMilestone(emerald, 0)) return tmp.redstone.fortuneExtraMaxLevel
-        let lv = d(0)
         let grid = tmp.redstone.grid
         let slots = grid.rows * grid.cols
         for (let i = 0; i < slots; i++) {
-            if (player.redstone.grid[getEveryGridIDArray(grid.rows, grid.cols)[i]] instanceof Array) continue
-            if (player.redstone.grid[getEveryGridIDArray(grid.rows, grid.cols)[i]].gt(lv)) lv = player.redstone.grid[getEveryGridIDArray(grid.rows, grid.cols)[i]]
+            if (player.redstone.grid[gridSquare[grid.rows][i]] instanceof Array) continue
+            else if (player.redstone.grid[gridSquare[grid.rows][i]].gt(lv)) lv = player.redstone.grid[gridSquare[grid.rows][i]]
         }
         return lv
     },
@@ -14072,10 +14073,10 @@ addLayer("redstone", {
         //附魔更新等级
         let grid = tmp.redstone.grid
         let slots = grid.rows * grid.cols
-        for (let i = 0; i < slots; i++) {
-            if (player.redstone.grid[getEveryGridIDArray(grid.rows, grid.cols)[i]] instanceof Array) continue
-            else if (player.redstone.grid[getEveryGridIDArray(grid.rows, grid.cols)[i]].neq(0) && player.redstone.grid[getEveryGridIDArray(grid.rows, grid.cols)[i]].lt(tmp.redstone.clickables[21].generatedEnchantmentLv)) {
-                player.redstone.grid[getEveryGridIDArray(grid.rows, grid.cols)[i]] = (tmp.redstone.clickables[21].generatedEnchantmentLv)
+        for (let i = 0; i < slots; i++) { //可能影响性能
+            if (player.redstone.grid[gridSquare[grid.rows][i]] instanceof Array) continue
+            else if (player.redstone.grid[gridSquare[grid.rows][i]].neq(0) && player.redstone.grid[gridSquare[grid.rows][i]].lt(tmp.redstone.clickables[21].generatedEnchantmentLv)) {
+                player.redstone.grid[gridSquare[grid.rows][i]] = (tmp.redstone.clickables[21].generatedEnchantmentLv)
             }
         }
     },
@@ -14258,7 +14259,7 @@ addLayer("red_ele", {
     requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
     // Also the amount required to unlock the layer.
 
-    type: "normal",                         // Determines the formula used for calculating prestige currency.
+    type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
     layerShown() { return hasNormalAchievement(134) },
 
@@ -14552,7 +14553,7 @@ addLayer("platinum", {
     requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
     // Also the amount required to unlock the layer.
 
-    type: "normal",                         // Determines the formula used for calculating prestige currency.
+    type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
     layerShown() { return hasNormalAchievement(146) },
 
@@ -14909,7 +14910,7 @@ addLayer("diamond", {
     requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
     // Also the amount required to unlock the layer.
 
-    type: "normal",                         // Determines the formula used for calculating prestige currency.
+    type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
     layerShown() { return hasNormalAchievement(146) },
 
@@ -15104,11 +15105,7 @@ addLayer("diamond", {
             currencyLayer: diamond,
             cost() { return new ExpantaNum(15000) },
             effect() {
-                let f = 0
-                for (i = 0; i < 25; i++) {
-                    if (getGridData(diamond, getEveryGridIDArray(5, 5)[i]) > 1)
-                        f++
-                }
+                let f = Object.values(player.diamond.grid).filter(id => id >= 2).length
                 f = d(f)
                 let eff = f.add(1).pow(1.25)
                 return eff
@@ -15175,11 +15172,7 @@ addLayer("diamond", {
             unlocked() { return hasUpgrade(this.layer, 35) },
             effect() {
                 if (hasMilestone(emerald, 1)) return d(25).pow(1.35)
-                let f = 0
-                for (i = 0; i < 25; i++) {
-                    if (getGridData(diamond, getEveryGridIDArray(5, 5)[i]) > 2)
-                        f++
-                }
+                let f = Object.values(player.diamond.grid).filter(id => id >= 3).length
                 f = d(f)
                 let eff = f.add(1).pow(1.35)
                 return eff
@@ -15199,11 +15192,7 @@ addLayer("diamond", {
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
                 if (hasMilestone(emerald, 1)) return d(25).pow(2.25)
-                let f = 0
-                for (i = 0; i < 25; i++) {
-                    if (getGridData(diamond, getEveryGridIDArray(5, 5)[i]) == 4)
-                        f++
-                }
+                let f = Object.values(player.diamond.grid).filter(id => id == 4).length
                 f = d(f)
                 let eff = f.add(1).pow(2.25)
                 return eff
@@ -15332,17 +15321,17 @@ addLayer("diamond", {
                 for (i = 0; i < 25; i++) {
                     let random = Math.random()
                     if (!hasUpgrade(obsidian, 32)) {
-                        if (random <= chanceArr[2]) player.diamond.grid[getEveryGridIDArray(5, 5)[i]] = 4
-                        else if (random <= chanceArr[1]) player.diamond.grid[getEveryGridIDArray(5, 5)[i]] = 3
-                        else if (random <= chanceArr[0]) player.diamond.grid[getEveryGridIDArray(5, 5)[i]] = 2
-                        else player.diamond.grid[getEveryGridIDArray(5, 5)[i]] = 1
+                        if (random <= chanceArr[2]) player.diamond.grid[gridSquare[5][i]] = 4
+                        else if (random <= chanceArr[1]) player.diamond.grid[gridSquare[5][i]] = 3
+                        else if (random <= chanceArr[0]) player.diamond.grid[gridSquare[5][i]] = 2
+                        else player.diamond.grid[gridSquare[5][i]] = 1
                     }
                     else {
-                        if (random <= chanceArr[3]) player.diamond.grid[getEveryGridIDArray(5, 5)[i]] = 5
-                        else if (random <= chanceArr[2]) player.diamond.grid[getEveryGridIDArray(5, 5)[i]] = 4
-                        else if (random <= chanceArr[1]) player.diamond.grid[getEveryGridIDArray(5, 5)[i]] = 3
-                        else if (random <= chanceArr[0]) player.diamond.grid[getEveryGridIDArray(5, 5)[i]] = 2
-                        else player.diamond.grid[getEveryGridIDArray(5, 5)[i]] = 1
+                        if (random <= chanceArr[3]) player.diamond.grid[gridSquare[5][i]] = 5
+                        else if (random <= chanceArr[2]) player.diamond.grid[gridSquare[5][i]] = 4
+                        else if (random <= chanceArr[1]) player.diamond.grid[gridSquare[5][i]] = 3
+                        else if (random <= chanceArr[0]) player.diamond.grid[gridSquare[5][i]] = 2
+                        else player.diamond.grid[gridSquare[5][i]] = 1
                     }
                 }
                 player.diamond.found = false
@@ -15400,7 +15389,7 @@ addLayer("diamond", {
 
             if (data == 4 && !player.diamond.t3flawless) player.diamond.t3flawless = true
 
-            let arr = getEveryGridIDArray(5, 5)
+            let arr = gridSquare[5]
             for (let i = 0; i < arr.length; i++) {
                 player.diamond.grid[arr[i]] = 0
             }
@@ -15667,11 +15656,7 @@ function resetFlowingProgress(id) {
 }
 
 function mineObsidian() {
-    let arr = getEveryGridIDArray(1, 4)
-    let obsarr = []
-    for (let i = 0; i < arr.length; i++) {
-        if (player.obsidian.grid[arr[i]].block == 4) obsarr.push(arr[i])
-    }
+    let obsarr = Object.values(player.obsidian.grid).filter(id => id.block == 4)
     if (obsarr.length == 0) return
     let id = obsarr[Math.floor(Math.random() * obsarr.length)]
     player.obsidian.grid[id].block = 0 //挖掉黑曜石
@@ -15713,7 +15698,7 @@ addLayer("obsidian", {
     requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
     // Also the amount required to unlock the layer.
 
-    type: "normal",                         // Determines the formula used for calculating prestige currency.
+    type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
     layerShown() { return hasNormalAchievement(151) || hasCraftingItem(421) },
 
@@ -15739,11 +15724,7 @@ addLayer("obsidian", {
     },
 
     created() { //检测黑曜石是否创建
-        let arr = getEveryGridIDArray(1, 4)
-        let obs = 0
-        for (let i = 0; i < arr.length; i++) {
-            if (player.obsidian.grid[arr[i]].block == 4) obs++
-        }
+        let obs = Object.values(player.obsidian.grid).filter(id => id.block == 4).length
         return obs >= 1
     },
 
@@ -15768,11 +15749,7 @@ addLayer("obsidian", {
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
                 if (hasUpgrade(obsidian, 31)) return d(5)
-                let o = 0
-                for (i = 0; i < 4; i++) {
-                    if (getGridData(obsidian, getEveryGridIDArray(1, 4)[i]).block == 4)
-                        o++
-                }
+                let o = Object.values(player.obsidian.grid).filter(id => id.block == 4).length
                 o = d(o)
                 let eff = o.add(1)
                 return eff
@@ -15950,20 +15927,10 @@ addLayer("obsidian", {
             unlocked() { return hasUpgrade(this.layer, 25) },
             effect() {
                 if (hasMilestone(emerald, 1)) return d(202507)
-                let o = 0
-                let w = 0
-                let l = 0
-                let s = 0
-                for (i = 0; i < 4; i++) {
-                    if (getGridData(obsidian, getEveryGridIDArray(1, 4)[i]).block == 1)
-                        w++
-                    if (getGridData(obsidian, getEveryGridIDArray(1, 4)[i]).block == 2)
-                        l++
-                    if (getGridData(obsidian, getEveryGridIDArray(1, 4)[i]).block == 3)
-                        s++
-                    if (getGridData(obsidian, getEveryGridIDArray(1, 4)[i]).block == 4)
-                        o++
-                }
+                let w = Object.values(player.obsidian.grid).filter(id => id.block == 1).length
+                let l = Object.values(player.obsidian.grid).filter(id => id.block == 2).length
+                let s = Object.values(player.obsidian.grid).filter(id => id.block == 3).length
+                let o = Object.values(player.obsidian.grid).filter(id => id.block == 4).length
                 return (o >= 1 && w >= 1 && l >= 1 && s >= 1) ? d(202507) : d(1)
             },
             effectDisplay() {
@@ -16488,7 +16455,7 @@ addLayer("emerald", {
     requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
     // Also the amount required to unlock the layer.
 
-    type: "normal",                         // Determines the formula used for calculating prestige currency.
+    type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
     layerShown() { return hasNormalAchievement(156) },
 
@@ -16588,11 +16555,7 @@ addLayer("emerald", {
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
                 if (hasMilestone(emerald, 1)) return d(25).pow(10)
-                let f = 0
-                for (i = 0; i < 25; i++) {
-                    if (getGridData(diamond, getEveryGridIDArray(5, 5)[i]) == 5)
-                        f++
-                }
+                let f = Object.values(player.diamond.grid).filter(id => id == 5).length
                 f = d(f)
                 let eff = f.add(1).pow(10)
                 return eff
@@ -17776,7 +17739,7 @@ addLayer("manasteel", {
     requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
     // Also the amount required to unlock the layer.
 
-    type: "normal",                         // Determines the formula used for calculating prestige currency.
+    type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
     layerShown() { return hasNormalAchievement(145) },
 
@@ -18022,7 +17985,7 @@ addLayer("terrasteel", {
     requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
     // Also the amount required to unlock the layer.
 
-    type: "normal",                         // Determines the formula used for calculating prestige currency.
+    type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
     layerShown() { return hasNormalAchievement(171) },
 
@@ -18139,9 +18102,7 @@ function craftingItemColor(id) {
 function canCraftMultiple(id) {
     id = Number(id)
     let CCMID = [91, 122, 141, 182, 191, 231, 242, 281, 282, 362, 381, 392, 442, 452, 471]
-    let CCM = false
-    if (CCMID.indexOf(id) >= 0) CCM = true
-    return CCM
+    return CCMID.includes(id)
 }
 
 function craftingItemIDList(amt) {
@@ -18151,6 +18112,8 @@ function craftingItemIDList(amt) {
     }
     return list
 }
+
+const craftList = craftingItemIDList(198)
 
 //制造层1：合成台
 addLayer("crafting_table", {
@@ -19521,6 +19484,7 @@ addLayer("crafting_table", {
                     'min-height': '210px',
                     'width': '210px',
                     "background": "linear-gradient(90deg, #ea8601 0%, #ffb53c 100%)",
+                    'background-color': '#ffb41d',
                 }
             },
             marked() { return hasCraftingItem(this.id) },
@@ -19750,6 +19714,7 @@ addLayer("crafting_table", {
                     'min-height': '210px',
                     'width': '210px',
                     "background": "linear-gradient(45deg, #b77b2f 0%, #ffd7a1 80%, #ffeed8 100%)",
+                    'background-color': '#ffd7a1',
                 }
             },
             marked() { return hasCraftingItem(this.id) },
@@ -22673,9 +22638,8 @@ addLayer("crafting_table", {
         if (tmp[ct].clickables[311].unlocked || tmp[ct].clickables[312].unlocked) player[ct].maxPage = 16
         if (tmp[ct].clickables[331].unlocked || tmp[ct].clickables[332].unlocked) player[ct].maxPage = 17
         */
-        let itemAmount = 198 //超过198个物品这个数字会更改
-        let craftList = craftingItemIDList(itemAmount)
-        for (let i = 0; i < itemAmount; i++) {
+
+        for (let i = 0; i < craftList.length; i++) {
             if (tmp[ct].clickables[craftList[i]] == undefined) break;
             if (!tmp[ct].clickables[craftList[i]].unlocked) continue;
             if (craftList[i] > player[ct].maxCraftID) player[ct].maxCraftID = craftList[i]
@@ -23095,16 +23059,19 @@ addLayer("furnace", {
                 if (hasUpgrade(copper, 24)) m = m.times(upgradeEffect(copper, 24))
                 return m
             },
+            effectiveMult() {
+                let m = this.mult()
+                let frequency = player.furnace.speed.times(diffout).div(130)
+                m = m.times(frequency)
+                m = m.min(player.stone.sand)
+                m = m.floor()
+                return m
+            },
             result(diff) {
                 if (player.furnace.temperature.gte(smeltingItemTemp(smeltingItemID())) && isSmeltingItem() && smeltingItemID() == this.id)
-                    if (!player.furnace.speed.times(options.updatingRate).gte(130))
-                        return player.furnace.glass = player.furnace.glass.add(this.mult().min(player.stone.sand)),
-                            player.stone.sand = player.stone.sand.sub(this.mult().min(player.stone.sand)),
-                            player.furnace.temperature = d(20)
-                    else {
-                        let compensate = d(options.updatingRate / 1000).div(130).times(player.furnace.speed).min(options.updatingRate / 50)
-                        player.furnace.glass = player.furnace.glass.add((this.mult().min(player.stone.sand)).times(compensate))
-                    }
+                    return player.furnace.glass = player.furnace.glass.add(this.effectiveMult()),
+                        player.stone.sand = player.stone.sand.sub(this.effectiveMult()),
+                        player.furnace.temperature = d(20)
                 if (player.stone.sand.lt(1) && smeltingItemID() == this.id) stopSmelting()
             },
             canClick() { return player.stone.sand.gte(1) && player.furnace.burning && !player.furnace.smelting },
@@ -24551,16 +24518,14 @@ addLayer("alloy_s", {
 
     update(diff) {
         if (isAlloyingItem() && player.furnace.speed.times(diff).gte(alloyingItemTemp(alloyingItemID()).sub(20))) player.alloy_s.temperature = alloyingItemTemp(alloyingItemID())
-        else if (isAlloyingItem() && player.alloy_s.temperature.lt(fuelMaxTemp(fuelID()).sub(player.furnace.speed.times(diff)))) player.alloy_s.temperature = player.alloy_s.temperature.add(player.furnace.speed.times(diff))
-        if (player.alloy_s.temperature.gte(fuelMaxTemp(fuelID()).sub(player.furnace.speed.div(20)))) player.alloy_s.temperature = fuelMaxTemp(fuelID())
+        else if (isAlloyingItem() && player.alloy_s.temperature.lt(fuelMaxTemp(fuelID()).sub(player.furnace.speed.times(diff)))) player.alloy_s.temperature = player.alloy_s.temperature.add(player.furnace.speed.times(diff)).min(fuelMaxTemp(fuelID()))
 
         //更新最大页码
         // if (tmp[ct].clickables[31].unlocked) player[ct].maxPage = 2
 
         //最多有
-        if (player.alloy_s.points.gte(player.alloy_s.best)) player.alloy_s.best = player.alloy_s.points
+        if (player.alloy_s.points.gt(player.alloy_s.best)) player.alloy_s.best = player.alloy_s.points
         if (player.alloy_s.cooldown.gt(0)) player.alloy_s.cooldown = player.alloy_s.cooldown.sub(diff).max(0)
-        if (player.alloy_s.cooldown.lte(0.05)) player.alloy_s.cooldown = d(0)
     },
 
     tabFormat: [
