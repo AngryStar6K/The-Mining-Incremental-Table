@@ -13896,6 +13896,7 @@ addLayer("redstone", {
 
     highestFortuneLv() {
         if (hasMilestone(emerald, 0)) return tmp.redstone.fortuneExtraMaxLevel
+        let lv = d(0)
         let grid = tmp.redstone.grid
         let slots = grid.rows * grid.cols
         for (let i = 0; i < slots; i++) {
