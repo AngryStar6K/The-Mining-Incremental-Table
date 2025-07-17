@@ -13678,9 +13678,13 @@ addLayer("redstone", {
             },
             canClick() {
                 let grid = tmp.redstone.grid
-                let slots = grid.rows * grid.cols
+                let slots = grid.rows ** 2
+                let empty = 0
                 for (let i = 0; i < slots; i++) {
-                    if (player.redstone.grid[gridSquare[grid.rows][i]] == d(0)) return true
+                    if (player.redstone.grid[gridSquare[grid.rows][i]] instanceof ExpantaNum) {
+                        if (player.redstone.grid[gridSquare[grid.rows][i]].eq(0))
+                            return true
+                    }
                 }
                 return false
             },
