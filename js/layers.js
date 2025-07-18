@@ -28814,7 +28814,7 @@ addLayer("rf", {
                 let onoff = RFAutobuyerActivated(this.id) ? "开" : "关"
                 let d = `
                 需要耗能：${f(300000)} RF/t<br>
-                效果：每秒自动磨粉产出黑曜石粉<br>
+                效果：每秒自动磨粉产出木屑<br>
                 倍数：${f(this.mult())}<br>
                 产出比例：1:28<br><br>
                 状态：${onoff}`
