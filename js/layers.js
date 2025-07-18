@@ -11173,7 +11173,7 @@ addLayer("silver", {
             canClick() { return tmp.silver.vein_in_mine.round().eq(0) && player.silver.veinCooldown.lte(0) },
             onClick() {
                 for (i = 0; i < 49; i++) {
-                    player.silver.grid[gridSquare[7]][i] = d(Math.random()).lte(tmp.silver.chainChance) ? 1 : 2,
+                    player.silver.grid[gridSquare[7][i]] = d(Math.random()).lte(tmp.silver.chainChance) ? 1 : 2,
                         player.silver.veinCooldown = d(30)
                 }
             },
