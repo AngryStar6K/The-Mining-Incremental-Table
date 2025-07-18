@@ -2888,7 +2888,7 @@ const enemies = {
             gain = gain.times(tmp.map.battle.LUCK.add(1))
             return gain
         },
-        attack_time: 3, //攻击间隔时间（秒）
+        attack_time: d(3), //攻击间隔时间（秒）
         appear_location: ['overworld', 'nether', 'the_end'], //出现的地点
     },
 }
@@ -2904,7 +2904,7 @@ function startBattle(enemy) {
 function escapeBattle() {
     player.map.battle.enemy = undefined
     player.map.battle.enemy_hp = d(-1)
-    player.map.battle.enemy_attack_time = -1
+    player.map.battle.enemy_attack_time = d(-1)
 }
 
 function winBattle() {
@@ -2985,14 +2985,14 @@ addLayer("map", {
             battle: {
                 enemy: undefined,
                 curHP: d(20),
-                atkCooldown: 0,
-                revival: -1, //复活时间
+                atkCooldown: d(0),
+                revival: d(-1), //复活时间
                 battleText: ["", "", "", "", "", "", "", "", "", ""],
                 drops: {
                     ender_pearl: d(0)
                 },
                 enemy_hp: d(-1), //敌人当前血量
-                enemy_attack_time: -1,
+                enemy_attack_time: d(-1),
             },
         }
     },
@@ -3247,7 +3247,7 @@ addLayer("map", {
             display() {
                 return enemyClickablesText('enderman')
             },
-            canClick() { return !player.map.battle.enemy && (isAtLocation('overworld') || isAtLocation('nether') || isAtLocation('the_end')) && player.map.battle.revival == -1 },
+            canClick() { return !player.map.battle.enemy && (isAtLocation('overworld') || isAtLocation('nether') || isAtLocation('the_end')) && player.map.battle.revival.eq(-1) },
             onClick() {
                 startBattle('enderman')
             },
@@ -3275,25 +3275,25 @@ addLayer("map", {
             else player.map.battle.curHP = player.map.battle.curHP.add(tb.HP.div(5).times(diff)).min(tb.HP) //脱战5s回满
         }
         else if (pb.curHP.lte(0)) {
-            if (pb.revival == -1) loseBattle()
-            else if (pb.revival > 0) player.map.battle.revival = pb.revival.sub(diff).max(0)
-            else if (pb.revival == 0) {
+            if (pb.revival.eq(-1)) loseBattle()
+            else if (pb.revival.gt(0)) player.map.battle.revival = pb.revival.sub(diff).max(0)
+            else if (pb.revival.eq(0)) {
                 player.map.battle.curHP = tb.HP //复活后生命值回满
                 player.map.battle.enemy = undefined //复活后清除敌人
-                player.map.battle.atkCooldown = 0 //复活后清除攻击冷却
-                player.map.battle.revival = -1 //复活时间-1表示没死
+                player.map.battle.atkCooldown = d(0) //复活后清除攻击冷却
+                player.map.battle.revival = d(-1) //复活时间-1表示没死
             }
         }
-        if (pb.atkCooldown > 0) player.map.battle.atkCooldown = Math.max(pb.atkCooldown - diff, 0)
+        if (pb.atkCooldown.gt(0)) player.map.battle.atkCooldown = pb.atkCooldown.sub(diff).max(0)
         if (pb.enemy_hp.eq(0)) {
             winBattle() //如果敌人血量为0则胜利
         }
-        if (pb.enemy_attack_time == 0) {
+        if (pb.enemy_attack_time.eq(0)) {
             player.map.battle.curHP = pb.curHP.sub(enemies[pb.enemy].atk.sub(tb.DEF)).max(0) //敌人攻击
             player.map.battle.enemy_attack_time = enemies[pb.enemy].attack_time //重置
         }
-        if (pb.enemy_attack_time > 0) {
-            player.map.battle.enemy_attack_time = Math.max(pb.enemy_attack_time - diff, 0) //减少敌人攻击时间
+        if (pb.enemy_attack_time.gt(0)) {
+            player.map.battle.enemy_attack_time = pb.enemy_attack_time.sub(diff).max(0) //减少敌人攻击时间
         }
     },
 
@@ -3323,7 +3323,7 @@ addLayer("map", {
 
     atkspd() { //攻击速度
         let atkspd = d(1).div(tmp.map.battle.SPD)
-        return atkspd.toNumber
+        return atkspd
     },
 
     tabFormat: [
@@ -16308,7 +16308,7 @@ addLayer("obsidian", {
             }
             else if (lavaPos == 103) {
                 if (grid[102].block != 2) player.obsidian.grid[102].Lprogress += (diff / player.gameSpeed)
-                else if (grid[101].block != 2 && grid[102].block == 2) gplayer.obsidian.gridrid[101].Lprogress += (diff / player.gameSpeed)
+                else if (grid[101].block != 2 && grid[102].block == 2) player.obsidian.grid[101].Lprogress += (diff / player.gameSpeed)
                 if (grid[104].block != 2) player.obsidian.grid[104].Lprogress += (diff / player.gameSpeed)
             }
             else if (lavaPos == 104) {
@@ -17394,9 +17394,10 @@ addLayer("experience", {
             buy() {
                 let discount = d(1)
                 if (hasUpgrade(experience, 24)) discount = discount.times(buyableEffect(experience, 21))
-                if (this.canBuyMax()) this.buyMax()
-                else player[this.layer].points = player[this.layer].points.sub(this.cost()).max(0),
-                    player.experience.crystal = player.experience.crystal.add(tmp.experience.bulk).min(player.experience.points.times(discount).max(0.2).logBase(5).root(1.3).floor())
+                if (this.canBuyMax()) { this.buyMax(); return; }
+                let cst=this.cost()
+                player.experience.crystal = player.experience.crystal.add(tmp.experience.bulk).min(player.experience.points.times(discount).max(0.2).logBase(5).root(1.3).floor())
+                player[this.layer].points = player[this.layer].points.sub(cst).max(0)
             },
             unlocked() { return hasUpgrade(experience, 12) },
             canAuto() { return false },
@@ -17433,10 +17434,12 @@ addLayer("experience", {
             canBuyMax() { return false },
             buyMax() { if (this.canAfford()) setBuyableAmount(this.layer, this.id, player.experience.knowledge.max(0.33).logBase(3).root(1.1).floor()) },
             buy() {
-                if (this.canBuyMax()) this.buyMax()
-                else player[this.layer].knowledge = player[this.layer].knowledge.sub(this.cost()).max(0),
+                if (this.canBuyMax()) { this.buyMax(); return; }
+                let cst = this.cost()
                     setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(tmp.experience.bulk).min(player.experience.knowledge.max(0.33).logBase(3).root(1.1).floor()))
-            },
+
+                player[this.layer].knowledge = player[this.layer].knowledge.sub(cst).max(0)
+},
             effect(x) {
                 let eff = x.add(this.free()).times(this.effBase())
                 return eff
@@ -17475,10 +17478,12 @@ addLayer("experience", {
             canBuyMax() { return false },
             buyMax() { if (this.canAfford()) setBuyableAmount(this.layer, this.id, player.experience.knowledge.max(0.2).logBase(5).root(1.15).floor()) },
             buy() {
-                if (this.canBuyMax()) this.buyMax()
-                else player[this.layer].knowledge = player[this.layer].knowledge.sub(this.cost()).max(0),
+                if (this.canBuyMax()) { this.buyMax(); return; }
+                let cst = this.cost()
                     setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(tmp.experience.bulk).min(player.experience.knowledge.max(0.2).logBase(5).root(1.15).floor()))
-            },
+
+                player[this.layer].knowledge = player[this.layer].knowledge.sub(cst).max(0)
+},
             effect(x) {
                 let eff = this.effBase().pow(x.add(this.free()).max(0))
                 return eff
@@ -17519,10 +17524,12 @@ addLayer("experience", {
             canBuyMax() { return false },
             buyMax() { if (this.canAfford()) setBuyableAmount(this.layer, this.id, player.experience.knowledge.div(1e193).max(0.01).logBase(100).root(1.3).floor()).min(50) },
             buy() {
-                if (this.canBuyMax()) this.buyMax()
-                else player[this.layer].knowledge = player[this.layer].knowledge.sub(this.cost()).max(0),
+                if (this.canBuyMax()) { this.buyMax(); return; }
+                let cst = this.cost()
+                
                     setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(tmp.experience.bulk).min(player.experience.knowledge.div(1e193).max(0.01).logBase(100).root(1.3).floor()).min(50))
-            },
+                player[this.layer].knowledge = player[this.layer].knowledge.sub(cst).max(0)
+},
             effect(x) {
                 let eff = this.effBase().pow(x.add(this.free()).max(0))
                 return eff
@@ -17559,10 +17566,12 @@ addLayer("experience", {
             canBuyMax() { return false },
             buyMax() { if (this.canAfford()) setBuyableAmount(this.layer, this.id, player.manasteel.points.div(1e13).max(0.33).logBase(3).root(1.05).floor()) },
             buy() {
-                if (this.canBuyMax()) this.buyMax()
-                else player.manasteel.points = player.manasteel.points.sub(this.cost()).max(0),
+                if (this.canBuyMax()) { this.buyMax(); return; }
+                let cst = this.cost()
                     setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(tmp.experience.bulk).min(player.manasteel.points.div(1e13).max(0.33).logBase(3).root(1.05).floor()))
-            },
+
+                player.manasteel.points = player.manasteel.points.sub(cst).max(0)
+},
             effect(x) {
                 let eff = this.effBase().times(x.add(this.free()).max(0))
                 return eff
@@ -17603,10 +17612,11 @@ addLayer("experience", {
             canBuyMax() { return false },
             buyMax() { if (this.canAfford()) setBuyableAmount(this.layer, this.id, player.experience.knowledge.div('1e1640').max(0.1).logBase(1e10).root(2).floor().add(1)) },
             buy() {
-                if (this.canBuyMax()) this.buyMax()
-                else player[this.layer].knowledge = player[this.layer].knowledge.sub(this.cost()).max(0),
+                if (this.canBuyMax()) { this.buyMax(); return; }
+                let cst = this.cost()
                     setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(tmp.experience.bulk).min(player.experience.knowledge.div('1e1640').max(0.1).logBase(1e10).root(2).floor().add(1)))
-            },
+
+                player[this.layer].knowledge = player[this.layer].knowledge.sub(cst).max(0)},
             effect(x) {
                 let eff = x.add(this.free()).times(this.effBase())
                 return eff
