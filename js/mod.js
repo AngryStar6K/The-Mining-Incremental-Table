@@ -207,6 +207,9 @@ function displayThingsRes() {
 	}
 	if (tmp.furnace.layerShown) {
 		d += '<br>'
+        	if (!isBurningFuel()) d += `当前不在消耗燃料 ${textColor('[!]', 'cc0000')}`
+		else d += `当前正在消耗 ${fuelName(fuelID())} 作为燃料`
+		d += '<br>'
 		if (isSmeltingItem()) d += `你正在熔炼 ${smeltingItemName(smeltingItemID())}`
         else d += `你当前不在熔炼 ${textColor('[!]', 'cc0000')}`
 	}
