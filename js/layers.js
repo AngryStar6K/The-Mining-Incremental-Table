@@ -10878,7 +10878,7 @@ addLayer("silver", {
             finding: false,
             found: false,
             vein: d(0),
-            veinCooldown: 0,
+            veinCooldown: d(0),
             singularity: d(0),
         }
     },
@@ -11170,7 +11170,7 @@ addLayer("silver", {
                 冷却：${ftl(player.silver.veinCooldown)}/${ftl(30)}`
                 return d
             },
-            canClick() { return tmp.silver.vein_in_mine.round().eq(0) && player.silver.veinCooldown <= 0 },
+            canClick() { return tmp.silver.vein_in_mine.round().eq(0) && player.silver.veinCooldown.lte(0) },
             onClick() {
                 for (i = 0; i < 49; i++) {
                     player.silver.grid[gridSquare[7]][i] = d(Math.random()).lte(tmp.silver.chainChance) ? 1 : 2,
@@ -11322,7 +11322,7 @@ addLayer("silver", {
 
         if (player.silver.points.gt(player.silver.best)) player.silver.best = player.silver.points
 
-        if (player.silver.veinCooldown > 0) player.silver.veinCooldown = Math.max(player.silver.veinCooldown - diff, 0)
+        if (player.silver.veinCooldown.gt(0)) player.silver.veinCooldown = player.silver.veinCooldown.sub(diff).max(0)
 
         if (goldSkillActived(2)) player.silver.vein = player.silver.vein.add(tmp.silver.veinMult.times(0.01).times(diff))
     },
