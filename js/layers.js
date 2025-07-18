@@ -23081,7 +23081,7 @@ addLayer("furnace", {
             },
             effectiveMult() {
                 let m = this.mult()
-                let frequency = player.furnace.speed.times(diffout).div(130)
+                let frequency = player.furnace.speed.times(diffout).div(130).max(1)
                 m = m.times(frequency)
                 m = m.min(player.stone.sand)
                 m = m.floor()
