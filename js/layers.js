@@ -17389,13 +17389,13 @@ addLayer("experience", {
             buyMax() {
                 let discount = d(1)
                 if (hasUpgrade(experience, 24)) discount = discount.times(buyableEffect(experience, 21))
-                if (this.canAfford()) player.experience.crystal = player.experience.points.times(discount).max(0.2).logBase(5).root(1.3).floor()
+                if (this.canAfford()) player.experience.crystal = player.experience.points.times(discount).max(1).logBase(5).root(1.3).floor()
             },
             buy() {
                 let discount = d(1)
                 if (hasUpgrade(experience, 24)) discount = discount.times(buyableEffect(experience, 21))
                 if (this.canBuyMax()) { this.buyMax(); return; }
-                let cst=this.cost()
+                let cst = this.cost()
                 player.experience.crystal = player.experience.crystal.add(tmp.experience.bulk).min(player.experience.points.times(discount).max(0.2).logBase(5).root(1.3).floor())
                 player[this.layer].points = player[this.layer].points.sub(cst).max(0)
             },
@@ -17432,14 +17432,14 @@ addLayer("experience", {
             },
             canAfford() { return player[this.layer].knowledge.gte(this.cost()) },
             canBuyMax() { return false },
-            buyMax() { if (this.canAfford()) setBuyableAmount(this.layer, this.id, player.experience.knowledge.max(0.33).logBase(3).root(1.1).floor()) },
+            buyMax() { if (this.canAfford()) setBuyableAmount(this.layer, this.id, player.experience.knowledge.max(1).logBase(3).root(1.1).floor()) },
             buy() {
                 if (this.canBuyMax()) { this.buyMax(); return; }
                 let cst = this.cost()
-                    setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(tmp.experience.bulk).min(player.experience.knowledge.max(0.33).logBase(3).root(1.1).floor()))
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(tmp.experience.bulk).min(player.experience.knowledge.max(0.33).logBase(3).root(1.1).floor()))
 
                 player[this.layer].knowledge = player[this.layer].knowledge.sub(cst).max(0)
-},
+            },
             effect(x) {
                 let eff = x.add(this.free()).times(this.effBase())
                 return eff
@@ -17476,14 +17476,14 @@ addLayer("experience", {
             },
             canAfford() { return player[this.layer].knowledge.gte(this.cost()) },
             canBuyMax() { return false },
-            buyMax() { if (this.canAfford()) setBuyableAmount(this.layer, this.id, player.experience.knowledge.max(0.2).logBase(5).root(1.15).floor()) },
+            buyMax() { if (this.canAfford()) setBuyableAmount(this.layer, this.id, player.experience.knowledge.max(1).logBase(5).root(1.15).floor()) },
             buy() {
                 if (this.canBuyMax()) { this.buyMax(); return; }
                 let cst = this.cost()
-                    setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(tmp.experience.bulk).min(player.experience.knowledge.max(0.2).logBase(5).root(1.15).floor()))
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(tmp.experience.bulk).min(player.experience.knowledge.max(1).logBase(5).root(1.15).floor()))
 
                 player[this.layer].knowledge = player[this.layer].knowledge.sub(cst).max(0)
-},
+            },
             effect(x) {
                 let eff = this.effBase().pow(x.add(this.free()).max(0))
                 return eff
@@ -17522,16 +17522,16 @@ addLayer("experience", {
             },
             canAfford() { return player[this.layer].knowledge.gte(this.cost()) },
             canBuyMax() { return false },
-            buyMax() { if (this.canAfford()) setBuyableAmount(this.layer, this.id, player.experience.knowledge.div(1e193).max(0.01).logBase(100).root(1.3).floor()).min(50) },
+            buyMax() { if (this.canAfford()) setBuyableAmount(this.layer, this.id, player.experience.knowledge.div(1e193).max(1).logBase(100).root(1.3).floor()).min(50) },
             buy() {
                 if (this.canBuyMax()) { this.buyMax(); return; }
                 let cst = this.cost()
-                
-                    setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(tmp.experience.bulk).min(player.experience.knowledge.div(1e193).max(0.01).logBase(100).root(1.3).floor()).min(50))
+
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(tmp.experience.bulk).min(player.experience.knowledge.div(1e193).max(1).logBase(100).root(1.3).floor()).min(50))
                 player[this.layer].knowledge = player[this.layer].knowledge.sub(cst).max(0)
-},
+            },
             effect(x) {
-                let eff = this.effBase().pow(x.add(this.free()).max(0))
+                let eff = this.effBase().pow(x.add(this.free()).max(0)).max(1)
                 return eff
             },
             unlocked() { return hasUpgrade(experience, 24) },
@@ -17564,14 +17564,14 @@ addLayer("experience", {
             },
             canAfford() { return player.manasteel.points.gte(this.cost()) },
             canBuyMax() { return false },
-            buyMax() { if (this.canAfford()) setBuyableAmount(this.layer, this.id, player.manasteel.points.div(1e13).max(0.33).logBase(3).root(1.05).floor()) },
+            buyMax() { if (this.canAfford()) setBuyableAmount(this.layer, this.id, player.manasteel.points.div(1e13).max(1).logBase(3).root(1.05).floor()) },
             buy() {
                 if (this.canBuyMax()) { this.buyMax(); return; }
                 let cst = this.cost()
-                    setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(tmp.experience.bulk).min(player.manasteel.points.div(1e13).max(0.33).logBase(3).root(1.05).floor()))
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(tmp.experience.bulk).min(player.manasteel.points.div(1e13).max(1).logBase(3).root(1.05).floor()))
 
                 player.manasteel.points = player.manasteel.points.sub(cst).max(0)
-},
+            },
             effect(x) {
                 let eff = this.effBase().times(x.add(this.free()).max(0))
                 return eff
@@ -17610,13 +17610,14 @@ addLayer("experience", {
             },
             canAfford() { return player[this.layer].knowledge.gte(this.cost()) },
             canBuyMax() { return false },
-            buyMax() { if (this.canAfford()) setBuyableAmount(this.layer, this.id, player.experience.knowledge.div('1e1640').max(0.1).logBase(1e10).root(2).floor().add(1)) },
+            buyMax() { if (this.canAfford()) setBuyableAmount(this.layer, this.id, player.experience.knowledge.div('1e1640').max(1).logBase(1e10).root(2).floor().add(1)) },
             buy() {
                 if (this.canBuyMax()) { this.buyMax(); return; }
                 let cst = this.cost()
-                    setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(tmp.experience.bulk).min(player.experience.knowledge.div('1e1640').max(0.1).logBase(1e10).root(2).floor().add(1)))
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(tmp.experience.bulk).min(player.experience.knowledge.div('1e1640').max(1).logBase(1e10).root(2).floor().add(1)))
 
-                player[this.layer].knowledge = player[this.layer].knowledge.sub(cst).max(0)},
+                player[this.layer].knowledge = player[this.layer].knowledge.sub(cst).max(0)
+            },
             effect(x) {
                 let eff = x.add(this.free()).times(this.effBase())
                 return eff
@@ -24149,7 +24150,7 @@ addLayer("alloy_s", {
                         player.copper.points = player.copper.points.sub(this.effectiveMult().times(3)),
                         player.tin.points = player.tin.points.sub(this.effectiveMult()),
                         player.alloy_s.temperature = d(20)
-                if ((player.copper.points.lt(3) || player.tin.points.lt(1) && alloyingItemID() == this.id)) stopAlloying()
+                if ((player.copper.points.lt(3) || player.tin.points.lt(1)) && alloyingItemID() == this.id) stopAlloying()
             },
             canClick() { return player.copper.points.gte(3) && player.tin.points.gte(1) && player.furnace.burning && !player.alloy_s.alloying },
             onClick() {
