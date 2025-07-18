@@ -17396,7 +17396,7 @@ addLayer("experience", {
                 if (hasUpgrade(experience, 24)) discount = discount.times(buyableEffect(experience, 21))
                 if (this.canBuyMax()) { this.buyMax(); return; }
                 let cst = this.cost()
-                player.experience.crystal = player.experience.crystal.add(tmp.experience.bulk).min(player.experience.points.times(discount).max(0.2).logBase(5).root(1.3).floor())
+                player.experience.crystal = player.experience.crystal.add(tmp.experience.bulk).min(player.experience.points.times(discount).max(1).logBase(5).root(1.3).floor())
                 player[this.layer].points = player[this.layer].points.sub(cst).max(0)
             },
             unlocked() { return hasUpgrade(experience, 12) },
@@ -17436,7 +17436,7 @@ addLayer("experience", {
             buy() {
                 if (this.canBuyMax()) { this.buyMax(); return; }
                 let cst = this.cost()
-                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(tmp.experience.bulk).min(player.experience.knowledge.max(0.33).logBase(3).root(1.1).floor()))
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(tmp.experience.bulk).min(player.experience.knowledge.max(1).logBase(3).root(1.1).floor()))
 
                 player[this.layer].knowledge = player[this.layer].knowledge.sub(cst).max(0)
             },
