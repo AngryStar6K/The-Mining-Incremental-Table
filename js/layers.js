@@ -23845,8 +23845,7 @@ addLayer("furnace", {
     },
 
     update(diff) {
-        if (isSmeltingItem() && player.furnace.temperature.lt(fuelMaxTemp(fuelID()).sub(player.furnace.speed.times(diff)))) player.furnace.temperature = player.furnace.temperature.add(player.furnace.speed.times(diff))
-        if (player.furnace.temperature.gte(fuelMaxTemp(fuelID()).sub(player.furnace.speed.times(diff)))) player.furnace.temperature = fuelMaxTemp(fuelID())
+        if (isSmeltingItem() && player.furnace.temperature.lt(fuelMaxTemp(fuelID()))) player.furnace.temperature = player.furnace.temperature.add(player.furnace.speed.times(diff)).min(fuelMaxTemp(fuelID()))
 
         if (!hasEnoughFuel(fuelID())) stopSmelting(), stopBurning(), stopAlloying()
 
@@ -23861,9 +23860,9 @@ addLayer("furnace", {
         //燃料消耗
 
         if (player.furnace.fuel == 10001) player.wood.points = player.wood.points.sub(tmp.furnace.clickables[10001].burnSpeed.times(diff))
-        if (player.furnace.fuel == 10002) player.stone.coal = player.stone.coal.sub(tmp.furnace.clickables[10002].burnSpeed.times(diff))
-        if (player.furnace.fuel == 10003) player.furnace.charcoal = player.furnace.charcoal.sub(tmp.furnace.clickables[10003].burnSpeed.times(diff))
-        if (player.furnace.fuel == 10004) player.iron.lava = player.iron.lava.sub(tmp.furnace.clickables[10004].burnSpeed.times(diff)),
+        else if (player.furnace.fuel == 10002) player.stone.coal = player.stone.coal.sub(tmp.furnace.clickables[10002].burnSpeed.times(diff))
+        else if (player.furnace.fuel == 10003) player.furnace.charcoal = player.furnace.charcoal.sub(tmp.furnace.clickables[10003].burnSpeed.times(diff))
+        else if (player.furnace.fuel == 10004) player.iron.lava = player.iron.lava.sub(tmp.furnace.clickables[10004].burnSpeed.times(diff)),
             player.iron.water = player.iron.water.sub(d(5000).times(diff))
 
         //更新最大页码
