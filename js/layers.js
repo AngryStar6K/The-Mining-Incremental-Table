@@ -24236,13 +24236,18 @@ addLayer("alloy_s", {
                 if (hasUpgrade(alumbrass, 24)) m = player.iron.points.min(player.nickel.points).max(1).pow(upgradeEffect(alumbrass, 24)).floor()
                 return m
             },
+            effectiveMult() {
+                let m = this.mult()
+                m = m.min(player.nickel.points).min(player.iron.points).max(1)
+                return m
+            },
             result(diff) {
                 if (player.alloy_s.temperature.gte(alloyingItemTemp(alloyingItemID())) && isAlloyingItem() && alloyingItemID() == this.id)
-                    player.invar.points = player.invar.points.add(this.mult().min(player.nickel.points.min(player.iron.points)).times(2)),
-                        player.iron.points = player.iron.points.sub(this.mult().min(player.iron.points)),
-                        player.nickel.points = player.nickel.points.sub(this.mult().min(player.nickel.points)),
+                    player.invar.points = player.invar.points.add(this.effectiveMult().times(2)),
+                        player.iron.points = player.iron.points.sub(this.effectiveMult()),
+                        player.nickel.points = player.nickel.points.sub(this.effectiveMult()),
                         player.alloy_s.temperature = d(20)
-                if ((player.nickel.points.lt(this.mult()) || player.copper.points.lt(this.mult())) && alloyingItemID() == this.id) stopAlloying()
+                if ((player.nickel.points.lt(1) || player.copper.points.lt(1)) && alloyingItemID() == this.id) stopAlloying()
             },
             canClick() { return player.iron.points.gte(1) && player.nickel.points.gte(1) && player.furnace.burning && !player.alloy_s.alloying },
             onClick() {
@@ -24538,7 +24543,7 @@ addLayer("alloy_s", {
 
     update(diff) {
         if (isAlloyingItem() && player.furnace.speed.times(diff).gte(alloyingItemTemp(alloyingItemID()).sub(20))) player.alloy_s.temperature = alloyingItemTemp(alloyingItemID())
-        else if (isAlloyingItem() && player.alloy_s.temperature.lt(fuelMaxTemp(fuelID()).sub(player.furnace.speed.times(diff)))) player.alloy_s.temperature = player.alloy_s.temperature.add(player.furnace.speed.times(diff)).min(fuelMaxTemp(fuelID()))
+        else if (isAlloyingItem() && player.alloy_s.temperature.lt(fuelMaxTemp(fuelID()))) player.alloy_s.temperature = player.alloy_s.temperature.add(player.furnace.speed.times(diff)).min(fuelMaxTemp(fuelID()))
 
         //更新最大页码
         // if (tmp[ct].clickables[31].unlocked) player[ct].maxPage = 2
