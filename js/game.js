@@ -383,7 +383,7 @@ function gameLoop(diff) {
 
 function hardReset(resetOptions) {
 	let hardresetcomfirm = prompt("输入“永别了，挖矿增量”或者\"Farewell, Mining Incremental\"进行硬重置")
-	if (hardresetcomfirm != "再见了，挖矿增量" && hardresetcomfirm != "Farewell, Mining Incremental") return
+	if (hardresetcomfirm != "永别了，挖矿增量" && hardresetcomfirm != "Farewell, Mining Incremental") return
 	player = null
 	if(resetOptions) options = null
 	save(true);
@@ -414,7 +414,7 @@ var interval = setInterval(function() {
 	if (tmp.gameEnded&&!player.keepGoing) return;
 	ticking = true
 	let now = Date.now()
-	let diff = (now - player.time) / 1e3
+	let diff = Math.max((now - player.time) / 1e3, 0)
 	let trueDiff = diff
 	diffout = diff
 	diffout = Math.min(diffout, maxTickLength ? maxTickLength() : 3600)
@@ -465,7 +465,7 @@ function startInterval() {
 		if (tmp.gameEnded&&!player.keepGoing) return;
 		ticking = true
 		let now = Date.now()
-		let diff = (now - player.time) / 1e3
+		let diff = Math.max((now - player.time) / 1e3, 0)
 		let trueDiff = diff
 		diffout = diff
 		diffout = Math.min(diffout, maxTickLength ? maxTickLength() : 3600)
