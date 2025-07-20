@@ -2833,6 +2833,11 @@ addLayer("offline_progress", {
 
     update(diff) {
         if (!options.offlineProd) player.gameSpeed = 1
+
+        if (player.invar.points.lt(0)) alert(`你的殷钢锭因为未知原因变成了负数！殷钢锭：${fw(player.invar.points)}，不过其数量会立刻恢复为正。`),
+        player.invar.points = d(0)
+        if (player.alumbrass.points.lt(0)) alert(`你的铝黄铜锭因为未知原因变成了负数！铝黄铜锭：${fw(player.alumbrass.points)}，不过其数量会立刻恢复为正。`),
+        player.alumbrass.points = d(0)
     },
 
     offlineLimit() { //将离线时间上限转到这里控制
@@ -4078,6 +4083,7 @@ addLayer("wood", {
         if (hasCraftingItem(102)) speed = speed.times(3)
         if (hasCraftingItem(321)) speed = speed.times(10)
         player.wood.speed = speed
+    console.log(`invar: ${f(player.invar.points)}, alumbrass: ${f(player.alumbrass.points)}`)
     },
 
     logEffects: {
@@ -10137,7 +10143,7 @@ addLayer("brass", {
                 return `${f(upgradeEffect(this.layer, this.id))}x`
             },
             tooltip() {
-                let t = `公式：10<sup>(lg(殷钢锭)/60+1)<sup>0.9</sup></sup>`
+                let t = `公式：10<sup>(ln(殷钢锭)/60+1)<sup>0.9</sup></sup>`
                 return t
             },
         },
@@ -24287,6 +24293,7 @@ addLayer("alloy_s", {
                 if (hasUpgrade(alumbrass, 23)) m = m.times(10)
                 if (hasUpgrade(zinc, 22)) m = m.times(upgradeEffect(zinc, 22))
                 if (hasUpgrade(brass, 12)) m = m.times(upgradeEffect(brass, 12))
+                m = m.max(1)
                 return m
             },
             result(diff) {
