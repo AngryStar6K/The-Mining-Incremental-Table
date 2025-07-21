@@ -4083,7 +4083,6 @@ addLayer("wood", {
         if (hasCraftingItem(102)) speed = speed.times(3)
         if (hasCraftingItem(321)) speed = speed.times(10)
         player.wood.speed = speed
-    console.log(`invar: ${f(player.invar.points)}, alumbrass: ${f(player.alumbrass.points)}`)
     },
 
     logEffects: {
