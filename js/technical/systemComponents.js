@@ -202,9 +202,45 @@ var systemComponents = {
 			<a class="link" href="https://discord.gg/F3xveHV" target="_blank">{{ geti18n()?"点击跳转":"Click Here" }}</a><br>
 			<h6 style="color:#aaa">({{ geti18n()?"就是这些":"That\'s all" }})</h6>
 		</div>
+
 		<br><br><br><br>
+		
+        <h2>{{ geti18n()?"关于作者":"About Mod Author" }}:</h2><br><br>
+		<div style="border: 3px solid #888; width:300px; height:145px; margin-top: 8px; padding:15px; border-radius: 5px; display: inline-table">
+			<h3>{{ geti18n()?"马造2树（英语）":"Mario Maker 2 Tree" }}:</h3><br>
+			<a class="link" href="https://angrystar6k.github.io/The-Mario-Maker-2-Tree" target="_blank">{{ geti18n()?"点击跳转":"Click Here" }}</a><br>
+			<h6 style="color:#aaa">({{ geti18n()?"这是作者的第一个TMT作品":"Aurhor's First TMT Game" }})</h6>
+		</div>
+		<div style="border: 3px solid #888; width:300px; height:145px; margin-top: 8px; padding:15px; border-radius: 5px; display: inline-table">
+			<h3>{{ geti18n()?"在galaxy.click上玩马造2树（英语）":"Play MM2T on galaxy.click" }}:</h3><br>
+			<a class="link" href="https://galaxy.click/play/318" target="_blank">{{ geti18n()?"点击跳转":"Click Here" }}</a><br>
+			<h6 style="color:#aaa">(截止2025/7/21，马造2树版本为v0.12)</h6>
+		</div>
+		<div style="border: 3px solid #888; width:300px; height:145px; margin-top: 8px; padding:15px; border-radius: 5px; display: inline-table">
+			<h3>{{ geti18n()?"挖矿增量页（中文）":"TMIT" }}:</h3><br>
+			<a class="link" href="https://angrystar6k.github.io/The-Mining-Incremental-Table" target="_blank">{{ geti18n()?"点击跳转":"Click Here" }}</a><br>
+			<h6 style="color:#aaa">(就是你现在在玩的)</h6>
+		</div>
+		<div style="border: 3px solid #888; width:300px; height:145px; margin-top: 8px; padding:15px; border-radius: 5px; display: inline-table">
+			<h3>{{ geti18n()?"挖矿增量页（中文）锅巴备用地址":"TMIT" }}:</h3><br>
+			<a class="link" href="https://the-mining-incremental-table.g8hh.com.cn/" target="_blank">{{ geti18n()?"点击跳转":"Click Here" }}</a><br>
+			<h6 style="color:#aaa">(或者在这)</h6>
+		</div>
+
+		<br><br><br><br>
+		
 		<h2>快捷键：</h2><br>
-        <span v-for="key in hotkeys" v-if="player[key.layer].unlocked && tmp[key.layer].hotkeys[key.id].unlocked"><br>{{key.description}}</span></div>
+        <span v-for="key in hotkeys" v-if="player[key.layer].unlocked && tmp[key.layer].hotkeys[key.id].unlocked"><br>{{key.description}}</span>
+
+		<br><br><br><br>
+		
+		<h2>特别感谢：</h2><br><br>
+
+		<span>Phigr1301: 提供许多建议并协助修复bug<br>
+		BeautyFallenCat: 故事层级剧情的显示窗口样式Modal原作者<br>
+		</span>
+		
+		<br><br><br><br></div>
     `
 	},
 
