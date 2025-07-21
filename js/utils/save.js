@@ -301,8 +301,9 @@ function exportSave() {
 }
 function importSave(imported = undefined, forced = false) {
 	if (imported === undefined)
-		imported = prompt("Paste your save here");
+		imported = prompt("在此处粘贴你的存档");
 	if (imported == '哼哼哼，啊啊啊啊啊啊啊啊') player.homo = true
+	else if (!imported.startsWith("N4IgLghg")) return alert("导入失败！请确认存档是否正确！")
 	try {
 		tempPlr = Object.assign(getStartPlayer(), JSON.parse(LZString.decompressFromBase64(imported)));
 		if (tempPlr.versionType != modInfo.id && !forced && !confirm("This save appears to be for a different mod! Are you sure you want to import?")) // Wrong save (use "Forced" to force it to accept.)
