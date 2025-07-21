@@ -4083,6 +4083,7 @@ addLayer("wood", {
         if (hasCraftingItem(102)) speed = speed.times(3)
         if (hasCraftingItem(321)) speed = speed.times(10)
         player.wood.speed = speed
+    console.log(`invar: ${f(player.invar.points)}, alumbrass: ${f(player.alumbrass.points)}`)
     },
 
     logEffects: {
@@ -22294,7 +22295,7 @@ addLayer("crafting_table", {
             display() {
                 let d = `
                 需要工具：钻石合成台 + 铅锤<br>
-                需要材料：${f(1e38)}绿宝石 + 200硬化玻璃<br>
+                需要材料：${f(1e38)}知识精华锭 + 200硬化玻璃<br>
                 复杂度：${formatWhole(this.complexity)}<br>
                 效果：5x找矿速度<br>`
                 return d
@@ -22325,7 +22326,7 @@ addLayer("crafting_table", {
             display() {
                 let d = `
                 需要工具：钻石合成台 + 铅锤<br>
-                需要材料：${f(1e39)}绿宝石<br>
+                需要材料：${f(1e39)}知识精华锭<br>
                 复杂度：${formatWhole(this.complexity)}<br>
                 效果：二阶等级在51开始每级都能使知识精华锭获取变为10x<br>
                 当前效果：${f(clickableEffect(this.layer, this.id))}x`
