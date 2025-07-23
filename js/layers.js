@@ -11839,7 +11839,7 @@ addLayer("gold", {
                 }
             },
             enableHoldBuy_diff() {
-                return inChallenge(gold, 11)
+                return inChallenge(gold, 11) && !hasMilestone(electrum, 0)
             },
             holdBuy_diff() {
                 if (this.canAfford()) setBuyableAmount(gold, 11, getBuyableAmount(gold, 11).add(options.updatingRate / 20).min(player.gold.stored_time.div('8.9383653085428e1860').max(1).logBase(3.5).root(1.25).floor().add(5000)))
@@ -11909,7 +11909,7 @@ addLayer("gold", {
                 }
             },
             enableHoldBuy_diff() {
-                return inChallenge(gold, 11)
+                return inChallenge(gold, 11) && !hasMilestone(electrum, 1)
             },
             holdBuy_diff() {
                 if (this.canAfford()) setBuyableAmount(gold, 12, getBuyableAmount(gold, 12).add(options.updatingRate / 20).min(player.gold.points.div(500000).max(1).logBase(3).root(1.2).floor().add(1)))
@@ -12570,7 +12570,13 @@ addLayer("gold", {
                     }],
                     ["display-text", function () { return `时钟时间扭曲：${textStyle_h2(f(tmp.gold.timewarp) + "x", 'fdf55f')}` }],
                     ["display-text", function () { if (inChallenge(gold, 11)) return `你在挑战“反向扭曲”中，因此时钟时间扭曲/${f(tmp.gold.challenges[11].nerf)}！` }],
-                    ["display-text", function () { if (inChallenge(gold, 11)) return buyBuyableRateText() }],
+                    ["display-text", function () { if (inChallenge(gold, 11)) return buyBuyableRateText() + '<br>'}],
+                    ["display-text", function () { 
+                        let t = ''
+                        if (hasMilestone(electrum, 0)) t += '你达成了第1琥珀金里程碑，因此在“反向扭曲”中，“基础时间扭曲”购买项按住的效果改为购买最大<br>'
+                        if (hasMilestone(electrum, 0)) t += '你达成了第2琥珀金里程碑，因此在“反向扭曲”中，“黄金时间扭曲”购买项按住的效果改为购买最大<br>'
+                        if (inChallenge(gold, 11)) return t
+                        }],
                     //["display-text", function () { if (player.gold.stored_time.gte(tmp.gold.softcapStart)) return `由于时间储存超过了${ftl(tmp.gold.softcapStart)}，时钟时间扭曲/${f(tmp.gold.timeSoftcap)}！` }],
                     //["display-text", function () { return `当前每刻(tick)储存的时间不能大于上一刻的${f(tmp.gold.growthLimit.add(1))}倍+1` }],
                     ["row",
