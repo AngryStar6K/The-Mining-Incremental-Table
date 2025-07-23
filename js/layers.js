@@ -21788,7 +21788,7 @@ addLayer("crafting_table", {
                 return d
             },
             complexity: d(1.25e16),
-            canClick() { return player.crafting_table.points.gte(1) && player[ct].items[392].gte(6) && player.manasteel.points.gte(1000) && !player.crafting_table.crafting && !hasCraftingItem(this.id) && hasCraftingItem(271) && hasCraftingItem(181) },
+            canClick() { return player.crafting_table.points.gte(1) && player[ct].items[392].gte(6) && !player.crafting_table.crafting && !hasCraftingItem(this.id) && hasCraftingItem(271) && hasCraftingItem(181) },
             onClick() {
                 player.crafting_table.crafting = true,
                     player.crafting_table.craftingItem = this.id,
