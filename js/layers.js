@@ -13111,7 +13111,7 @@ addLayer("redstone", {
         15: {
             title: "超-红石信号",
             description: "红石信号的强度上限变为5x",
-            canAfford() { return player.redstone.points.gte(4180) },
+            canAfford() { return player.redstone.points.gte(780000) },
             onPurchase() { player.redstone.points = player.redstone.points.sub(780000) },
             currencyInternalName: "points",
             currencyDisplayName() { return `琥珀金锭 + ${f(780000)} 红石粉` },
