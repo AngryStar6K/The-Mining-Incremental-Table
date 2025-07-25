@@ -156,9 +156,9 @@ function changeNotation() {//记数法没有修好
 }
 
 function setUpdatingRate() {
-	let rate = prompt("请输入更新频率（下限50 上限200 单位毫秒）")
+	let rate = prompt("请输入更新频率（下限50 上限1000 单位毫秒）")
 	rate = Number(rate)
-	if (!isNaN(rate)) options.updatingRate = Math.max(50, Math.min(200, Math.round(rate)))
+	if (!isNaN(rate)) options.updatingRate = Math.max(50, Math.min(1000, Math.round(rate)))
 	startInterval()
 }
 
