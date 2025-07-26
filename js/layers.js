@@ -39,6 +39,23 @@ function getEveryGridIDArray(row, col) {
     return arr
 }
 
+function negativeResourceFixText(name, EN) {
+    return `你的${name}因为未知原因变成了负数！${name}：${fw(EN)}，不过其数量会立刻设为0。如果你知道可能是什么原因导致的话，请前往github报告issue，带上异常的资源和错误的负值！`
+}
+
+function checkResourceHealth() {
+    if (player.invar.points.lt(0)) alert(negativeResourceFixText('殷钢锭', player.invar.points)),
+        player.invar.points = d(0)
+    if (player.alumbrass.points.lt(0)) alert(negativeResourceFixText('铝黄铜锭', player.alumbrass.points)),
+        player.alumbrass.points = d(0)
+    if (player.furnace.glass.lt(0)) alert(negativeResourceFixText('玻璃', player.furnace.glass)),
+        player.furnace.glass = d(0)
+}
+
+const resourceCheckInterval = setInterval(function () { //后续可能改为手动修复
+    checkResourceHealth()
+}, 60000) //1分钟检测一次
+
 addLayer("0layer", {
     name: "sideLayer0",
     position: -7,
@@ -2833,11 +2850,6 @@ addLayer("offline_progress", {
 
     update(diff) {
         if (!options.offlineProd) player.gameSpeed = 1
-
-        if (player.invar.points.lt(0)) alert(`你的殷钢锭因为未知原因变成了负数！殷钢锭：${fw(player.invar.points)}，不过其数量会立刻恢复为正。`),
-        player.invar.points = d(0)
-        if (player.alumbrass.points.lt(0)) alert(`你的铝黄铜锭因为未知原因变成了负数！铝黄铜锭：${fw(player.alumbrass.points)}，不过其数量会立刻恢复为正。`),
-        player.alumbrass.points = d(0)
     },
 
     offlineLimit() { //将离线时间上限转到这里控制
