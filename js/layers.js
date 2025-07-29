@@ -16027,7 +16027,7 @@ addLayer("obsidian", {
             }
         },
         getUnlocked(id) { // Default
-            return hasCraftingItem(412)
+            return hasCraftingItem(421)
         },
         getCanClick(data, id) {
             return (data.block != 4 && (data.block != 3 || player.obsidian.placeBlock == "remove")) && (player.obsidian.placeCooldown <= 0 || player.obsidian.placeBlock == "remove") && (player.obsidian.placeBlock != "remove" || !data.flowing) // 不能在黑曜石或石头上放置水或熔岩 黑曜石不可直接移除
