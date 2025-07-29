@@ -11124,6 +11124,7 @@ addLayer("silver", {
         35: {
             title: "更加珍贵的",
             description: "需求：等级125,000<br>现在可以挖掘金矿石",
+            canAfford() { return player.level.gte(125000) },
             currencyInternalName: "ore",
             currencyDisplayName: "银矿石",
             currencyLayer: silver,
