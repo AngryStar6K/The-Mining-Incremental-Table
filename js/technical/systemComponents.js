@@ -95,7 +95,7 @@ var systemComponents = {
 				small: tmp[layer].small
 			}"
 			v-bind:style="constructNodeStyle(layer)">
-			<span style="font-family: cursive;" v-html="(abb !== '' && tmp[layer].image === undefined) ? (abb+(tmp[layer].notify && player[layer].unlocked?'<red>!</red>':'')) : '&nbsp;'"></span>
+			<span style="font-family: cursive;" v-html="(abb !== '' && tmp[layer].image === undefined) ? (abb+(tmp[layer].notify && player[layer].unlocked?'<notifyMark>!</notifyMark>':'')) : '&nbsp;'"></span>
 			<node-mark :layer='layer' :data='tmp[layer].marked'></node-mark>
 		</button>
 		`
@@ -183,20 +183,26 @@ var systemComponents = {
 		
         <h2>{{ geti18n()?"其他页面":"Other Pages" }}:</h2><br><br>
 		<div style="border: 3px solid #888; width:300px; height:30px; margin-top: 8px; padding:15px; border-radius: 5px; display: inline-table">
+			<h3>{{ geti18n()?"更新日志":"Changelog" }}:</h3><br>
+			<a class="link" onclick="showTab('changelog-tab');getActiveClass('Changelog')">{{ geti18n()?"点击跳转":"Click Here" }}</a><br>
+			<h6 style="color:#aaa">({{ geti18n()?"其实也可以点右上角的版本号":"The Top-Right Version Button Matters" }})</h6>
+		</div>
+		<div style="border: 3px solid #888; width:300px; height:30px; margin-top: 8px; padding:15px; border-radius: 5px; display: inline-table">
 			<h3>{{ geti18n()?"Shinwmyste的Discord":"Shinwmyste's Discord" }}:</h3><br>
 			<a class="link" href="https://discord.gg/DTJYvatRQA" target="_blank">{{ geti18n()?"点击跳转":"Click Here" }}</a><br>
-			<h6 style="color:#aaa">({{ geti18n()?"快点来,非常好玩":"Enjoy Yourself There!" }})</h6>
+			<h6 style="color:#aaa">({{ geti18n()?"加入DC群":"Join Discord" }})</h6>
+		</div>
+		<div style="border: 3px solid #888; width:300px; height:30px; margin-top: 8px; padding:15px; border-radius: 5px; display: inline-table">
+			<h3>{{geti18n()?"QQ群":"QQ Group"}}:</h3><br>
+			<a class="link" href="https://qm.qq.com/q/axo4Pc8xvG" target="_blank">{{ geti18n()?"点击跳转":"Click Here" }}</a><br>
+			<h6 style="color:#aaa"><s>({{geti18n()?"快点来,非常好玩(确信)":"I know you dont use this"}})</s></h6>
 		</div>
 		<div style="border: 3px solid #888; width:300px; height:30px; margin-top: 8px; padding:15px; border-radius: 5px; display: inline-table">
 			<h3>{{ geti18n()?"捐助页面":"Donate Page" }}:</h3><br>
 			<a class="link" href="https://afdian.net/@Mysterious124" target="_blank">{{ geti18n()?"点击跳转":"Click Here" }}</a><br>
 			<h6 style="color:#aaa">($_$)</h6>
 		</div>
-		<div style="border: 3px solid #888; width:300px; height:30px; margin-top: 8px; padding:15px; border-radius: 5px; display: inline-table">
-			<h3>{{ geti18n()?"更新日志":"Changelog" }}:</h3><br>
-			<a class="link" onclick="showTab('changelog-tab');getActiveClass('Changelog')">{{ geti18n()?"点击跳转":"Click Here" }}</a><br>
-			<h6 style="color:#aaa">({{ geti18n()?"其实也可以点右上角的版本号":"The Top-Right Version Button Matters" }})</h6>
-		</div>
+		
 		<div style="border: 3px solid #888; width:300px; height:30px; margin-top: 8px; padding:15px; border-radius: 5px; display: inline-table">
 			<h3>{{ geti18n()?"模组树Discord":"The Modding Tree Discord" }}:</h3><br>
 			<a class="link" href="https://discord.gg/F3xveHV" target="_blank">{{ geti18n()?"点击跳转":"Click Here" }}</a><br>
@@ -238,6 +244,7 @@ var systemComponents = {
 
 		<span>Phigr1301: 提供许多建议并协助修复bug<br>
 		BeautyFallenCat: 故事层级剧情的显示窗口样式Modal原作者<br>
+		MC_Edwin、TCreopargh：挖矿增量部分层级资源设计（美术设计，颜色等）原型整合包作者<br>
 		</span>
 		
 		<br><br><br><br></div>
