@@ -25773,7 +25773,7 @@ addLayer("blast_furnace", {
                     if (!(player.iron.ore.gte(1) && player.furnace.charcoal.gte(1))) player.blast_furnace.actived[this.id] = false
                     player.blast_furnace.time[this.id] = player.blast_furnace.time[this.id].add(player.blast_furnace.time_multi.times(diffout))
                 }
-                if (player.blast_furnace.time[this.id].gte(tmp.blast_furnace.clickables[this.id].time.sub(d(1).times(diffout)))) {
+                if (player.blast_furnace.time[this.id].gte(tmp.blast_furnace.clickables[this.id].time)) {
                     player.blast_furnace.time[this.id] = d(0)
                     player.steel.molten = player.steel.molten.add(d(144).times(this.mult().min(player.iron.ore).min(player.furnace.charcoal)))
                     player.iron.ore = player.iron.ore.sub(this.mult().min(player.iron.ore).min(player.furnace.charcoal))
