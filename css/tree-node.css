@@ -155,6 +155,7 @@
 	transform: rotate(35deg);
 }
 
-red {
+notifyMark {
 	color: red;
+	-webkit-text-stroke: black 1px;
 }
