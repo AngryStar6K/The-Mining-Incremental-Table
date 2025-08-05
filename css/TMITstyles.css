@@ -194,6 +194,7 @@
 .text-manasteel {
   background: linear-gradient(to bottom, #005ee0 0%, #7db4ff 20%, #006bff 80%, #0045a3 100%);
   background-clip: text;
+  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 10px #005ee0;
 }
@@ -201,6 +202,7 @@
 .text-platinum {
   background: linear-gradient(to bottom, #62d1f3 0%, #c8fbff 30%, #ffffff 50%, #aae3ff 80%, #476fbe 100%);
   background-clip: text;
+  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 10px #c8fbff;
 }
@@ -208,6 +210,7 @@
 .text-terrasteel {
   background: linear-gradient(to bottom, #2f8300 0%, #9fff57 15%, #53f900 80%, #39bc00 90%, #277c00 100%);
   background-clip: text;
+  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 10px #53f900;
 }
