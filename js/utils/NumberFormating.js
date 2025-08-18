@@ -133,6 +133,7 @@ function format(num, precision = 2) {
     if (notation == 'Hyper-E') return hyperE(num, precision)
     if (notation == 'Letter') return letter(num, precision)
     if (notation == 'Emoji') return letter(num, precision, ['😠', '🎂', '🎄', '💀', '🍆', '🐱', '🌈', '💯', '🍦', '🎃', '💋', '😂', '🌙', '⛔', '🐙', '💩', '❓', '☢', '🙈', '👍', '☂', '✌', '⚠', '❌', '😋', '⚡'])
+    if (notation == 'Chinese') return chineseNumber(num, precision)
 }
 
 function scientific(num, precision = 2, small = false) {
@@ -472,7 +473,7 @@ function letter(EN, precision = 2, str = 'abcdefghijklmnopqrstuvwxyz') { //目�
     }
 }
 
-function hyperE(EN, precision) {
+function hyperE(EN, precision = 2) {
     p = Math.max(precision, 2)
     EN = new ExpantaNum(EN)
     if (EN.sign == -1) return "-" + hyperE(EN.abs())
@@ -495,7 +496,7 @@ function hyperE(EN, precision) {
             }
         }
     }
-    var r = "E" + scientific(simplifyEN.operator(0), 0) + "#" + scientific(simplifyEN.operator(1), 0)
+    var r = "E" + scientific(simplifyEN.operator(0), p) + "#" + scientific(simplifyEN.operator(1), 0)
     if (EN.lt("10{5}10")) for (var i = Math.ceil(EN.getOperatorIndex(2)); i < EN.array.length; ++i) {
         if (l + 1 < EN.array[i][0]) r += "#1".repeat(simplifyEN.array[i][0] - l - 1);
         l = EN.array[i][0];
@@ -597,11 +598,11 @@ function roman(num) { //附魔等级，显示1~3999级，4000+正常显示
     let h = Math.floor(n / 100) % 10
     let d = Math.floor(n / 10) % 10
     let m = n % 10
-    
+
     let kr = "M".repeat(k)
     let hr
     if (h == 9) hr = "CM"
-    else if (h >= 5) hr = "D" + "C".repeat(h - 5) 
+    else if (h >= 5) hr = "D" + "C".repeat(h - 5)
     else if (h == 4) hr = "CD"
     else hr = "C".repeat(h)
     let dr
@@ -617,4 +618,58 @@ function roman(num) { //附魔等级，显示1~3999级，4000+正常显示
 
     let r = kr + hr + dr + mr
     return r
+}
+
+var formatRarity = fr = function (num, sigma, colored) {
+    num = d(num)
+    let name1 = ["Common", "Uncommon", "Rare", "Unique", "Epic", "Legendary", "Mythic", "Transcendent", "Celestial", "Divine", "Flawless", "Extreme", "Almighty", "Zenith", "Exotic", "Wyvern", "Draconic", "Chaotic", "Orderly", "Theoretical", "Paradox"]
+    let color1 = ["a0a0a0", "1e8622", '0078c4', '0d40ff', '9c27b0', 'd68100', 'd50000', '00c3c3', '9696ff', 'ffc0c6', 'b896ff', 'fbfb00', 'def8a9', '622918', 'fc65aa', 'b8a5c5', 'f6c5aa', '4a4f55', 'f2ede8', '451360', '581358']
+    let name2 = ["", "Kilo", "Mega", "Giga", "Tera", "Peta", "Exa", "Zetta", "Yotta", "Ronna", "Quetta"]
+    let id1
+    let id2
+    if (num.lt(9e15)) {
+        num = num.toNumber()
+        id1 = num % 20
+        id2 = Math.floor(num / 20)
+        if (id1 == 0) {
+            id1 = 20
+            id2 -= 1
+        }
+    }
+    let Rname1 = name1[id1]
+    let Rname2 = id2 <= 10 ? name2[id2] : 'Arch<sup>' + formatWhole(id2) + '</sup>'
+    if (id2 >= 1) Rname1 = '-' + Rname1
+    let Rname = Rname2 + Rname1
+    if (id2 < 0) Rname = name1[0]
+    if (sigma) Rname += ` [${fw(num)}σ]`
+    if (colored) {
+        if (d(num).eq(0)) Rname = textStyle_h3(Rname, color1[0])
+        else if (d(num).lt(2000)) Rname = textStyle_h3(Rname, color1[id1])
+    }
+    return Rname
+}
+
+function chineseNumber(num, precision = 2) {
+    num = new ExpantaNum(num)
+    if (num.lt(0)) return "-" + chineseNumber(num.abs())
+    if ((num.gte(0.001) && num.lt(10000)) || num.eq(0)) return regularFormat(num, precision)
+    if (num.lt(0.001) && num.neq(0)) return "1/" + letter(num.rec(), precision)
+    let names = ["", "万", "亿", "兆", "京", "垓", "秭", "穰", "沟", "涧", "正", "载", "极", "恒河沙", "阿僧祇", "那由他", "不可思议", "无量"]
+    let OoM = num.max(1).log10().floor()
+    let repeats = OoM.div(72).floor()
+    let id_t = OoM.div(4).floor()
+    let id = OoM.sub(repeats.times(72)).div(4).floor().toNumber()
+    if (num.lt('1e720000')) {
+        let mantissa = num.div(new ExpantaNum(10000).pow(id_t))
+        let dashu = ''
+        if (repeats.eq(1)) dashu = '大数'
+        else if (repeats.gte(2)) dashu = `大数^${regularFormat(repeats, 0)}`
+        let char = names[id] + dashu
+        let before = regularFormat(mantissa, 2)
+        return before + char
+    }
+    else if (num.lt('10^^5')) {
+        return '大数^' + chineseNumber(repeats, precision)
+    }
+    else return scientific(num, precision) //没做说是
 }
