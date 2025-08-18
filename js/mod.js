@@ -20,7 +20,7 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.7",
+	num: "0.8pre - 25w34a",
 	name: "",
 }
 
@@ -28,6 +28,12 @@ function changelog() {
 	return (options.ch || modInfo.languageMod == false) ? `
 		<br><br><br><h1>更新日志:</h1><br>(含有<span style='color: red'>剧透</span>，请谨慎查看)<br><br>
 		<span style="font-size: 17px;">
+			<h3>v0.8pre - 25w34a</h3><br>
+				- 记数法设置项解禁！当前有科学、超-E、字母、Emoji、中文共5种记数法。如果你遇到了记数法的bug请在github提issue<br>
+				- 成就总数：113 + 9<br>
+				- 提前准备了部分v0.8需要使用的代码<br>
+				- 此更新除了增加一个隐藏成就外没有新增游戏内容<br>
+				<br><br>
 			<h3>v0.7 - 珍贵的宝石、知识的迸发</h3><br>
 				- 版本终点：获得1泰拉钢锭，约e1.000e7,800经验<br>
 				- 成就总数：113 + 8<br>
@@ -141,6 +147,7 @@ function tiersUpdating(tier) {
 	t = tier.toNumber()
 	player.tiers[t - 1] = d(player.tiers[t - 1])
 	if (tier.eq(1)) player.tiers[t - 1] = player.level.max(1).div(50000).logBase(20).max(0).root(1.35).floor()
+	else if (tier.eq(2)) player.tiers[t - 1] = player.tiers[t - 2].max(0).div(10000).logBase(100).max(0).floor() //三阶等级增长简化为后续高阶等级做准备
 }
 
 function nextLevelReq() {
@@ -158,7 +165,7 @@ function nextTiersReq(tier) {
 function addedPlayerData() {
 	return {
 		devSpeed: 1, //锁定为1，转而使用离线时间调整游戏倍率
-		offTime: {remain: 0},
+		offTime: { remain: 0 },
 		lastTimePlayed: Date.now(),
 		gameSpeed: 1,
 		level: d(0),
@@ -171,7 +178,9 @@ function addedPlayerData() {
 		console: false,
 		StevesLavaChicken: d(0),
 		random: -1, //每秒刷新随机数0~10000. //熔岩烤鸡使用0~30 概率0.3%
+		redeemedCodes: {
 		}
+	}
 }
 
 // Display extra things at the top of the page
@@ -186,12 +195,12 @@ var displayThings = [
 function timestampToTime(timestamp) {
 	var date = new Date(timestamp);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
 	var Y = date.getFullYear() + '/';
-	var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1):date.getMonth()+1) + '/';
-	var D = (date.getDate()< 10 ? '0'+date.getDate():date.getDate())+ ' ';
-	var h = (date.getHours() < 10 ? '0'+date.getHours():date.getHours())+ ':';
-	var m = (date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()) + ':';
-	var s = date.getSeconds() < 10 ? '0'+date.getSeconds():date.getSeconds();
-	return Y+M+D+h+m+s;
+	var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '/';
+	var D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
+	var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+	var m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
+	var s = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds();
+	return Y + M + D + h + m + s;
 }
 
 // You can write stuff here to display them on top-left corner easily
@@ -207,16 +216,16 @@ function displayThingsRes() {
 	}
 	if (tmp.furnace.layerShown) {
 		d += '<br>'
-        	if (!isBurningFuel()) d += `当前不在消耗燃料 ${textColor('[!]', 'cc0000')}`
+		if (!isBurningFuel()) d += `当前不在消耗燃料 ${textColor('[!]', 'cc0000')}`
 		else d += `当前正在消耗 ${fuelName(fuelID())} 作为燃料`
 		d += '<br>'
 		if (isSmeltingItem()) d += `你正在熔炼 ${smeltingItemName(smeltingItemID())}`
-        else d += `你当前不在熔炼 ${textColor('[!]', 'cc0000')}`
+		else d += `你当前不在熔炼 ${textColor('[!]', 'cc0000')}`
 	}
 	if (tmp.alloy_s.layerShown) {
 		d += '<br>'
 		if (isAlloyingItem()) d += `你正在合金 ${alloyingItemName(alloyingItemID())}`
-        else d += `你当前不在合金 ${textColor('[!]', 'cc0000')}`
+		else d += `你当前不在合金 ${textColor('[!]', 'cc0000')}`
 	}
 	if (tmp.sing_fus.layerShown) {
 		d += '<br>'
@@ -224,7 +233,7 @@ function displayThingsRes() {
 	}
 	d += '<br>' + getTpsDisplay()
 	if (player.offTime.remain < 0) d += `<br>警告：玩家貌似使用了时光机回到了过去，因此游戏速度强制为0x。请关闭游戏并等待到${timestampToTime(Date.now() - player.offTime.remain * 1000)}。`
-	d = '<div class="res">'+ d +'</div>'
+	d = '<div class="res">' + d + '</div>'
 	r += d
 
 	return options.newsShown ? r : d
@@ -300,7 +309,7 @@ function getPointsDisplay() {
 		if (player.points.lt('ee12') && !tmp.experience.layerShown) a += `<br><span class="overlayThing">${format(player.points)}/${format(nextLevelReq())}</span>`
 		if (hasAchievement('achievements', 123)) a += `<br><span class="overlayThing">二阶等级<h2  class="overlayThing" id="points" ${noShadow}> ${formatWhole(player.tiers[0])}</h2></span>`,
 			a += `<br><span class="overlayThing">${format(player.level)}/${format(nextTiersReq(1))}</span>`
-			if (player.points.gte('e1.7976e308') && player.experience.crystal.lte(0)) a += `<br><br><span class="overlayThing">我不会让你走得更远了</span>`
+		if (player.points.gte('e1.7976e308') && player.experience.crystal.lte(0)) a += `<br><br><span class="overlayThing">我不会让你走得更远了</span>`
 		a += `<div style="margin-top: 3px"></div>`
 	}
 	a += '<br><div class="vl2"></div>'
@@ -440,3 +449,99 @@ function quickDoubleColor(str, colora, colorb) {
 }
 
 //test
+const redeemCodes = { //不是哥们你觉得我会让你看到兑换码吗
+	"d4a3f992fc45459554e716646162865091889b39362b474c161b514fbca809a9": {
+		reward: 1
+	},
+	"fa547ab3b5a0d6451011a6b1c03428bb69f627702981c2cf393a7089cabe8273": {
+		reward: 1
+	},
+	"9ffaa7217df7d0826f172f1f4ee665ffe7a08cc85e8953df5c91d51df9d5fa58": {
+		reward: 1
+	},
+}
+
+Object.freeze(redeemCodes)
+
+async function sha256(input) {
+	// 这里使用浏览器的SubtleCrypto API或polyfill
+	// 实际实现会更复杂，这里只是示例
+	const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input))
+	return Array.from(new Uint8Array(hash))
+		.map(b => b.toString(16).padStart(2, '0'))
+		.join('')
+}
+
+async function redeemCode() {
+	const input = prompt("请在此输入你的兑换码")
+	const hash = await sha256(input.trim().toUpperCase());
+	console.log(hash)
+
+	if (player.redeemedCodes[hash]) {
+		alert("此兑换码已被使用")
+	}
+	else if (redeemCodes[hash]) {
+		const reward = redeemCodes[hash];
+		// 给予奖励
+		player.offTime.remain = player.offTime.remain + (reward.reward * 3600)
+
+		// 标记为已使用（存储在游戏存档中）
+		if (!player.redeemedCodes) player.redeemedCodes = {};
+		player.redeemedCodes[hash] = true;
+
+		alert(`兑换成功！获得 ${reward.reward * 3600} 秒离线时间`);
+	}
+	else alert("无效的兑换码");
+}
+
+var tmpres = {}
+
+function updateTmpRes(diff) {
+	if (hasCraftingItem(92)) {
+		if (!tmpres.bronze) tmpres.bronze = { power: player.bronze.power }
+		updateResourceOoMps(bronze, 'power', diff)
+	}
+	if (hasCraftingItem(202)) {
+		if (!tmpres.constantan) tmpres.constantan = { essence: player.constantan.essence }
+		updateResourceOoMps(constantan, 'essence', diff)
+	}
+	if (hasNormalAchievement(85)) {
+		if (!tmpres.invar) tmpres.invar = { energy: player.invar.energy }
+		updateResourceOoMps(invar, 'energy', diff)
+	}
+}
+
+function updateResourceOoMps(layer, res, diff) {
+	tmpres[layer + ' ' + res + ' mag'] = 0
+	if (!tmpres[layer]) return;
+	else if (!tmpres[layer][res]) return;
+	else {
+		var lp = tmpres[layer][res] || new ExpantaNum(0)
+		var pp = player[layer][res]
+		if (pp.gt(lp)) {
+			if (pp.gte("10^^20")) {
+				pp = pp.slog(1e10)
+				lp = lp.slog(1e10)
+				tmpres[layer + ' ' + res] = pp.sub(lp).div(diff)
+				tmpres[layer + ' ' + res + ' mag'] = -1;
+			} else {
+				while (pp.div(lp).logBase(10).div(diff).gte("10") && tmpres[layer + ' ' + res + ' mag'] <= 5 && lp.gt(0)) {
+					pp = pp.logBase(10)
+					lp = lp.logBase(10)
+					tmpres[layer + ' ' + res] = pp.sub(lp).div(diff)
+					tmpres[layer + ' ' + res + ' mag']++;
+				}
+			}
+		}
+		tmpres[layer][res] = player[layer][res]
+	}
+}
+
+function getOoMpsText(layer, res) {
+	if (!tmpres[layer]) return;
+	let resOomps = tmpres[layer + ' ' + res] || new ExpantaNum(0)
+	let resOompsMag = tmpres[layer + ' ' + res + ' mag'] || 0
+	if (tmpres[layer][res] == 0) return
+	t = (format(resOomps) + " OoM" + (resOompsMag < 0 ? "^^2" : resOompsMag > 1 ? "^" + resOompsMag : "") + "s")
+	return t
+}
