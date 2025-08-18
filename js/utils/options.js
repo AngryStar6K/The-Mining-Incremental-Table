@@ -149,10 +149,10 @@ function switchDefaultUpgSize() {
 	options.biggerUpgs = !options.biggerUpgs
 }
 
-var notations = ['Scientific', 'Hyper-E', 'Letter', 'Emoji'] //想在ExpantaNum.js里搓记数法还是很吃力的（
-var notationsZH = ['科学(FGH-JK)', '超-E', '字母', 'Emoji']
-function changeNotation() {//记数法没有修好
-	//options.notation = notations[(notations.indexOf(options.notation) + 1) % notations.length]
+var notations = ['Scientific', 'Hyper-E', 'Letter', 'Emoji', 'Chinese'] //想在ExpantaNum.js里搓记数法还是很吃力的（
+var notationsZH = ['科学(FGH-JK)', '超-E', '字母', 'Emoji', '中文']
+function changeNotation() {//记数法没有修好 -- 25w34a进入测试状态
+	options.notation = notations[(notations.indexOf(options.notation) + 1) % notations.length]
 }
 
 function setUpdatingRate() {
