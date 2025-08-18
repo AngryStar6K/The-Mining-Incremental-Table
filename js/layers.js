@@ -1,7 +1,3 @@
-//v0.6需要检查的东西：更严谨的高炉结构检测、金升级9，贯穿全游戏的时间墙长度，优化下一步做什么提醒，奇点可聚合提醒
-//准备长期停更，顺便回到马造树重新优化
-//v0.6准备更新8层
-//最后重玩一遍调整平衡减少不必要的墙，进一步优化显示
 
 console.log(`挖矿增量页 by AngryStar6K`)
 
@@ -2482,7 +2478,7 @@ addLayer("achievements", {
             },
             unlocked() { return hasAchievement('achievements', this.id) },
         },
-        /*100012: {
+        100012: {
             name: "重置眼花缭乱",
             tooltip: "在使用Emoji记数法时进行300次合成台重置 <br><br> <i>“只要用得够久，就可以阅读它”</i>",
             done() { return player.crafting_table.emojiNotationResets.gte(300) },
@@ -2490,7 +2486,7 @@ addLayer("achievements", {
                 return player.achievements.secret = player.achievements.secret.add(1)
             },
             unlocked() { return hasAchievement('achievements', this.id) },
-        },*/
+        },
         100013: {
             name: "臭小子",
             tooltip: "尝试在导入存档处散播恶臭 <br><br> <i>“这小子在尝试导入雪（悲）”</i>",
@@ -29150,3 +29146,4 @@ addLayer("mana", {
         },
     },
 })
+
