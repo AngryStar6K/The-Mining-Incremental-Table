@@ -81,12 +81,12 @@ function shouldNotify(layer){
 	for (id in tmp[layer].upgrades){
 		if (isPlainObject(layers[layer].upgrades[id])){
 			if (canAffordUpgrade(layer, id) && !hasUpgrade(layer, id) && tmp[layer].upgrades[id].unlocked){
-				return true
+				return 'upgrades'
 			}
 		}
 	}
 	if (player[layer].activeChallenge && canCompleteChallenge(layer, player[layer].activeChallenge)) {
-		return true
+		return 'challenges'
 	}
 
 	if (tmp[layer].shouldNotify)
@@ -113,6 +113,12 @@ function shouldNotify(layer){
 	 
 	return false
 	
+}
+
+function notifyText(notify) {
+	if (notify == 'upgrades') return "[!]Upg"
+	if (notify == 'challenges') return "[!]Chal"
+	return "[!]"
 }
 
 function canReset(layer)
@@ -391,6 +397,7 @@ function hardReset(resetOptions) {
 }
 
 function gameSpeedCost() {
+	if (player.gameSpeed < 1) return player.gameSpeed - 1
 	let cost = (player.gameSpeed - 1) ** 2
 	return cost
 }
@@ -408,6 +415,8 @@ var diffout = 0
 var startIntervalDelay = 0
 var startIntervalDelayCap = 1
 
+var gameruntime = 0
+
 var interval = setInterval(function() {
 	if (player===undefined||tmp===undefined) return;
 	if (ticking) return;
@@ -424,7 +433,7 @@ var interval = setInterval(function() {
 			let offlineDiff = diff
 			offlineDiff *= player.gameSpeed - 1
 			let speedCost = diff * gameSpeedCost()
-			player.offTime.remain = Math.max((player.offTime.remain - speedCost), 0)
+			player.offTime.remain = Math.min(Math.max((player.offTime.remain - speedCost), 0), tmp.offline_progress.offlineLimit * 3600)
 			diff += offlineDiff
 			diffout += offlineDiff
 		}
@@ -443,12 +452,14 @@ var interval = setInterval(function() {
 	updateOomps(diff);
 	updateWidth()
 	updateTabFormats()
+	updateTmpRes(diff)
 	gameLoop(diff)
 	fixNaNs()
 	adjustPopupTime(trueDiff)
 	updateParticles(trueDiff)
 	ticking = false
 	pastTickTimes = [Date.now() - now].concat(pastTickTimes.slice(0, 9))
+	gameruntime += trueDiff
 
 	startIntervalDelay = startIntervalDelay + diff
 	if (startIntervalDelay >= startIntervalDelayCap) {
@@ -475,7 +486,7 @@ function startInterval() {
 				let offlineDiff = diff
 				offlineDiff *= player.gameSpeed - 1
 				let speedCost = diff * gameSpeedCost()
-				player.offTime.remain = Math.max((player.offTime.remain - speedCost), 0)
+				player.offTime.remain = Math.min(Math.max((player.offTime.remain - speedCost), 0), tmp.offline_progress.offlineLimit * 3600)
 				diff += offlineDiff
 				diffout += offlineDiff
 			}
@@ -493,12 +504,14 @@ function startInterval() {
 		updateOomps(diff);
 		updateWidth()
 		updateTabFormats()
+		updateTmpRes(diff)
 		gameLoop(diff)
 		fixNaNs()
 		adjustPopupTime(trueDiff)
 		updateParticles(trueDiff)
 		ticking = false
 		pastTickTimes = [Date.now() - now].concat(pastTickTimes.slice(0, 9))
+		gameruntime += trueDiff
 	}, options.updatingRate || 50)
 }
 
