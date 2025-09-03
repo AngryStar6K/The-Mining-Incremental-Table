@@ -98,6 +98,63 @@ function singularity(layer) {
 	return player[layer].singularity
 }
 
+//文本动态颜色渐变
+function rgbToHex(red, green, blue) {
+	const toHex = (colorValue) => {
+		const hex = colorValue.toString(16);
+		return hex.length == 1 ? "0" + hex : hex;
+	};
+	return /*"#" + */toHex(red) + toHex(green) + toHex(blue);
+}
+
+function hexToRgb(hex) {
+	hex = hex.replace(/^\s*#|\s*$/g, "");
+	let red = parseInt(hex.substr(0, 2), 16);
+	let green = parseInt(hex.substr(2, 2), 16);
+	let blue = parseInt(hex.substr(4, 2), 16);
+
+	return [red, green, blue];
+}
+
+function getColorBetweenTwoColors(colorA_str, colorB_str, ratio) {
+	const colorA = hexToRgb(colorA_str);
+	const colorB = hexToRgb(colorB_str);
+	const r = Math.round((colorB[0] - colorA[0]) * ratio + colorA[0]);
+	const g = Math.round((colorB[1] - colorA[1]) * ratio + colorA[1]);
+	const b = Math.round((colorB[2] - colorA[2]) * ratio + colorA[2]);
+
+	return rgbToHex(r, g, b);
+}
+
+const animationTextColors = {
+	fiery: {
+		color1: '191313',
+		color2: '662d09',
+		shadow1: 'ffd83a',
+		shadow2: 'ffffff',
+		loopTime: 4,
+		nodes: 2,
+	}
+}
+
+function getAnimatedTextColor(style) { //暂时只支持平滑渐变，TMT变色字体函数
+	const colors = animationTextColors[style]
+	if (!colors) return 'ffffff'
+	const time_in_period = gameruntime % colors.loopTime
+	const states = (colors.nodes - 1) * 2
+	const which_state = Math.floor(time_in_period / (colors.loopTime / states)) + 1
+	const which_half = (time_in_period / colors.loopTime) > 0.5 ? 2 : 1
+	let ratio = 0
+	if (which_half == 1) ratio = (time_in_period / (colors.loopTime / states)) - (which_state - 1)
+	else ratio = 1 - ((time_in_period / (colors.loopTime / states)) - (which_state - 1))
+	const resultcolor = getColorBetweenTwoColors(colors.color1, colors.color2, ratio)
+	const resultshadow = getColorBetweenTwoColors(colors.shadow1, colors.shadow2, ratio)
+	return {
+		color: resultcolor,
+		shadow: resultshadow,
+	}
+}
+
 function textStyle_h2(text, color='ffffff', shadowcolor=color) {
 	let shadow = `0 0 10px #${shadowcolor}`
 	if (!options.textShadowShown) shadow = "none"
@@ -131,6 +188,11 @@ function textResourceStyle(text, style = 'overlayThing', type = 'h2') { //调用
 	let shadow = ""
 	if (!options.textShadowShown) shadow = "style='text-shadow: none'"
 	return `<${type} class = "${style}" ${shadow} >${text}</${type}>`
+}
+
+function textAnimatedStyle(text, style = 'fiery', type = 'h2') {
+	let colors = getAnimatedTextColor(style)
+	return `<${type} style='color: #${colors.color}; text-shadow: 0 0 10px #${colors.shadow}'>${text}</${type}>`
 }
 
 function textStyle_story(text, color='ffffff', shadowcolor=color) {
