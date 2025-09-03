@@ -3554,7 +3554,8 @@ addLayer("offline_progress", {
                 return t
             },
             display() {
-                let d = "自动模拟玩家点击撸树按钮，但是每次花费5秒离线时间"
+                let d = "自动模拟玩家点击撸树按钮，但是每次花费5秒离线时间<br>"
+                d += `状态：${player.offline_progress.mechanical_hand[51] ? '开' : '关'}`
                 return d
             },
             canClick() { return player.offTime.remain >= 60 && player.gameSpeed <= 1 && options.offlineProd },
@@ -3564,6 +3565,7 @@ addLayer("offline_progress", {
             auto() {
                 if (tmp.wood.clickables[11].canClick && player.offline_progress.mechanical_hand[51]) tmp.wood.clickables[11].onClick(),
                     player.offTime.remain = Math.max(0, player.offTime.remain - 5)
+                if (player.offTime.remain < 5) player.offline_progress.mechanical_hand[51] = false
             },
             unlocked() { return true },
             style() {
@@ -3580,7 +3582,8 @@ addLayer("offline_progress", {
                 return t
             },
             display() {
-                let d = "自动模拟玩家点击挖掘石头按钮，但是每次花费5秒离线时间"
+                let d = "自动模拟玩家点击挖掘石头按钮，但是每次花费5秒离线时间<br>"
+                d += `状态：${player.offline_progress.mechanical_hand[52] ? '开' : '关'}`
                 return d
             },
             canClick() { return player.offTime.remain >= 60 && player.gameSpeed <= 1 && options.offlineProd },
@@ -3590,6 +3593,7 @@ addLayer("offline_progress", {
             auto() {
                 if (tmp.stone.clickables[11].canClick && player.offline_progress.mechanical_hand[52]) tmp.stone.clickables[11].onClick(),
                     player.offTime.remain = Math.max(0, player.offTime.remain - 5)
+                if (player.offTime.remain < 5) player.offline_progress.mechanical_hand[52] = false
             },
             unlocked() { return true },
             style() {
