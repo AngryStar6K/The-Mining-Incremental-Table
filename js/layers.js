@@ -4610,7 +4610,7 @@ addLayer("map", {
                 }
             },
             tooltip() {
-                let s
+                let s = ['', '']
                 if (hasCraftingItem(612)) s = ['<s>', '</s>']
                 return `冰雪女王会在攻击时施加debuff：冻结<br>冻结：${s[0]}损失50%的护甲，${s[1]}攻速变为原来的25%，你无法自然恢复HP`
             }
@@ -37348,3 +37348,4 @@ addLayer("mana", {
         },
     },
 })
+
