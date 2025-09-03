@@ -20,7 +20,7 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.8pre - 25w34a",
+	num: "0.8",
 	name: "",
 }
 
@@ -28,6 +28,19 @@ function changelog() {
 	return (options.ch || modInfo.languageMod == false) ? `
 		<br><br><br><h1>更新日志:</h1><br>(含有<span style='color: red'>剧透</span>，请谨慎查看)<br><br>
 		<span style="font-size: 17px;">
+			<h3>v0.8 - 暮色森林</h3><br>
+				- 版本终点：获得1魂金锭，约e1.00e3,120,000经验<br>
+				- 成就总数：134 + 11<br>
+				- 添加世界2层级：魔力水晶<br>
+				- 添加世界3层级：暮光宝石、铁树、娜迦鳞片、钢叶、骑士金属、结构金属、炽铁、砷铅铁矿石<br>
+				- 添加世界4层级：魂金<br>
+				- 添加杂项层级：层级选择（没做）<br>
+				- 在时间跃迁层级中可以激活机械手，以离线时间为代价来模拟玩家点击事件（目前只支持撸树和挖掘石头）<br>
+				- 在时间跃迁层级中可以输入兑换码<br>
+				- 优化、更正游戏文本<br>
+				- 添加3种记数法：标准、失明、修复无限（共8种）<br>
+				- 不同的滚动新闻数量：147<br>
+				<br><br>
 			<h3>v0.8pre - 25w34a</h3><br>
 				- 记数法设置项解禁！当前有科学、超-E、字母、Emoji、中文共5种记数法。如果你遇到了记数法的bug请在github提issue<br>
 				- 成就总数：113 + 9<br>
@@ -157,7 +170,8 @@ function nextLevelReq() {
 function nextTiersReq(tier) {
 	tier = new ExpantaNum(tier)
 	t = tier.toNumber()
-	return ExpantaNum.pow(20, player.tiers[t - 1].max(0).add(1).pow(1.35)).times(50000).ceil()
+	if (t == 1) return ExpantaNum.pow(20, player.tiers[t - 1].max(0).add(1).pow(1.35)).times(50000).ceil()
+	if (t == 2) return ExpantaNum.pow(100, player.tiers[t - 1].max(0).add(1)).times(10000).ceil()
 }
 
 
@@ -179,7 +193,9 @@ function addedPlayerData() {
 		StevesLavaChicken: d(0),
 		random: -1, //每秒刷新随机数0~10000. //熔岩烤鸡使用0~30 概率0.3%
 		redeemedCodes: {
-		}
+		},
+		TPSwarn: false,
+		resourcePinned: []
 	}
 }
 
@@ -207,7 +223,11 @@ function timestampToTime(timestamp) {
 function displayThingsRes() {
 	let r = `<div id="news" class="news" v-if="player.news"><span id="newsText" class="newsContent" style="left: ${ntl}px;">${nt}</span></div>`
 	let d = ""
-	d = d + `离线时间: ${textColor(formatTime(player.offTime.remain * 1000) + "/" + formatTime(tmp.offline_progress.offlineLimit * 3600000), 'b2ff59')}`
+	d = d + `经验: ${format(player.points)}`
+	for (let i = 0; i < player.resourcePinned.length; i++) {
+		d = d + `<br>${tmp[player.resourcePinned[i]].resource}：${f(player[player.resourcePinned[i]].points)}`
+	}
+	d = d + `<br>离线时间: ${textColor(formatTime(player.offTime.remain * 1000) + "/" + formatTime(tmp.offline_progress.offlineLimit * 3600000), 'b2ff59')}`
 	d = d + "<br>当前位置：" + locationName(player.map.location, true)
 	if (tmp[ct].layerShown) {
 		d += '<br>'
@@ -241,7 +261,7 @@ function displayThingsRes() {
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.terrasteel.points.gte(1)
+	return player.soularium.points.gte(1) && player.points.gte('ee3120000')
 }
 
 var date = {
@@ -280,7 +300,9 @@ function getTpsDisplay() {
 		p1 = "<bdi style='color: #cc0000'>"
 		p2 = "</bdi> "
 		warn = `<br>提醒：你的过去的10游戏刻相比于设定的帧刷新率平均偏长了${fp(slow)}！`
+		player.TPSwarn = true
 	}
+	else player.TPSwarn = false
 
 	let display = "TPS: " + p1 + f(tps) + p2 + ", " + "MSPT: " + p1 + f(mspt) + p2 + warn
 	return display
@@ -292,7 +314,7 @@ function getPointsDisplay() {
 	a += tmp.displayThings
 	if (options.paused) a += '游戏暂停'
 	if (player.gameSpeed && player.gameSpeed != 1) {
-		a += '<br>游戏速度: ' + formatWhole(player.gameSpeed) + 'x'
+		a += '<br>游戏速度: ' + format(player.gameSpeed) + 'x'
 	}
 	/*if (player.offTime !== undefined) {
 		a += '<br>离线加速剩余时间: ' + formatTime(player.offTime.remain * 1000)
@@ -450,13 +472,13 @@ function quickDoubleColor(str, colora, colorb) {
 
 //test
 const redeemCodes = { //不是哥们你觉得我会让你看到兑换码吗
-	"d4a3f992fc45459554e716646162865091889b39362b474c161b514fbca809a9": {
+	"3eb8f27e2df57aaebf2b734f46208d9cc584afa566e46bb70357b6635c963618": {
 		reward: 1
 	},
-	"fa547ab3b5a0d6451011a6b1c03428bb69f627702981c2cf393a7089cabe8273": {
+	"1478d0607ee143fbebaab2b357258ded95c78b31eff5e31ce2cd8e08a3b9147a": {
 		reward: 1
 	},
-	"9ffaa7217df7d0826f172f1f4ee665ffe7a08cc85e8953df5c91d51df9d5fa58": {
+	"ca1ab1c4a77f77d98de48c9c03d8b7e885cb088aa6c016449098f0767e456282": {
 		reward: 1
 	},
 }
@@ -473,8 +495,10 @@ async function sha256(input) {
 }
 
 async function redeemCode() {
+	const salt = '9KeVd0LqsTNo35'
 	const input = prompt("请在此输入你的兑换码")
-	const hash = await sha256(input.trim().toUpperCase());
+	const code = salt.slice(0, 7) + input.trim().toUpperCase() + salt.slice(7)
+	const hash = await sha256(code);
 	console.log(hash)
 
 	if (player.redeemedCodes[hash]) {
@@ -545,3 +569,8 @@ function getOoMpsText(layer, res) {
 	t = (format(resOomps) + " OoM" + (resOompsMag < 0 ? "^^2" : resOompsMag > 1 ? "^" + resOompsMag : "") + "s")
 	return t
 }
+
+const Decimal = ExpantaNum
+const OmegaNum = ExpantaNum
+const PowiainaNum = ExpantaNum //有机会吗？
+
