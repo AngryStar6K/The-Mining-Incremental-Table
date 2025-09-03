@@ -130,10 +130,13 @@ function setToZero(array, height) {
 function format(num, precision = 2) {
     let notation = options.notation
     if (notation == 'Scientific') return scientific(num, precision)
-    if (notation == 'Hyper-E') return hyperE(num, precision)
-    if (notation == 'Letter') return letter(num, precision)
-    if (notation == 'Emoji') return letter(num, precision, ['😠', '🎂', '🎄', '💀', '🍆', '🐱', '🌈', '💯', '🍦', '🎃', '💋', '😂', '🌙', '⛔', '🐙', '💩', '❓', '☢', '🙈', '👍', '☂', '✌', '⚠', '❌', '😋', '⚡'])
-    if (notation == 'Chinese') return chineseNumber(num, precision)
+    else if (notation == 'Hyper-E') return hyperE(num, precision)
+    else if (notation == 'Letter') return letter(num, precision)
+    else if (notation == 'Emoji') return letter(num, precision, ['😠', '🎂', '🎄', '💀', '🍆', '🐱', '🌈', '💯', '🍦', '🎃', '💋', '😂', '🌙', '⛔', '🐙', '💩', '❓', '☢', '🙈', '👍', '☂', '✌', '⚠', '❌', '😋', '⚡'])
+    else if (notation == 'Chinese') return chineseNumber(num, precision)
+    else if (notation == 'Standard') return standard(num, precision)
+    else if (notation == 'Blind') return blind()
+    else if (notation == 'Fixed Infinity') return fixedInfinity(num, precision)
 }
 
 function scientific(num, precision = 2, small = false) {
@@ -644,7 +647,7 @@ var formatRarity = fr = function (num, sigma, colored) {
     if (sigma) Rname += ` [${fw(num)}σ]`
     if (colored) {
         if (d(num).eq(0)) Rname = textStyle_h3(Rname, color1[0])
-        else if (d(num).lt(2000)) Rname = textStyle_h3(Rname, color1[id1])
+        else if (d(num).lt(10000)) Rname = textStyle_h3(Rname, color1[id1])
     }
     return Rname
 }
@@ -672,4 +675,205 @@ function chineseNumber(num, precision = 2) {
         return '大数^' + chineseNumber(repeats, precision)
     }
     else return scientific(num, precision) //没做说是
+}
+
+function t1format(x, mult = false, y) {
+    let ills = ['K', 'M', 'B', 'T', 'Qa', 'Qt', 'Sx', 'Sp', 'Oc', 'No']
+    let t1ones = ["", "U", "D", "T", "Qa", "Qt", "Sx", "Sp", "Oc", "No"]
+    if (mult && y > 0 && x < 10) t1ones = ["", "", "D", "T", "Qa", "Qt", "Sx", "Sp", "Oc", "No"]
+    let t1tens = ["", "Dc", "Vg", "Tg", "Qd", "Qi", "Se", "St", "Og", "Nn"]
+    let t1hunds = ["", "Ce", "Dn", "Tc", "Qe", "Qu", "Sc", "Si", "Oe", "Ne"]
+    let t1f = ills[x]
+    if (mult && y > 0) t1f = t1ones[x]
+    if (x >= 10) t1f = t1ones[x % 10] + t1tens[Math.floor(x / 10) % 10] + t1hunds[Math.floor(x / 100)]
+    return t1f
+}
+
+function t2format(x, mult = false, y) {
+    let t2ills = ["", "Mi", "Mc", "Na", "Pc", "Fm", "At", "Zp", "Yc", "Xn"]
+    let t2ones = ["", "Me", "Du", "Tr", "Te", "Pe", "He", "Hp", "Ot", "En"]
+    if (mult && y > 0 && x < 10) t2ones = ["", "", "Mc", "Na", "Pc", "Fm", "At", "Zp", "Yc", "Xn"]
+    let t2tens = ["", "c", "Ic", "TCn", "TeC", "PCn", "HCn", "HpC", "OCn", "ECn"]
+    let t2hunds = ["", "Hc", "DHe", "THt", "TeH", "PHc", "HHe", "HpH", "OHt", "EHc"]
+    let t2f = t2ills[x]
+    if (mult && y > 0) t2f = t2ones[x]
+    let t2t = t2tens[Math.floor(x / 10) % 10]
+    if (x % 100 == 10) t2t = 'Vec'
+    if (x >= 10) t2f = t2ones[x % 10] + t2t + t2hunds[Math.floor(x / 100)]
+    return t2f
+}
+
+function t3format(x, mult = false, y, z) {
+    let t3ills = ["", "Kl", "Mg", "Gi", "Ter", "Pt", "Ex", "Zt", "Yt", "Xe"]
+    let t3ones = ["", "eN", "oD", "tR", "tE", "pT", "eX", "zE", "yO", "xN"]
+    let t3tns = ["Dk", "Hn", "Dok", "TrD", "TeD", "PeD", "ExD", "ZeD", "YoD", "NeD"]
+    let t3to = ["k", "k", "c", "c", "c", "k", "k", "c", "k", "c"]
+    if (mult && y > 0 && x < 10) t3ones = ["", "", "D", "Tr", "T", "P", "Ex", "Z", "Y", "N"]
+    let t3tens = ["", "", "I", "Tr", "Te", "P", "E", "Z", "Y", "N"]
+    let t3hunds = ["", "Ho", "Do", "Tro", "To", "Po", "Exo", "Zo", "Yo", "No"]
+    let t3f = t3ills[x]
+    if ((mult && y > 0) || z >= 1e3) t3f = t3ones[x]
+    let t3t = t3tens[Math.floor(x / 10) % 10]
+    let t3h = t3hunds[Math.floor(x / 100)]
+    if (x % 100 == 0) t3h += 'T'
+    if (x % 100 < 20 && x % 100 > 9) t3t = t3tns[x % 10]
+    if (x % 100 > 19) t3t += t3to[x % 10] + t3ones[x % 10]
+    if (x >= 10) t3f = t3h + t3t
+    if (x >= 100 && x % 100 < 10) t3f = t3h + t3ones[x % 10]
+    return t3f
+}
+
+function t4format(x, m, mult = false, y) {
+    let t4ills = ["", "aL", "eJ", "iJ", "AsT", "uN", "rM", "oV", "oL", "eT", "O", "aX", "uP", "rS", "lT", "eT", "eV", "yP", "OmN", "uT", "aRr"]
+    if (mult && y > 0 && x < 10) t4ills = ["", "", "eJ", "iJ", "AsT", "uN", "rM", "oV", "oL", "eT", "O", "aX", "uP", "rS", "lT", "eT", "eV", "yP", "OmN", "OuT", "aRr"]
+    if (m >= 2) t4ills[15] = "etT"
+    let t4ones = ["", "aRraL", "aRreJ", "aRriJ", "aRrAst", "aRruN", "aRrrM", "aRroV", "aRroL", "aRreT"]
+    let t4thirty_ones = ["aRr", "aRraL", "aRreJ", "aRriJ", "aRrAst", "aRruN", "aRrrM", "aRroV", "aRroL", "aRreT"]
+    let t4tens = ["", "", "B", "G", "AsT", "LuN", "FrM", "JoV", "SoL", "BeT"]
+    if (m >= 2 || x > 100) t4tens = ["", "", "", "oG", "AsT", "uN", "rM", "oV", "oL", "eT"]
+    let t4hunds = ["", "HuT", "MuT", "GuT", "AsTuT", "LuT", "FuT", "JuT", "SuT", "BuT"]
+    let t4m = ["", "K", "M", "G", "", "L", "F", "J", "S", "B", "Gl", "G", "S", "V", "M", "M", "X", "H", "", "O", "B"]
+    if (mult && y > 0 && x < 10) t4m = ["", "", "M", "G", "", "L", "F", "J", "S", "B", "Gl", "G", "S", "V", "M", "M", "X", "H", "", "O", "B"]
+    let t4f = t4ills[x]
+    if (m < 2) t4f = t4m[x] + t4f
+    if (x > 20 && x < 30 && m < 2) t4f = t4tens[Math.floor(x / 10) % 10] + t4ones[x % 10]
+    if (x > 20 && x < 30 && m >= 2) t4f = t4ones[x % 10]
+    if (x >= 30 && x < 100) t4f = t4tens[Math.floor(x / 10) % 10] + t4thirty_ones[x % 10]
+    if (x >= 100 && x < 1000 && x % 100 <= 20) t4f = t4hunds[Math.floor(x / 100) % 10] + t4ills[Math.floor(x % 100)]
+    if (x >= 100 && x < 1000 && x % 100 > 20 && x % 100 < 30) t4f = t4hunds[Math.floor(x / 100) % 10] + t4thirty_ones[x % 10]
+    if (x >= 100 && x < 1000 && x % 100 > 30) t4f = t4hunds[Math.floor(x / 100) % 10] + t4tens[Math.floor(x / 10) % 10] + t4thirty_ones[x % 10]
+    return t4f
+}
+
+function t5format(x, mult = false, y) {
+    let t5ills = ["", "Hep", "Ott", "Neg", "Deg", "Ung", "Ent", "Fit", "Syt", "Brt"]
+    if (mult && y > 0 && x < 10) t5ills = ["", "", "Ott", "Neg", "Deg", "Ung", "Ent", "Fit", "Syt", "Brt"]
+    let t5tens = ["", "Gep", "Ams", "Hpr", "Kyr", "Pij", "Sgn", "Pct", "Nsb", "Ztz"]
+    let t5tens_comp = ["", "Gea'", "Ama'", "Hpa'", "Kya'", "Pia'", "Sga'", "Pra'", "Nia'", "Zza'"]
+    let t5hunds = ["", "Alp", "Bex", "Gmm", "Dlt", "Tht", "Iot", "Kap", "Lmd", "Sgm"]
+    let t5hunds_comp = ["", "Afa'", "Bfa'", "Gfa'", "Dfa'", "Tfa'", "Ifa'", "Kfa'", "Lfa'", "Sfa'"]
+    let t5f = ""
+    if (x < 10) t5f = t5ills[x]
+    if (x >= 10 && x % 10 == 0 && x < 100) t5f = t5tens[x / 10]
+    if (x >= 10 && x % 10 == 0 == false && x < 100) t5f = t5tens_comp[Math.floor(x / 10)] + t5ills[x % 10]
+    if (x % 100 == 0) t5f = t5hunds[x / 100]
+    if (x > 100 && x % 10 == 0 && x % 100 == 0 == false) t5f = t5hunds_comp[Math.floor(x / 100)] + t5tens[x % 100 / 10]
+    if (x > 100 && x % 10 == 0 == false && x % 100 == 0 == false) t5f = t5hunds_comp[Math.floor(x / 100)] + t5tens_comp[Math.floor(x % 100 / 10)] + t5ills[x % 10]
+    return t5f
+}
+
+function t6format(x, mult = false, y) {
+    let t6ills = ["", "HPx", "DiS", "TriS", "Te", "Pe", "He", "Hp", "Ot", "En"]
+    let t6teens = ["Dc", "HDc", "DDc", "DcTr", "DcTe", "DcPe", "DcHe", "DcHp", "DcOt", "DcEn"]
+    let t6ones = ["", "H", "D", "Tr", "Te", "Pe", "He", "Hp", "Ot", "En"]
+    let t6tens = ["", "", "Ic", "TCn", "TsS", "PeC", "HeC", "HdC", "OgC", "EnC"]
+    let t6hunds = ["", "Hc", "DcS", "TcS", "TeS", "PeS", "HeS", "HpS", "OtS", "EnS"]
+    if (mult && y > 0 && x < 10) t6ills = ["", "", "DiS", "TriS", "Te", "Pe", "He", "Hp", "Ot", "En"]
+    let t6f = ""
+    if (x < 4) t6f = t6ills[x]
+    if (x >= 4 && x < 10) t6f = t6ills[x] + "Ks"
+    if (x >= 10 && x < 20) t6f = t6teens[x % 10] + "Ks"
+    if (x >= 20 && x < 100) t6f = t6tens[Math.floor(x / 10)] + t6ones[x % 10] + "Ks"
+    if (x >= 100) t6f = t6hunds[Math.floor(x / 100)] + t6tens[Math.floor(x / 10) % 10] + t6ones[x % 10] + "Ks"
+    return t6f
+}
+
+function t7format(x, m, mult = false, y) {
+    let t7ills = ["", "Rd", "rG", "lO", "Lm", "GrN", "CyN", "BlU", "PrP", "MgN"]
+    let t7m = ["", "", "O", "Y", "", "", "", "", "", ""]
+    let t7tens = ["", "PnK", "DiK", "TiK", "TtK", "PeK", "HeK", "HpK", "OcK", "EnK"]
+    let t7hunds = ["", "VlT", "DlT", "TiT", "TtT", "PeT", "HeT", "HpT", "OcT", "EnT"]
+    if (mult && y > 0 && x < 10) t7ills = ["", "", "rG", "lO", "Lm", "GrN", "CyN", "BlU", "PrP", "MgN"]
+    let t7f = t7ills[x]
+    if (m < 2) t7f = t7m[x] + t7f
+    if (x >= 10) t7f = t7ills[x % 10] + t7tens[Math.floor(x / 10)]
+    if (m < 2 && x >= 10) t7f = t7m[x % 10] + t7ills[x % 10] + t7tens[Math.floor(x / 10)]
+    if (x >= 100) t7f = t7ills[x % 10] + t7tens[Math.floor(x / 10 % 10)] + t7hunds[Math.floor(x / 100)]
+    if (m < 2 && x >= 100) t7f = t7m[x % 10] + t7ills[x % 10] + t7tens[Math.floor(x / 10 % 10)] + t7hunds[Math.floor(x / 100)]
+    return t7f
+}
+
+function t8format(x, mult = false, y) {
+    let t8ills = ["", "Hyd", "Hel", "Lth", "Byr", "Bor", "Crb", "Ntr", "Oxy", "Flr"]
+    let t8teens = ["Neo", "Sod", "Mng", "Alm", "Slc", "Phs", "Slf", "Chl", "Arg", "Pts"]
+    let t8tens = ["", "", "Hne", "Lne", "Byn", "Bne", "Cne", "Nne", "Oxn", "Fln"]
+    let t8hunds = ["", "Krp", "Hrp", "Lrp", "Ber", "Brp", "Crp", "Nrp", "Oxp", "Fyp"]
+    let t8f = t8ills[x]
+    if (x >= 10 && x < 20) t8f = t8teens[x % 10]
+    if (x >= 20 && x < 100) t8f = t8tens[Math.floor(x / 10)] + t8ills[x % 10]
+    if (x >= 100) t8f = t8hunds[Math.floor(x / 100)] + t8tens[Math.floor(x / 10) % 10] + t8ills[x % 10]
+    if (x >= 100 && x % 100 < 20 && x % 100 >= 10) t8f = t8hunds[Math.floor(x / 100)] + t8teens[Math.floor(x / 10) % 10]
+    return t8f
+}
+
+function standard(decimal, precision = 2) {
+    let p = Math.max(precision, 2)
+    decimal = new ExpantaNum(decimal)
+    if (ExpantaNum.isNaN(decimal)) return "NaN"
+    if (decimal.eq(0)) return "0" + (precision > 0 ? ("." + "0".repeat(precision)) : "")
+    if (decimal.sign < 0) return "-" + standard(decimal.neg(), precision)
+    if (decimal.gt("(10^)^7 3e3003")) {
+        return scientific(decimal, precision) //做不了
+    }
+    let illion = decimal.max(1).log10().div(3).floor().sub(1)
+    let m = decimal.div(ExpantaNum.pow(1e3, illion.add(1)))
+    if (m.toStringWithDecimalPlaces(p) == 1000) {
+        m = new ExpantaNum(1)
+        illion = illion.add(1)
+    }
+    if (decimal.max(1).log10().lt(3000000003)) m = regularFormat(m, Math.max(p, 3)) + ' '
+    else m = ''
+    let t2illion = illion.max(1).log10().div(3).floor()
+    let t3illion = t2illion.max(1).log10().div(3).floor()
+    let t4illion = t3illion.max(1).log10().div(3).floor()
+    let t5illion = t4illion.max(1).log10().div(3).floor()
+    let t6illion = t5illion.max(1).log10().div(3).floor()
+    let t7illion = t6illion.max(1).log10().div(3).floor()
+    let t8illion = t7illion.max(1).log10().div(3).floor()
+    let t1 = illion.div(ExpantaNum.pow(1e3, t2illion.sub(2))).floor().toNumber()
+    if (illion.lt(1e3)) t1 = illion.toNumber()
+    let t2 = t2illion.div(ExpantaNum.pow(1e3, t3illion.sub(2))).floor().toNumber()
+    if (t2illion.lt(1e3)) t2 = t2illion.toNumber()
+    let t3 = t3illion.div(ExpantaNum.pow(1e3, t4illion.sub(2))).floor().toNumber()
+    if (t3illion.lt(1e3)) t3 = t3illion.toNumber()
+    let t4 = t4illion.div(ExpantaNum.pow(1e3, t5illion.sub(2))).floor().toNumber()
+    if (t4illion.lt(1e3)) t4 = t4illion.toNumber()
+    let t5 = t5illion.div(ExpantaNum.pow(1e3, t6illion.sub(2))).floor().toNumber()
+    if (t5illion.lt(1e3)) t5 = t5illion.toNumber()
+    let t6 = t6illion.div(ExpantaNum.pow(1e3, t7illion.sub(2))).floor().toNumber()
+    if (t6illion.lt(1e3)) t6 = t6illion.toNumber()
+    let t7 = t7illion.div(ExpantaNum.pow(1e3, t8illion.sub(2))).floor().toNumber()
+    if (t7illion.lt(1e3)) t7 = t7illion.toNumber()
+    let t8 = t8illion.toNumber()
+    st = t1format(t1)
+    if (illion.gte(1e3)) st = t1format(Math.floor(t1 / 1e6), true, t2) + t2format(t2) + ((Math.floor(t1 / 1e3) % 1e3 > 0) ? ('-' + t1format(Math.floor(t1 / 1e3) % 1e3, true, t2 - 1) + t2format(t2 - 1)) : '')
+    if (illion.gte(1e6)) st += ((t1 % 1e3 > 0) ? ('-' + t1format(t1 % 1e3, true, t2 - 2) + t2format(t2 - 2)) : '')
+    if (t2illion.gte(1e3)) st = t2format(Math.floor(t2 / 1e6), true, t3) + t3format(t3) + ((Math.floor(t2 / 1e3) % 1e3 > 0) ? ("a'-" + t2format(Math.floor(t2 / 1e3) % 1e3, true, t3 - 1) + t3format(t3 - 1)) : '')
+    if (t2illion.gte(1e6)) st += ((t2 % 1e3 > 0) ? ("a'-" + t2format(t2 % 1e3, true, t3 - 2) + t3format(t3 - 2)) : '')
+    if (t3illion.gte(1e3)) st = t3format(Math.floor(t3 / 1e6), true, t4) + t4format(t4, Math.floor(t3 / 1e6)) + ((Math.floor(t3 / 1e3) % 1e3 > 0) ? ("`-" + t3format(Math.floor(t3 / 1e3) % 1e3, true, t4 - 1, t3) + t4format(t4 - 1, Math.floor(t3 / 1e3) % 1e3)) : '')
+    if (t3illion.gte(1e6)) st += ((t3 % 1e3 > 0) ? ("`-" + t3format(t3 % 1e3, true, t4 - 2, t3) + t4format(t4 - 2, t3 % 1e3)) : '')
+    if (t4illion.gte(1e3)) st = t4format(Math.floor(t4 / 1e6), 1, true, t5) + t5format(t5) + ((Math.floor(t4 / 1e3) % 1e3 > 0) ? ("~" + t4format(Math.floor(t4 / 1e3) % 1e3, 1, true, t5 - 1, t4) + t5format(t5 - 1)) : '')
+    if (t4illion.gte(1e6)) st += ((t4 % 1e3 > 0) ? ("~" + t4format(t4 % 1e3, 1, true, t5 - 2, t4) + t5format(t5 - 2)) : '')
+    if (t5illion.gte(1e3)) st = t5format(Math.floor(t5 / 1e6), true, t6) + t6format(t6) + ((Math.floor(t5 / 1e3) % 1e3 > 0) ? ("*-" + t5format(Math.floor(t5 / 1e3) % 1e3, true, t6 - 1) + t6format(t6 - 1)) : '')
+    if (t5illion.gte(1e6)) st += ((t5 % 1e3 > 0) ? ("*-" + t5format(t5 % 1e3, true, t6 - 2) + t6format(t6 - 2)) : '')
+    if (t6illion.gte(1e3)) st = t6format(Math.floor(t6 / 1e6), true, t7) + t7format(t7, Math.floor(t6 / 1e6)) + ((Math.floor(t6 / 1e3) % 1e3 > 0) ? (".-" + t6format(Math.floor(t6 / 1e3) % 1e3, true, t7 - 1) + t7format(t7 - 1, (t6 / 1e3) % 1e3)) : '')
+    if (t6illion.gte(1e6)) st += ((t6 % 1e3 > 0) ? (".-" + t6format(t6 % 1e3, true, t7 - 2) + t7format(t7 - 2, t6 % 1e3)) : '')
+    if (t7illion.gte(1e3)) st = t7format(Math.floor(t7 / 1e6), 1, true, t8) + t8format(t8, Math.floor(t7 / 1e6)) + ((Math.floor(t7 / 1e3) % 1e3 > 0) ? (",-" + t7format(Math.floor(t7 / 1e3) % 1e3, 1, true, t8 - 1) + t8format(t8 - 1, (t7 / 1e3) % 1e3)) : '')
+    if (t7illion.gte(1e6)) st += ((t7 % 1e3 > 0) ? (",-" + t7format(t7 % 1e3, 1, true, t8 - 2) + t8format(t8 - 2, t7 % 1e3)) : '')
+    if (decimal.gte(1e9)) return m + st
+    if (decimal.array[0][1] >= 1e3) return commaFormat(decimal, precision)
+    if (decimal.array[0][1] >= 0.001) return regularFormat(decimal, precision)
+    if (decimal.sign != 0) return '1/' + standard(decimal.rec(), precision)
+    return regularFormat(decimal, p)
+}
+
+function blind() {
+    return ""
+}
+
+function fixedInfinity(num, precision) {
+    num = new ExpantaNum(num)
+    if (num.abs().lt(Number.MAX_VALUE)) return scientific(num, precision)
+    else if (ExpantaNum.isNaN(num)) return "NaN"
+    else return (num.sign > 0 ? "" : "-") + "infinite"
 }
