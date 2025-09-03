@@ -32,6 +32,39 @@
   background-color: #d6cf97
 }
 
+.background-twilight_forest {
+  background: 
+  linear-gradient(to bottom, #00000000 60%, #1c5221 60%, #1c5221 67.5%, #548049 67.5%, #548049 68.5%, #5f452f 68.5%, #5f452f 71.5%, #4a4a4a 71.5%, #4a4a4a 99%, #0d0d0d 99%, #0d0d0d 100%),
+  radial-gradient(#abcfe8 6%, #00000000 6%),
+  radial-gradient(#abcfe8 6%, #00000000 6%),
+  linear-gradient(to bottom, #436986 600%, #00000000 670%);
+  background-size: 100% 100%, 30% 30%, 30% 30%, 100% 100%;
+  background-position: 0 0, 0 0, 20% 20%, 0 0;
+}
+
+.background-nether {
+  background: 
+  linear-gradient(to bottom, #723232 12.5%, #00000000 12.5%),
+  linear-gradient(to bottom, #00000000 12.5%, #744848 12.5%, #744848 25%, #00000000 25%),
+  linear-gradient(to bottom, #00000000 25%, #30181c 25%, #30181c 37.5%, #00000000 37.5%),
+  linear-gradient(to right, #00000000 12.5%, #30181c 12.5%, #30181c, 31.25%, #00000000 31.25%, #00000000 68.75%, #30181c, 68.75%, #30181c 87.5%, #00000000 87.5%),
+  linear-gradient(to bottom, #00000000 0%, #00000000 87.5%, #d96616 87.5%),
+  linear-gradient(to right, #744848 12.5%, #00000000 12.5%, #00000000, 87.5%, #744848 87.5%),
+  linear-gradient(225deg, #00000000 31.25%, #30181c 31.25%, #30181c 43.75%, #00000000 43.75%),
+  linear-gradient(315deg, #00000000 56.25%, #30181c 56.25%, #30181c 68.75%, #00000000 68.75%),
+  linear-gradient(to bottom,  #00000000 12.5%, #744848 12.5%);
+}
+
+.background-nether::before {
+  content: "";
+  position: absolute;
+  top: 87.35%;
+  left: 31.1%;
+  width: 37.8%;
+  height: 12.8%;
+  background-color: #652828
+}
+
 .automation-clickables {
   min-height: 160px;
   width: 210px;
@@ -192,7 +225,7 @@
 
 /* 魔力钢层级：文本样式 */
 .text-manasteel {
-  background: linear-gradient(to bottom, #005ee0 0%, #7db4ff 20%, #006bff 80%, #0045a3 100%);
+  background: linear-gradient(to bottom,  #005ee0 0%, #7db4ff 20%, #006bff 80%, #0045a3 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -215,12 +248,84 @@
   text-shadow: 0 0 10px #53f900;
 }
 
+.text-ironwood {
+  background: linear-gradient(to bottom, #4d4139 0%, #4d4139 15%, #a3a08a 30%, #827766 40%, #848860 50%, #827766 60%, #848860 70%, #827766 80%, #2c2d28 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #827766;
+}
+
+.text-naga_scale {
+  color: #325425;
+  text-shadow: 0 0 10px #172911;
+}
+
+@keyframes fieryText {
+  0%, 100% {
+    color: #191313;
+    text-shadow: 0 0 10px #ffd83a;
+  }
+  50% {
+    color: #662d09;
+    text-shadow: 0 0 10px white;
+  }
+}
+
+.text-fiery { /*#191313 #662d09*/
+  animation: fieryText 4s ease-in-out infinite;
+}
+
+.text-amethyst {
+  background: linear-gradient(225deg, #fecbe6 0%, #b38ef3 20%, #fecbe6 30%, #cfa0f3 40%, #b38ef3 60%, #8d6acc 80%, #64479e 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #b38ef3;
+}
+
 .platinum45deg {
   background: linear-gradient(45deg, #62d1f3 0%, #c8fbff 30%, #ffffff 50%, #aae3ff 80%, #476fbe 100%);
 }
 
+@keyframes fieryBg {
+  0%, 100% {
+    background-color: #191313;
+    border-color: #ffd83a;
+    color: #ffd83a;
+  }
+  50% {
+    background-color: #662d09;
+    border-color: white;
+    color: white;
+  }
+}
+
+.fieryBg,
+.upg.fiery.can {
+  animation: fieryBg 4s ease-in-out infinite;
+}
+
+.upg.stone.can {
+  color: white
+}
+
 .upg.obsidian.can {
   color: white
+}
+
+.upg.vis_crystal.can {
+  color: white
+}
+
+.upg.fiery.can {
+  color: white
+}
+
+.twilight_gem.milestoneDone {
+  background: repeating-linear-gradient(45deg,rgba(255, 0, 255, 0.5) 25%, rgba(255, 0, 255, 0) 50%, rgba(255, 0, 255, 0.5) 75%), #f50057;
+  background-size: 300% 300%;
+  animation: enchant-glow 12s linear infinite;
 }
 
 .enemyClickables {
@@ -234,4 +339,55 @@
   min-height: 150px;
   width: 200px;
   border-radius: 5px;
+}
+
+@keyframes rainbowText {
+  0%, 100% {
+    color: red;
+    text-shadow: 0 0 10px red;
+  }
+  8.33% {
+    color: orange;
+    text-shadow: 0 0 10px orange;
+  }
+  16.67% {
+    color: yellow;
+    text-shadow: 0 0 10px yellow;
+  }
+  25% {
+    color: lime;
+    text-shadow: 0 0 10px lime;
+  }
+  33.33% {
+    color: green;
+    text-shadow: 0 0 10px green;
+  }
+  50% {
+    color: cyan;
+    border-color: cyan;
+  };
+  66.67% {
+    color: blue;
+    text-shadow: 0 0 10px blue;
+  }
+  75% {
+    color: indigo;
+    text-shadow: 0 0 10px indigo;
+  }
+  83.33% {
+    color: purple;
+    text-shadow: 0 0 10px purple;
+  }
+  91.67% {
+    color: magenta;
+    text-shadow: 0 0 10px magenta;
+  }
+  95.83% {
+    color: pink;
+    text-shadow: 0 0 10px pink;
+  }
+}
+
+.rainbowText {
+  animation: rainbowText 10s ease-in-out infinite;
 }
