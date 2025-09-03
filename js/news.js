@@ -1,4 +1,4 @@
-var textlength = 73
+var textlength = 147
 var texts =
     [
         "欢迎来到挖矿增量！",
@@ -74,6 +74,80 @@ var texts =
         "FLOOR 1 HALL OF BEGINNINGS, FLOOR 2 THE HOTEL, FLOOR 3 THE CASINO, FLOOR 4 THE ARENA, FLOOR 5 THE MUSEUM, FLOOR 6 ABANDONED OFFICES, FLOOR 7 THE LABORATORY, FLOOR 8 THE CORE, FLOOR 9 CORRUPTED, FLOOR 10 PLATFORM OF GODS",
         "!!!!",
         "<a href=\"https://angrystar6k.github.io/The-Mario-Maker-2-Tree\" target=\"_blank\" style=\"color:#0080ff;text-decoration:underline\" onclick=\"; window.open(this.href, '_blank'); return false;\">点此</a>游玩作者的另一个增量游戏作品：The Mario Maker 2 Tree",
+        "如果你第一次在存储够1小时的离线时间后打开100x游戏速度会有惊喜",
+        "挖矿增量页暂无QQ群，但是有模组页QQ群，可以去信息页面找到",
+        "经验到F1.0000e309后才能发挥ExpantaNum.js的价值，虽然还很远，但是迟早会到的（v0.8加入，到了后会修改）",
+        "超大Spike",
+        "你说得对，但是《挖矿增量》是由AngryStar6K制作的一款增量模组页游戏，使用Shinwmyste制作的模组页模板v3.0.10.0，并作了些许魔改。游戏发生在一个被称作「挖矿宇宙」的幻想世界，在这里，被创世之神选中的人将被给予「增量之力」，在挖矿宇宙中推进科技、魔法以及冒险进度，遇到各种见过和没见过的材料，获得指数膨胀甚至超过指数塔膨胀的资源——同时，逐步发掘「挖矿」的真相",
+        "1.00000000L10经验怎么样，够多吗？ExpantaNum.js吃不下了",
+        "为什么有时运附魔没有抢夺附魔？我不到啊！", //80
+        "忠告：不要在家附近玩神秘时代",
+        "SUSpicious sand",
+        "自己喜欢的就是最好的",
+        "如果遇到bug可以去github提issue，这才是正确的反映bug的方式，而不是[数据丢失]",
+        "如果说无尽之锭就是这个游戏的最终版本终点，那么做到这里的时候得保证经验增长率到ω+1，否则需要延长或者等新大数库。",
+        "有生之年系列：挖矿增量页集齐元素周期表",
+        "植物魔法是科技mod",
+        "请将下列事件按发生顺序排序 1、暮色森林更新终焉城堡最终BOSS；2、深渊国度更新高版本；3、GTA6发售；4、RE-LOGIC更新Terraria1.4.5；5、IMR更新v0.8正式版；6、五小时后",
+        "1.21.9？不是吧！",
+        "购买末地外岛一环的房子是否会比末地外岛二环的房子需要更多的末影珍珠？末地外岛三万环的房子会不会白送都没有末影人要？",
+        "Mek纸箱 绝对的神",
+        "懒人厨房水槽 唯一真神",
+        "不做重置的层级那是否仍能被称为层级",
+        "战斗，爽",
+        "经验增长一小时.mp4",
+        "唉，又是吃四碗",
+        "鱿型！",
+        "发生连接错误",
+        "把标准记数法拓展到K9.0000e15是灾难性的，因为根本没有对应的词",
+        "恭喜你遇到了第100条新闻！", //100
+        "预言石上血痕现，星河倒悬月无光。莫问何处寻生路，轮回尽头万物殇。",
+        "+100.00% Happiness Yay!",
+        "player.devSpeed = 1.7976e308",
+        "机心爆爆爆",
+        "硬重置的二次确认被改成了输入特定文本确认",
+        "很遗憾，挖矿增量的资源不能带进地球online",
+        "做一个树游戏的门槛已经低到会一点英语阅读能力看docs就可以了，如果你看不懂建议重修九年义务教育",
+        "奇诺比奥的蘑菇头不是帽子，这是他们的头",
+        "马力欧顶问号砖是用的拳头，不是头",
+        "目标：2027年前做到1H1000",
+        "J的增长率是ω、K的增长率是ω+1、L的增长率是ω+2 但是M的增长率是ω2、N的增长率更是直接冲上了ω<sup>2</sup> 那么该怎么表示f<sub>ω3+1</sub>(100)这类的数？ 方法1：Ord(ω3+1)100 但是极端情况可能数字显示会变得极其长，例如...Ord(ω<sup>2</sup>+1)Ord(ω<sup>2</sup>+1)Ord(ω<sup>2</sup>+1)NNNOrd(ω3+3)Ord(ω3+3)Ord(ω3+3)Ord(ω3+2)Ord(ω3+2)Ord(ω3+2)Ord(ω3+1)Ord(ω3+1)Ord(ω3+1)Ord(ω3)Ord(ω3)Ord(ω3)Ord(ω2+3)Ord(ω2+3)Ord(ω2+3)Ord(ω2+2)Ord(ω2+2)Ord(ω2+2)Ord(ω2+1)Ord(ω2+1)Ord(ω2+1)MMMOrd(ω+3)Ord(ω+3)Ord(ω+3)LLLKKKJJJHHHGGGFFFeee10,000,000,000。也许需要平衡数字显示的精度。方法2：直接显示快速增长层级记数法 众所不周知f<sub>ω</sub>(4)≈2J4 = 1H10，是约等于而不是等于。容易产生误差，和之前记数法不统一。",
+        "作者会给对挖矿增量做出重要贡献者加入到特别感谢名单。感谢为挖矿增量提供帮助的玩家们！",
+        "RnJlZSByZWRlZW0gY29kZTogbWluaW5naW5jcmVtZW50YWxzb2dvb2Q=",
+        ":thonk:",
+        "[Neuro sama动态表情包_比心]",
+        "Ciallo～(∠・ω<)⌒☆",
+        "0d000721",
+        "挖矿增量能否能够完成添加一千条新闻的壮举呢？",
+        "如果出来了一个增长率能到BHO的大数库那么以此做的增量游戏能卡死",
+        "本游戏的大部分Qol都需要一个叫做红石通量的东西来维持，一切生活的便利都需要付诸努力", //120
+        "还是PVP大佬 &emsp;&emsp; 又或是起床大佬 &emsp;&emsp; 还是PVP大佬 &emsp;&emsp; 还是PVP大佬 &emsp;&emsp; 又或是红石大佬 &emsp;&emsp; 还是PVP大佬 &emsp;&emsp; 还是PVP大佬 &emsp;&emsp; 还是PVP大佬 &emsp;&emsp; 又或是什么都不知道的小白 &emsp;&emsp; 还是PVP大佬 &emsp;&emsp; 还是PVP大佬 &emsp;&emsp; 还是PVP大佬 &emsp;&emsp; 还是PVP大佬 &emsp;&emsp; 还是PVP大佬 &emsp;&emsp;......&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;还是PVP大佬",
+        "你现在不能休息，周围有PVP大佬在游荡",
+        "把企鹅丢进匠魂炉会产生熔融企鹅，将其浇入锭铸模产生企鹅锭，这存在于某mod中，太可怕了",
+        "软上限是平衡的工具，但使用不慎可能会影响游戏正常推进",
+        "层级解锁顺序不代表强度顺序。你可以或者将看到的是锌和银大约解锁顺序为第15左右，但是有个东西叫锌银合金，这玩意的解锁顺序在第85左右。没错，他大约是第85个矿锭/材料/宝石层级，在它之前有一堆超模怪",
+        "新闻里隐藏着一个免费兑换码哦~你能发现吗？",
+        "前面忘了，中间忘了，后面忘了……我要说什么来着？",
+        "SUPERCHARGED BOOOOOOOM~!!!!",
+        "♿️冲！冲刺！♿️",
+        "Wait what?",
+        "太美丽了，星门",
+        "meow meow lol",
+        "current_news_content = current_news_content.replace(/滚木/g, \"\")",
+        "AAAAUUUUUUGGGGGGGHHHHHHHH!!!!",
+        function () { return "才" + fw(player.points) + "经验，太小了吧！" },
+        function () { return "现在是" + new Date },
+        function () { let r = Math.ceil(Math.random() * 10); return "你掷出了一个骰子，掷出了" + fw(r) + "点" + (r > 6 ? "&emsp;&emsp;诶？怎么还能比6还大的？但是马里奥派对的骰子是这样的，哦对，是我忘了说了这是马里奥派对" : "") },
+        "能全程使用标准记数法通关挖矿增量的也是神人了",
+        "successor, addition, multiplication, exponentiation, tetration, pentation, hexation, heptation... ... ... expansion, multiexpansion, powerexpansion, expandotetration... ... ... explosion, multiexplotion, powerexplotion... ... ... detonation, multidetonation... ... ...",
+        "反物质猫猫抓手.gif", //140
+        "如果有人问你10爆炸10是多少，你可以回答他10{{{1}}}10，或者~f_ω2+1(10)",
+        "Veblen序数到BHO就结束了，再往后就是OCF的世界",
+        function () { return "你一共解锁了" + fw(player.stories.storyUnlocked) + "幕的剧情" },
+        function () { return "你一共吃了" + fw(player.StevesLavaChicken) + "只熔岩烤鸡" + (tmp.obsidian.layerShown ? (player.StevesLavaChicken.gte(1) ? "。La-la-la-lava, chi-chi-chi-chicken~" : "。你没吃过？但是黑曜石层级有时候会有鸡乱跑，你可以去狩猎一下") : "。熔岩烤鸡是什么，挖矿增量不是没有饥饿值设定吗？") },
+        "挖矿增量一定要有矿！\\o/\\o/\\o/",
+        "Hyper meaning high. Glyc from gloucose meaning sugar. And -emia meaning presence in blood.",
+        "点击这条新闻就能将经验获取变为原来的1J13/10倍！ &emsp;&emsp; &emsp;&emsp; &emsp;&emsp;... ... ... &emsp;&emsp; &emsp;&emsp; &emsp;&emsp;... ... ... &emsp;&emsp; &emsp;&emsp; &emsp;&emsp;你想说为什么没反应吗？并不是因为没有生效，是因为1J13 = 10，所以你的经验获取压根就没变。J13写成aJx的形式是2J13而不是1J13，2J13 = 10^^^^^^^^^^^^^10",
     ]
 var nt = ""
 var ntl = 0
@@ -102,15 +176,18 @@ function updateNews() {
     if (deltaTime >= invl) {
         lastTime = currentTime - (deltaTime % invl); // 修正时间偏差
 
-        if (player.tab == 'info-tab' || player.tab == 'changelog-tab' || player.tab == 'options-tab') return;
-        p -= 7.5;
-        if (p <= l || nt == "") {
-            nt = texts[Math.floor(Math.random() * texts.length)];
-            newsText.style.width = (newsText.innerText.length * 16).toString() + "px";
-            l = -50 - (nt.length * 16);
-            p = 50 + document.body.clientWidth;
+        if (player && newsText) {
+            if (player.tab == 'info-tab' || player.tab == 'changelog-tab' || player.tab == 'options-tab') return;
+            p -= 7.5;
+            if (p <= l || nt == "") {
+                let chosen = Math.floor(Math.random() * texts.length)
+                nt = (typeof texts[chosen] === 'function' ? texts[chosen]() : texts[chosen]);
+                newsText.style.width = (newsText.innerText.length * 16).toString() + "px";
+                l = -50 - (nt.length * 16);
+                p = 50 + document.body.clientWidth;
+            }
+            ntl = p.toFixed(1);
         }
-        ntl = p.toFixed(1);
     }
 
     requestAnimationFrame(updateNews);
