@@ -4789,6 +4789,8 @@ addLayer("map", {
                             ],
                         ]
                     ],
+                    "blank",
+                    ["display-text", function () { if (hasUpgrade(twilight_gem, 11)) return `战斗中无法进入其他维度，传送前，请先逃离战斗` }],
                 ]
             },
             "mysterious_forest": {
@@ -37348,4 +37350,3 @@ addLayer("mana", {
         },
     },
 })
-
