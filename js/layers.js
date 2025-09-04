@@ -2950,7 +2950,7 @@ addLayer("achievements", {
         192: {
             name: "谁还走迷宫啊，不都是直接开墙的吗？",
             tooltip: "获得1把迷宫破坏者<br> 奖励：e1.000e3,750成就点数",
-            done() { return hasUpgrade(knight_metal, 35) && this.unlocked() },
+            done() { return player.fracturite.maze_destoryer.gte(1) && this.unlocked() },
             onComplete() {
                 return player.achievements.points = player.achievements.points.add('ee3750')
             },
@@ -37353,4 +37353,5 @@ addLayer("mana", {
         },
     },
 })
+
 
