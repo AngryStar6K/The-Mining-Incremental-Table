@@ -258,7 +258,7 @@ var systemComponents = {
 				<td><h1>{{geti18n()?'存档':'Save'}}&nbsp;&nbsp;&nbsp;</h1></td>
 				<td><button class="opt" onclick="save()">{{geti18n()?'本地存档':'Save'}}</button></td>
                 <td><button class="opt" onclick="toggleOpt('autosave')">{{geti18n()?'自动存档':'AutoSave'}}: {{ options.autosave?(geti18n()?"已开启":"ON"):(geti18n()?"已关闭":"OFF") }}</button></td>
-                <td><button class="opt" onclick="hardReset()">{{geti18n()?'硬重置(删除存档)':'HardReset'}}</button></td>
+                <td><button class="opt" onclick="hardReset()" style="color: red">{{geti18n()?'硬重置(删除存档)':'HardReset'}}</button></td>
 				<td><button class="opt" onclick="exportSave()">{{geti18n()?'导出存档(复制到黏贴板)':'Export'}}</button></td>
 				<td><button class="opt" onclick="importSave()">{{geti18n()?'导入存档(输入框)':'Import'}}</button></td>
 			</tr><br>
