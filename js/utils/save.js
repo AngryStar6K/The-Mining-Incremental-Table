@@ -299,6 +299,18 @@ function exportSave() {
 	document.execCommand("copy");
 	document.body.removeChild(el);
 }
+
+function exportSaveToFile() {
+    let str = LZString.compressToBase64(JSON.stringify(player))
+    save();
+    let file = new Blob([str], {type: "text/plain"})
+    window.URL = window.URL || window.webkitURL;
+    let a = document.createElement("a")
+    a.href = window.URL.createObjectURL(file)
+    a.download = "The Mining Incremental Table Save - "+new Date().toGMTString()+".txt"
+    a.click()
+}
+
 function importSave(imported = undefined, forced = false) {
 	if (imported === undefined)
 		imported = prompt("在此处粘贴你的存档");
@@ -319,6 +331,46 @@ function importSave(imported = undefined, forced = false) {
 		return;
 	}
 }
+
+function importSaveFromFile() {
+	let a = document.createElement("input")
+    a.type = 'file'
+    a.accept = '.txt,text/plain'
+	a.style.display = 'none'
+
+		a.onchange = event => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            try {
+                const saveDataString = e.target.result; 
+                if (typeof saveDataString !== 'string' || saveDataString.trim() === '') {
+                    throw new Error("无法读取文件或文件为空");
+                }
+                importSave(saveDataString)
+            } catch (error) {
+                alert("导入失败");
+                console.error("导入失败：", error);
+            }
+        };
+
+        reader.onerror = function() {
+            alert("读取文件时发生错误");
+            console.error("FileReader error:", reader.error);
+        };
+
+        reader.readAsText(file);
+    };
+
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+}
+
 function versionCheck() {
 	let setVersion = true;
 
