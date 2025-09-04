@@ -95,7 +95,7 @@ var systemComponents = {
 				small: tmp[layer].small
 			}"
 			v-bind:style="constructNodeStyle(layer)">
-			<span style="font-family: cursive;" v-html="(abb !== '' && tmp[layer].image === undefined) ? (abb+(tmp[layer].notify && player[layer].unlocked?'<notifyMark>!</notifyMark>':'')) : '&nbsp;'"></span>
+			<span style="font-family: cursive;" v-html="(abb !== '' && tmp[layer].image === undefined) ? (abb+(tmp[layer].notify && player[layer].unlocked?('<notifyMark>'+notifyText(tmp[layer].notify)+'</notifyMark>'):'')) : '&nbsp;'"></span>
 			<node-mark :layer='layer' :data='tmp[layer].marked'></node-mark>
 		</button>
 		`
@@ -260,11 +260,16 @@ var systemComponents = {
                 <td><button class="opt" onclick="toggleOpt('autosave')">{{geti18n()?'自动存档':'AutoSave'}}: {{ options.autosave?(geti18n()?"已开启":"ON"):(geti18n()?"已关闭":"OFF") }}</button></td>
                 <td><button class="opt" onclick="hardReset()">{{geti18n()?'硬重置(删除存档)':'HardReset'}}</button></td>
 				<td><button class="opt" onclick="exportSave()">{{geti18n()?'导出存档(复制到黏贴板)':'Export'}}</button></td>
-				<td><button class="opt" onclick="importSave()">{{geti18n()?'导入存档':'Import'}}</button></td>
+				<td><button class="opt" onclick="importSave()">{{geti18n()?'导入存档(输入框)':'Import'}}</button></td>
+			</tr><br>
+			<tr>
+				<td><h1>{{''}}&nbsp;&nbsp;&nbsp;</h1></td>
+                <td><button class="opt" onclick="exportSaveToFile()">{{geti18n()?'导出存档(文本文件)':'Export to file'}}</button></td>
+                <td><button class="opt" onclick="importSaveFromFile()">{{geti18n()?'导入存档(文本文件)':'Import save from file'}}</button></td>
 			</tr><br>
 			<tr>
                 <td><h1>{{geti18n()?'优化':'Qol'}}&nbsp;&nbsp;&nbsp;</h1></td>
-                <td><button class="opt" onclick="toggleOpt('offlineProd')">{{geti18n()?'离线进度':'Offline Prod'}}: {{ options.offlineProd?(geti18n()?"已开启":"ON"):(geti18n()?"已关闭":"OFF") }}</button></td>
+                <td><button class="opt" onclick="toggleOpt('offlineProd')">{{geti18n()?'离线进度(现已锁定开启)':'Offline Prod'}}: {{ options.offlineProd?(geti18n()?"已开启":"ON"):(geti18n()?"已关闭":"OFF") }}</button></td>
                 <td><button class="opt" onclick="toggleOpt('mouse')">{{geti18n()?'优化鼠标操作':'Optimized mouse operation'}}: {{ options.mouse ? (geti18n()?"已开启":"ON"):(geti18n()?"已关闭":"OFF")}}</button></td>
 			</tr><br>
 			<tr>
@@ -272,7 +277,7 @@ var systemComponents = {
 				<td><button class="opt" onclick="toggleOpt('hideChallenges')">{{geti18n()?'已完成挑战':'Completed Challenges'}}: {{ options.hideChallenges?(geti18n()?"隐藏":"HIDDI18N"):(geti18n()?"显示":"SHOWN") }}</button></td>
                 <td><button class="opt" onclick="adjustMSDisp()">{{geti18n()?'显示里程碑':'Show Milestones'}}: {{geti18n()? MS_DISPLAYS[MS_SETTINGS.indexOf(options.msDisplay)] : MS_DISPLAYS_I18N[MS_SETTINGS.indexOf(options.msDisplay)]}}</button></td>
 			    <td><button class="opt" onclick="toggleOpt('cursive')">{{geti18n()?'全页面草书字体':'Cursive Font'}}: {{ options.cursive?(geti18n()?"已开启":"ON"):(geti18n()?"已关闭":"OFF") }}<br><h6>{{geti18n()?"(注: 字体会根据你的浏览器的默认字体而改变, 对于不同浏览器可能会有不同效果, 对于部分浏览器可能无效)":"(Note: The font will change according to your browser's default font. Effects may vary across different browsers, and may not work in some browsers)"}}</h6></button></td>
-				<td><button class="opt" onclick="switchTextShadowShown()">{{geti18n()?'显示文本阴影':'Show Text Shadow'}}: {{options.textShadowShown?(geti18n()?"是":"ON"):(geti18n()?"否":"OFF")}}</button></td>
+				<td><button class="opt" onclick="switchTextShadowShown()">{{geti18n()?'显示文本阴影':'Show Text Shadow'}}: {{options.textShadowShown?(geti18n()?"是":"ON"):(geti18n()?"否":"OFF")}}<br><h6>{{geti18n()?"(注: 部分带有动画特效的文本阴影无法关闭)":"(Placeholder)"}}</h6></button></td>
 				<td><button class="opt" onclick="switchDefaultUpgSize();upgSizeSetting()">{{geti18n()?'升级按钮默认大小':'Default Upgrade Size'}}: {{options.biggerUpgs?"150px":"120px"}}<br><h6>{{geti18n()?"(注: 原版TMT升级大小为120px，为了显示不突兀，提供150px的选项。但部分升级不适用)":"(Placeholder)"}}</h6></button></td>
 			</tr><br>
 			<tr>
