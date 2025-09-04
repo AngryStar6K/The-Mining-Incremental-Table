@@ -2818,7 +2818,7 @@ addLayer("achievements", {
         174: {
             name: "异源魔力，来自地下",
             tooltip: "解锁魔力水晶层级<br> 奖励：e1.0000e100成就点数",
-            done() { return hasUpgrade(terrasteel, 35) && player.map.battle.enemy && this.unlocked() },
+            done() { return hasUpgrade(terrasteel, 35) && this.unlocked() },
             onComplete() {
                 return player.achievements.points = player.achievements.points.add('ee100')
             },
@@ -2829,7 +2829,7 @@ addLayer("achievements", {
         175: {
             name: "[有人@你]世界盐怎么做？",
             tooltip: "合成世界盐<br> 奖励：e1.0000e120成就点数",
-            done() { return player.vis_crystal.salis_mundus.gte(1) && player.map.battle.enemy && this.unlocked() },
+            done() { return player.vis_crystal.salis_mundus.gte(1) && this.unlocked() },
             onComplete() {
                 return player.achievements.points = player.achievements.points.add('ee120')
             },
@@ -2840,7 +2840,7 @@ addLayer("achievements", {
         176: {
             name: "新维度的钥匙",
             tooltip: "合成第1个暮光宝石<br> 奖励：e1.0000e160成就点数",
-            done() { return player.twilight_gem.points.gte(1) && player.map.battle.enemy && this.unlocked() },
+            done() { return player.twilight_gem.points.gte(1) && this.unlocked() },
             onComplete() {
                 return player.achievements.points = player.achievements.points.add('ee160')
             },
@@ -37353,3 +37353,4 @@ addLayer("mana", {
         },
     },
 })
+
