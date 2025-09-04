@@ -21101,6 +21101,9 @@ addLayer("twilight_gem", {
                             return s
                         }],
                     ]],
+                    ["blank", ['50px', '50px']],
+                    ["display-text", function () { return `卡牌有15个格子，上面5个为激活槽位，将卡牌装备在这里激活卡牌效果` }],
+                    ["display-text", function () { return `剩余10个位卡牌仓库，显示你有的卡牌` }],
                 ]
             },
         },
