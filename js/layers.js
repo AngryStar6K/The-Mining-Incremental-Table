@@ -2829,7 +2829,7 @@ addLayer("achievements", {
         175: {
             name: "[有人@你]世界盐怎么做？",
             tooltip: "合成世界盐<br> 奖励：e1.0000e120成就点数",
-            done() { return player.vis_crystal.salis_mundus.gte(1) && this.unlocked() },
+            done() { return player.vis_crystal.salis_mundus.gte(1) && player.map.battle.enemy && this.unlocked() },
             onComplete() {
                 return player.achievements.points = player.achievements.points.add('ee120')
             },
@@ -2840,7 +2840,7 @@ addLayer("achievements", {
         176: {
             name: "新维度的钥匙",
             tooltip: "合成第1个暮光宝石<br> 奖励：e1.0000e160成就点数",
-            done() { return player.twilight_gem.points.gte(1) && this.unlocked() },
+            done() { return player.twilight_gem.points.gte(1) && player.map.battle.enemy && this.unlocked() },
             onComplete() {
                 return player.achievements.points = player.achievements.points.add('ee160')
             },
@@ -2949,8 +2949,8 @@ addLayer("achievements", {
         },
         192: {
             name: "谁还走迷宫啊，不都是直接开墙的吗？",
-            tooltip: "获得1把迷宫破坏者<br> 奖励：e1.000e3,750成就点数",
-            done() { return player.fracturite.maze_destoryer.gte(1) && this.unlocked() },
+            tooltip: "解锁结构金属层级<br> 奖励：e1.000e3,750成就点数",
+            done() { return hasUpgrade(knight_metal, 35) && this.unlocked() },
             onComplete() {
                 return player.achievements.points = player.achievements.points.add('ee3750')
             },
@@ -4664,7 +4664,7 @@ addLayer("map", {
             else player.map.battle.curHP = player.map.battle.curHP.add(tb.HP.div(5).times(diff)).min(tb.HP) //脱战5s回满
         }
         else if (pb.curHP.lte(0)) {
-            if (!player.achievements.A183 && player.map.battle.enemy == 'lich') player.achievements.A183 = true
+            if (!player.achievements.A183 && player.map.battle.enemy == 'lich' && pb.revival.eq(-1)) player.achievements.A183 = true, loseBattle()
             else if (pb.revival.eq(-1)) loseBattle()
             else if (pb.revival.gt(0)) player.map.battle.revival = pb.revival.sub(diff).max(0)
             else if (pb.revival.eq(0)) {
@@ -4696,6 +4696,9 @@ addLayer("map", {
         //原则上没有物品612不能战胜冰雪女王，做个检测
         if (!hasCraftingItem(612) && player.map.battle.drops.core_of_snow_queen.gte(1)) alert('你没有合成物品612（第31页第2个）就战胜了冰雪女王，这是bug，请让作者知道！冰雪女王核心清零！'),
             player.map.battle.drops.core_of_snow_queen = d(0)
+
+        //临时修复
+        if (player.map.battle.curHP.eq(tmp.map.battle.HP) && hasNormalAchievement(183) && player.map.battle.revival.gt(0)) player.map.battle.revival = d(-1)
     },
 
     battle: {
@@ -5069,7 +5072,6 @@ addLayer("1layer", {
     },
     color: "#fefefe",
     type: "none",
-    tooltip() { return `${formatWhole(player.wood.points)}木头` },
     layerShown() { return true },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
     clickables: {
         11: {
@@ -5103,7 +5105,6 @@ addLayer("1layer", {
         //["display-text", function () { if (player.devmode) return textStyle_h2(hyperE(player.notationTest)) }],
         //["display-text", function () { if (player.devmode) return textStyle_h2(letter(player.notationTest)) }],
         //["display-text", function () { if (player.devmode) return textStyle_h2(f(player.notationTest)) }],
-        ["display-text", function () { return fr(frt, true, true) }],
         ["microtabs", "stuff"],
         ["blank", "65px"],
     ],
@@ -37353,5 +37354,3 @@ addLayer("mana", {
         },
     },
 })
-
-
