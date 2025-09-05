@@ -2949,7 +2949,7 @@ addLayer("achievements", {
         },
         192: {
             name: "谁还走迷宫啊，不都是直接开墙的吗？",
-            tooltip: "解锁结构金属层级<br> 奖励：e1.000e3,750成就点数",
+            tooltip: "解锁解构金属层级<br> 奖励：e1.000e3,750成就点数",
             done() { return hasUpgrade(knight_metal, 35) && this.unlocked() },
             onComplete() {
                 return player.achievements.points = player.achievements.points.add('ee3750')
