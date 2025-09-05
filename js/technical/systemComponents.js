@@ -232,7 +232,12 @@ var systemComponents = {
 			<a class="link" href="https://the-mining-incremental-table.g8hh.com.cn/" target="_blank">{{ geti18n()?"点击跳转":"Click Here" }}</a><br>
 			<h6 style="color:#aaa">(或者在这)</h6>
 		</div>
-
+		<div style="border: 3px solid #888; width:300px; height:145px; margin-top: 8px; padding:15px; border-radius: 5px; display: inline-table">
+			<h3>{{ geti18n()?"挖矿增量页: Break Eternity Edition":"TMIT" }}:</h3><br>
+			<a class="link" href="https://angrystar6k.github.io/The-Mining-Incremental-Table-BE" target="_blank">{{ geti18n()?"点击跳转":"Click Here" }}</a><br>
+			<h6 style="color:#aaa">性能优化版，需要转换存档，且版本终点超过F1.7976e308会停更</h6>
+		</div>
+  
 		<br><br><br><br>
 		
 		<h2>快捷键：</h2><br>
