@@ -17511,7 +17511,7 @@ function resetFlowingProgress(id) {
 function mineObsidian() {
     let obsarr = []
     let gridarr = [101, 102, 103, 104]
-    for (let i = 0; i < 400; i++) {
+    for (let i = 0; i < 4; i++) {
         if (player.obsidian.grid[gridarr[i]].block == 4) obsarr.push(gridarr[i])
     }
     if (obsarr.length == 0) return
@@ -37354,3 +37354,4 @@ addLayer("mana", {
         },
     },
 })
+
