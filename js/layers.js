@@ -28992,7 +28992,7 @@ addLayer("crafting_table", {
                 需要工具：工厂环 + 铅锤<br>
                 需要材料：30解构金属锭 + ${f('e1.37e17')}红石<br>
                 复杂度：${formatWhole(this.complexity)}<br>
-                效果：继续解锁一些自动化升级，3x迷宫破坏者获取并将其概率直接升至100%`
+                效果：继续解锁一些自动化升级，3x迷宫破坏者获取并将其概率直接升至100%<br>`
                 return d
             },
             complexity: d(1.323e25),
@@ -34554,7 +34554,7 @@ addLayer("rf", {
         },
         141: {
             title: "自动化探索开箱钢叶奖励箱",
-            description: "解锁探索获得并自动打开钢叶奖励箱",
+            description: "解锁探索获得并自动打开钢叶奖励箱<br>建议开启后开始挂解构金属锭",
             currencyInternalName: "points",
             currencyDisplayName: "解构金属锭",
             currencyLayer: fracturite,
@@ -35740,7 +35740,7 @@ addLayer("rf", {
         },
         85: {
             title() {
-                let t = "自动开箱钢叶奖励箱箱"
+                let t = "自动开箱钢叶奖励箱"
                 return t
             },
             display() {
