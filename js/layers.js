@@ -5795,6 +5795,7 @@ addLayer("wood", {
         },
         twilightMangrove() {
             let gain = this.darkWood().max(1).div(7e47).pow(0.12).floor().max(0)
+            if (this.darkWood().gte(3e47) && this.darkWood().lt(7e47)) return d(1)
             if (!hasCraftingItem(601)) gain = d(0)
             return gain
         },
@@ -5941,7 +5942,7 @@ addLayer("wood", {
                     }],
                     ["display-text", function () { if (hasCraftingItem(601)) return `你有 ${textStyle_h2(formatWhole(player.wood.twilightMangrove), 'ccb180')} 暮色红木` }],
                     ["display-text", function () {
-                        if (hasUpgrade(knight_metal, 12)) return shiftDown ? `暮色红木获取公式：(暮色橡木每次/${f(7e47)})${quickSUP('0.12')}` : ""
+                        if (hasUpgrade(knight_metal, 12)) return shiftDown ? `暮色红木获取公式：(暮色橡木每次/${f(7e47)})${quickSUP('0.12')}，${f(3e47)}~${f(7e47)}获取为1` : ""
                     }],
                     "blank",
                     ["row", [["bar", "woodDestroying"], "blank", ["clickable", 11],]],
@@ -5951,7 +5952,7 @@ addLayer("wood", {
                     ["display-text", function () { return `破坏一次木头可额外产出 ${textStyle_h2(formatWhole(tmp.wood.logGain_twi.twilightOak), 'a78a61')} 暮色橡木` }],
                     ["display-text", function () { if (hasCraftingItem(532)) return `破坏一次木头可额外产出 ${textStyle_h2(formatWhole(tmp.wood.logGain_twi.canopyTreeWood), '513720')} 苍穹木 （基于暮色橡木获取，开始于${f(1e8)}暮色橡木/次）` }],
                     ["display-text", function () { if (hasUpgrade(knight_metal, 12)) return `破坏一次木头可额外产出 ${textStyle_h2(formatWhole(tmp.wood.logGain_twi.darkWood), '7e4c27')} 黑木 （基于苍穹木获取，开始于${f(1e112)}苍穹木/次）` }],
-                    ["display-text", function () { if (hasCraftingItem(601)) return `破坏一次木头可额外产出 ${textStyle_h2(formatWhole(tmp.wood.logGain_twi.twilightMangrove), 'ccb180')} 暮色红木 （基于黑木获取，开始于${f(7e47)}黑木/次）` }],
+                    ["display-text", function () { if (hasCraftingItem(601)) return `破坏一次木头可额外产出 ${textStyle_h2(formatWhole(tmp.wood.logGain_twi.twilightMangrove), 'ccb180')} 暮色红木 （基于黑木获取，开始于${f(3e47)}黑木/次）` }],
                     "blank",
                     ["display-text", function () { return `在此页面的原木均需要在暮色森林才能手动获取（不影响自动化）` }],
                     "blank",
@@ -11960,7 +11961,7 @@ addLayer("brass", {
             cost() { return new ExpantaNum(50) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
-                let eff = d(10).pow(player.invar.points.max(1).root(60).log(10).add(1).pow(0.9))
+                let eff = d(10).pow(player.invar.points.max(1).root(60).ln().add(1).pow(0.9))
                 return eff
             },
             effectDisplay() {
@@ -19544,7 +19545,7 @@ addLayer("experience", {
                 if (this.free().gte(1)) freedis = ` + ${formatWhole(this.free())}`
                 let display = `降低知识精华结晶化的消耗<br>
                 效果公式：${f(this.effBase())}${quickSUP('x')}<br>
-                等级：${fw(getBuyableAmount(this.layer, this.id))}${freedis}${hasMilestone(twilight_gem, 6) ? '' : (' / ' + fw(this.purchaseLimit))}<br>
+                等级：${fw(getBuyableAmount(this.layer, this.id))}${freedis}${hasMilestone(twilight_gem, 6) ? '' : (' / ' + fw(this.purchaseLimit()))}<br>
                 当前效果：/${f(buyableEffect(this.layer, this.id))}<br>
                 价格：${formatWhole(this.cost())} 知识点数`
                 return display
@@ -19845,14 +19846,14 @@ addLayer("manasteel", {
             cost() { return new ExpantaNum(50) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
-                let eff = player.mana.best.max(1).log(10).pow(1.24).add(1)
+                let eff = player.mana.best.max(1).ln().pow(1.24).add(1)
                 return eff
             },
             effectDisplay() {
                 return `^${format(upgradeEffect(this.layer, this.id))}`
             },
             tooltip() {
-                let t = `公式：lg(最多魔力+1)${quickSUP('1.24')}+1`
+                let t = `公式：ln(最多魔力+1)${quickSUP('1.24')}+1`
                 return t
             },
         },
@@ -23153,7 +23154,7 @@ addLayer("fiery", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasCraftingItem(571) },
+    layerShown() { return hasNormalAchievement(193) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -37354,4 +37355,3 @@ addLayer("mana", {
         },
     },
 })
-
