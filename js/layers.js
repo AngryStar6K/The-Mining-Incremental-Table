@@ -3846,7 +3846,7 @@ const enemies = {
     },
     snow_queen: {
         name: "冰雪女王",
-        hp: d(810),
+        hp: d(1350),
         atk: d(12.5),
         def: d(0),
         drops: "core_of_snow_queen",
@@ -4612,7 +4612,7 @@ addLayer("map", {
             tooltip() {
                 let s = ['', '']
                 if (hasCraftingItem(612)) s = ['<s>', '</s>']
-                return `冰雪女王会在攻击时施加debuff：冻结<br>冻结：${s[0]}损失50%的护甲，${s[1]}攻速变为原来的25%，你无法自然恢复HP`
+                return `冰雪女王会在攻击时施加debuff：冻结<br>冻结：${s[0]}你的护甲将变得无效，${s[1]}攻速变为原来的25%，你无法自然恢复HP`
             }
         },
         65: {
@@ -4717,13 +4717,14 @@ addLayer("map", {
             if (hasCraftingItem(561) && player.map.battle.enemy == 'lich') atk = atk.times(2)
             if (hasCraftingItem(572) && ['minoshroom', 'knight_phantom', 'alpha_yeti'].includes(player.map.battle.enemy)) atk = atk.times(3)
             if (hasCraftingItem(612) && ['hydra', 'ur_ghast'].includes(player.map.battle.enemy)) atk = atk.times(4)
+            if (hasCraftingItem(612) && player.map.battle.enemy == 'snow_queen')  atk = atk.times(5/3)
             return atk
         },
         DEF() { //防御力
             let def = d(0)
             if (hasCraftingItem(512)) def = def.add(7)
             if (hasCraftingItem(551)) def = def.add(2)
-            if (player.map.battle.buffs.includes('frozen') && !hasCraftingItem(612)) def = def.div(2)
+            if (player.map.battle.buffs.includes('frozen') && !hasCraftingItem(612)) def = d(0)
             return def
         },
         LUCK() { //幸运值
@@ -5795,7 +5796,7 @@ addLayer("wood", {
         },
         twilightMangrove() {
             let gain = this.darkWood().max(1).div(7e47).pow(0.12).floor().max(0)
-            if (this.darkWood().gte(3e47) && this.darkWood().lt(7e47)) return d(1)
+            if (this.darkWood().gte(5e47) && this.darkWood().lt(7e47)) return d(1)
             if (!hasCraftingItem(601)) gain = d(0)
             return gain
         },
@@ -5942,7 +5943,7 @@ addLayer("wood", {
                     }],
                     ["display-text", function () { if (hasCraftingItem(601)) return `你有 ${textStyle_h2(formatWhole(player.wood.twilightMangrove), 'ccb180')} 暮色红木` }],
                     ["display-text", function () {
-                        if (hasUpgrade(knight_metal, 12)) return shiftDown ? `暮色红木获取公式：(暮色橡木每次/${f(7e47)})${quickSUP('0.12')}，${f(3e47)}~${f(7e47)}获取为1` : ""
+                        if (hasUpgrade(knight_metal, 12)) return shiftDown ? `暮色红木获取公式：(暮色橡木每次/${f(7e47)})${quickSUP('0.12')}，${f(5e47)}~${f(7e47)}获取为1` : ""
                     }],
                     "blank",
                     ["row", [["bar", "woodDestroying"], "blank", ["clickable", 11],]],
@@ -5952,7 +5953,7 @@ addLayer("wood", {
                     ["display-text", function () { return `破坏一次木头可额外产出 ${textStyle_h2(formatWhole(tmp.wood.logGain_twi.twilightOak), 'a78a61')} 暮色橡木` }],
                     ["display-text", function () { if (hasCraftingItem(532)) return `破坏一次木头可额外产出 ${textStyle_h2(formatWhole(tmp.wood.logGain_twi.canopyTreeWood), '513720')} 苍穹木 （基于暮色橡木获取，开始于${f(1e8)}暮色橡木/次）` }],
                     ["display-text", function () { if (hasUpgrade(knight_metal, 12)) return `破坏一次木头可额外产出 ${textStyle_h2(formatWhole(tmp.wood.logGain_twi.darkWood), '7e4c27')} 黑木 （基于苍穹木获取，开始于${f(1e112)}苍穹木/次）` }],
-                    ["display-text", function () { if (hasCraftingItem(601)) return `破坏一次木头可额外产出 ${textStyle_h2(formatWhole(tmp.wood.logGain_twi.twilightMangrove), 'ccb180')} 暮色红木 （基于黑木获取，开始于${f(3e47)}黑木/次）` }],
+                    ["display-text", function () { if (hasCraftingItem(601)) return `破坏一次木头可额外产出 ${textStyle_h2(formatWhole(tmp.wood.logGain_twi.twilightMangrove), 'ccb180')} 暮色红木 （基于黑木获取，开始于${f(5e47)}黑木/次）` }],
                     "blank",
                     ["display-text", function () { return `在此页面的原木均需要在暮色森林才能手动获取（不影响自动化）` }],
                     "blank",
@@ -6666,7 +6667,7 @@ addLayer("stone", {
                     ["row", [["bar", "stoneDestroying"], "blank", "clickables",]],
                     "blank",
                     ["display-text", function () { return `破坏一次石头可额外产出 ${textStyle_h2(formatWhole(tmp.stone.otherGain.netherrack), '4f1a1a')} 下界岩` }],
-                    ["display-text", function () { return `破坏一次石头可额外产出 ${textStyle_h2(formatWhole(tmp.stone.otherGain.soulSand), '423228')} 灵魂沙（基于下界岩获取，开始于12下界岩/次）` }],
+                    ["display-text", function () { if (hasUpgrade(stone, 44)) return `破坏一次石头可额外产出 ${textStyle_h2(formatWhole(tmp.stone.otherGain.soulSand), '423228')} 灵魂沙（基于下界岩获取，开始于12下界岩/次）` }],
                 ]
             },
         },
@@ -17889,7 +17890,7 @@ addLayer("obsidian", {
                 if (player.obsidian.placeBlock_portal == "obsidian") data.block = 6
                 else if (player.obsidian.placeBlock_portal == "remove") data.block = 0
                 else if (player.obsidian.placeBlock_portal == "flint_and_steel") {
-                    if (id == 503 || id == 504) checkNetherPortal()
+                    if (id == 502 || id == 503) checkNetherPortal()
                 }
             }
             else {
@@ -19713,21 +19714,6 @@ addLayer("experience", {
     ],
     microtabs: {
         stuff: {
-            "knowledge": {
-                unlocked() { return hasUpgrade(experience, 12) },
-                name() { return '知识点数' },
-                content: [
-                    ["blank", "15px"],
-                    ["display-text", function () { if (hasUpgrade(experience, 12)) return `你有 ${textStyle_h2(formatWhole(player.experience.crystal), 'b2ff59')} 知识水晶，每秒能够生产 ${textStyle_h2(f(tmp.experience.knowledgeGain), 'b2ff59')} 知识点数` }],
-                    ["display-text", function () { if (hasUpgrade(experience, 12)) return `你有 ${textStyle_h2(format(player.experience.knowledge), 'b2ff59')} 知识点数` }],
-                    ["display-text", function () { if (hasUpgrade(experience, 12)) return `你的知识点数使经验的硬上限以指数的效果提升 ${textStyle_h2("^" + format(tmp.experience.knowledgeEff), 'b2ff59')}` }],
-                    ["display-text", function () { if (hasUpgrade(experience, 12)) return `经验的硬上限为 ${textStyle_h2(format(tmp.experience.xpHardcap), 'b2ff59')}` }],
-                    ["display-text", function () { if (hasUpgrade(experience, 12) && shiftDown) return `基础知识点数生产公式：${f(tmp.experience.crystalEffBase) + quickSUP('知识水晶')}-1 效果公式：10${quickSUP(`1.5·(lg(知识点数+1)${quickSUP(0.95)})`)}` }],
-                    "blank",
-                    "buyables",
-
-                ]
-            },
             "upgrades": {
                 unlocked() { return tmp.experience.layerShown },
                 name() { return '升级' },
@@ -19742,6 +19728,21 @@ addLayer("experience", {
                 content: [
                     ["blank", "15px"],
                     "milestones",
+                ]
+            },
+            "knowledge": {
+                unlocked() { return hasUpgrade(experience, 12) },
+                name() { return '知识点数' },
+                content: [
+                    ["blank", "15px"],
+                    ["display-text", function () { if (hasUpgrade(experience, 12)) return `你有 ${textStyle_h2(formatWhole(player.experience.crystal), 'b2ff59')} 知识水晶，每秒能够生产 ${textStyle_h2(f(tmp.experience.knowledgeGain), 'b2ff59')} 知识点数` }],
+                    ["display-text", function () { if (hasUpgrade(experience, 12)) return `你有 ${textStyle_h2(format(player.experience.knowledge), 'b2ff59')} 知识点数` }],
+                    ["display-text", function () { if (hasUpgrade(experience, 12)) return `你的知识点数使经验的硬上限以指数的效果提升 ${textStyle_h2("^" + format(tmp.experience.knowledgeEff), 'b2ff59')}` }],
+                    ["display-text", function () { if (hasUpgrade(experience, 12)) return `经验的硬上限为 ${textStyle_h2(format(tmp.experience.xpHardcap), 'b2ff59')}` }],
+                    ["display-text", function () { if (hasUpgrade(experience, 12) && shiftDown) return `基础知识点数生产公式：${f(tmp.experience.crystalEffBase) + quickSUP('知识水晶')}-1 效果公式：10${quickSUP(`1.5·(lg(知识点数+1)${quickSUP(0.95)})`)}` }],
+                    "blank",
+                    "buyables",
+
                 ]
             },
         },
@@ -20970,7 +20971,7 @@ addLayer("twilight_gem", {
         },
         4: {
             requirementDescription() { return `获得${f(1e12)}暮色森林征服点数` },
-            effectDescription() { return `钢叶购买项现在可以自动购买最大` },
+            effectDescription() { return `钢叶购买项现在可以自动购买最大，第1钢叶购买项的效果基数变为1.43，效果向下取整` },
             done() { return player.twilight_gem.conquerPoints.gte(1e12) },
             unlocked() { return hasUpgrade(twilight_gem, 13) },
             styleClass: "twilight_gem",
@@ -20990,16 +20991,16 @@ addLayer("twilight_gem", {
             styleClass: "twilight_gem",
         },
         7: {
-            requirementDescription() { return `获得${f(1e147)}暮色森林征服点数` },
+            requirementDescription() { return `获得${f(1e153)}暮色森林征服点数` },
             effectDescription() { return `解锁暮色森林征服点数加成“知识精华 - 结晶利用率”效果底数的效果` },
-            done() { return player.twilight_gem.conquerPoints.gte(1e147) },
+            done() { return player.twilight_gem.conquerPoints.gte(1e153) },
             unlocked() { return hasUpgrade(twilight_gem, 13) },
             styleClass: "twilight_gem",
         },
         8: {
-            requirementDescription() { return `获得${f('1e1080')}暮色森林征服点数且到达${f(42069)}二阶等级` },
+            requirementDescription() { return `获得${f('1e1100')}暮色森林征服点数且到达${f(45678)}二阶等级` },
             effectDescription() { return `解锁两个新的合成图纸` },
-            done() { return player.twilight_gem.conquerPoints.gte('1e1080') && player.tiers[0].gte(42069) },
+            done() { return player.twilight_gem.conquerPoints.gte('1e1100') && player.tiers[0].gte(45678) },
             unlocked() { return hasUpgrade(twilight_gem, 13) },
             styleClass: "twilight_gem",
         },
@@ -21851,7 +21852,7 @@ addLayer("naga_scale", {
             },
             free() {
                 let f = d(0)
-                if (hasUpgrade(steeleaf, 23)) f = f.add(getBuyableAmount(steeleaf, 11))
+                if (hasUpgrade(steeleaf, 23)) f = f.add(getBuyableAmount(steeleaf, 21))
                 if (hasUpgrade(fiery, 33)) f = f.add(getBuyableAmount(naga_scale, 12))
                 return f
             },
@@ -21950,7 +21951,7 @@ addLayer("naga_scale", {
             },
             free() {
                 let f = d(0)
-                if (hasUpgrade(steeleaf, 23)) f = f.add(getBuyableAmount(steeleaf, 11))
+                if (hasUpgrade(steeleaf, 23)) f = f.add(getBuyableAmount(steeleaf, 21))
                 return f
             },
             display() {
@@ -22478,24 +22479,24 @@ addLayer("steeleaf", {
     },
 
     buyables: {
-        11: {
+        21: {
             title: "品阶提升^2",
             cost(x) {
                 let c = d(5).pow(x.pow(1.85)).times(55555)
-                c = c.div(buyableEffect(this.layer, 12))
+                c = c.div(buyableEffect(this.layer, 22))
                 return c
             },
             free() {
                 let f = d(0)
-                if (hasUpgrade(knight_metal, 23)) f = f.add(getBuyableAmount(steeleaf, 13))
-                if (hasUpgrade(knight_metal, 32)) f = f.add(getBuyableAmount(steeleaf, 12))
+                if (hasUpgrade(knight_metal, 23)) f = f.add(getBuyableAmount(steeleaf, 23))
+                if (hasUpgrade(knight_metal, 32)) f = f.add(getBuyableAmount(steeleaf, 22))
                 return f
             },
             display() {
                 let freedis = ""
                 if (this.free().gte(1)) freedis = ` + ${formatWhole(this.free())}`
                 let display = `提升钢叶奖励箱的品阶<br>
-                效果公式：x<br>
+                效果公式：${this.effBase().gt(1) ? f(this.effBase()) : ''}x<br>
                 等级：${fw(getBuyableAmount(this.layer, this.id))}${freedis}<br>
                 当前效果：+${fw(buyableEffect(this.layer, this.id))}σ<br>
                 价格：${formatWhole(this.cost())} 钢叶`
@@ -22503,7 +22504,7 @@ addLayer("steeleaf", {
             },
             canAfford() { return player[this.layer].points.gte(this.cost()) },
             canBuyMax() { return false },
-            buyMax() { if (this.canAfford()) setBuyableAmount(this.layer, this.id, player.naga_scale.points.times(buyableEffect(steeleaf, 12)).div(55555).max(1).logBase(5).root(1.85).floor().add(1)) },
+            buyMax() { if (this.canAfford()) setBuyableAmount(this.layer, this.id, player.steeleaf.points.times(buyableEffect(steeleaf, 22)).div(55555).max(1).logBase(5).root(1.85).floor().add(1)) },
             buy() {
                 if (this.canBuyMax()) { this.buyMax(); return; }
                 let cst = this.cost()
@@ -22511,8 +22512,14 @@ addLayer("steeleaf", {
 
                 player[this.layer].points = player[this.layer].points.sub(cst).max(0)
             },
+            effBase() {
+                let b = d(1)
+                if (hasMilestone(twilight_gem, 4)) b = d(1.43)
+                return b
+            },
             effect(x) {
-                let eff = x.add(this.free())
+                let eff = this.effBase().times(x.add(this.free()))
+                eff = eff.floor()
                 return eff
             },
             unlocked() { return hasUpgrade(steeleaf, 21) },
@@ -22522,7 +22529,7 @@ addLayer("steeleaf", {
                     this.buyMax()
             },
         },
-        12: {
+        22: {
             title: "提升优化器MK.3",
             cost(x) {
                 let c = d(7445).add(x.max(0).pow(1.2).times(100)).ceil()
@@ -22530,7 +22537,7 @@ addLayer("steeleaf", {
             },
             free() {
                 let f = d(0)
-                if (hasUpgrade(knight_metal, 23)) f = f.add(getBuyableAmount(steeleaf, 13))
+                if (hasUpgrade(knight_metal, 23)) f = f.add(getBuyableAmount(steeleaf, 23))
                 return f
             },
             display() {
@@ -22552,7 +22559,7 @@ addLayer("steeleaf", {
             },
             effBase() {
                 let b = d(1000000)
-                b = b.times(buyableEffect(steeleaf, 13))
+                b = b.times(buyableEffect(steeleaf, 23))
                 return b
             },
             effect(x) {
@@ -22566,7 +22573,7 @@ addLayer("steeleaf", {
                     this.buyMax()
             },
         },
-        13: {
+        23: {
             title: "提升优化器MK.4",
             cost(x) {
                 let c = d(9200).add(x.max(0).pow(1.25).times(200)).ceil()
@@ -22658,7 +22665,7 @@ addLayer("steeleaf", {
     rarityLevel() {
         let l = d(1)
         if (hasUpgrade(steeleaf, 14)) l = l.add(upgradeEffect(steeleaf, 14))
-        if (hasUpgrade(steeleaf, 21)) l = l.add(buyableEffect(steeleaf, 11))
+        if (hasUpgrade(steeleaf, 21)) l = l.add(buyableEffect(steeleaf, 21))
         return l
     },
     exploreSpeed() {
@@ -22723,7 +22730,7 @@ addLayer("steeleaf", {
                     "blank",
                     ["clickables", [2]],
                     "blank",
-                    ["buyables", [1, 2]],
+                    ["buyables", [2]],
                     "blank",
                     ["display-text", () => `你必须拿走当前奖励箱所有的物品才能打开下一个！`],
                     "blank",
@@ -23273,28 +23280,28 @@ addLayer("fiery", {
         32: {
             title: "卡牌多多益善",
             description() { return `解锁两种新卡牌` },
-            cost() { return new ExpantaNum(2.121e21) },
+            cost() { return new ExpantaNum(1.8888e24) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
         },
         33: {
             title: "提升优化器MK.5",
-            description() { return `需求：二阶等级${f(18686)}<br>“提升优化器MK.1”提供“品阶提升”的免费等级` },
-            canAfford() { return player.tiers[0].gte(18686) },
-            cost() { return new ExpantaNum(2.2222e22) },
+            description() { return `需求：二阶等级${f(20100)}<br>“提升优化器MK.1”提供“品阶提升”的免费等级` },
+            canAfford() { return player.tiers[0].gte(20100) },
+            cost() { return new ExpantaNum(2.4690e24) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
         },
         34: {
             title: "知识水晶 - 改良III式",
-            description() { return `需求：二阶等级${f(25666)}<br>“知识水晶 - 改良II式”效果公式的指数项提升至1.1` },
-            canAfford() { return player.tiers[0].gte(25666) },
+            description() { return `需求：二阶等级${f(27676)}<br>“知识水晶 - 改良II式”效果公式的指数项提升至1.1` },
+            canAfford() { return player.tiers[0].gte(27676) },
             cost() { return new ExpantaNum(2.9292e29) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
         },
         35: {
             title: "知识水晶 - 改良IV式",
-            description() { return `需求：二阶等级${f(28100)}<br>“知识水晶 - 改良II式”效果公式的指数项提升至1.2` },
-            canAfford() { return player.tiers[0].gte(28100) },
-            cost() { return new ExpantaNum(1e32) },
+            description() { return `需求：二阶等级${f(29200)}<br>“知识水晶 - 改良II式”效果公式的指数项提升至1.2` },
+            canAfford() { return player.tiers[0].gte(29200) },
+            cost() { return new ExpantaNum(3.2323e32) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
         },
     },
@@ -23506,11 +23513,11 @@ addLayer("carminite", {
     upgrades: {
         11: {
             title: "速通上限",
-            description() { return `需求：二阶等级${f(31000)}<br>直接获得${f('1e2490')}泰拉钢锭，这使你很快到达硬上限` },
+            description() { return `需求：二阶等级${f(31900)}<br>直接获得${f('1e2490')}泰拉钢锭，这使你很快到达硬上限` },
             currencyDisplayName: "冰雪女王核心",
             currencyInternalName: "core_of_snow_queen",
             currencyLocation() { return player.map.battle.drops },
-            canAfford() { return player.tiers[0].gte(31000) },
+            canAfford() { return player.tiers[0].gte(31900) },
             onPurchase() { player.terrasteel.points = player.terrasteel.points.add('1e2490') },
             cost() { return new ExpantaNum(1) },
             unlocked() { return tmp.carminite.layerShown },
@@ -23574,8 +23581,8 @@ addLayer("carminite", {
         },
         22: {
             title: "二阶等级也快到头了",
-            description() { return `需求：二阶等级${f(35500)}<br>二阶等级加成砷铅铁矿石掉落` },
-            canAfford() { return player.tiers[0].gte(35500) },
+            description() { return `需求：二阶等级${f(37500)}<br>二阶等级加成砷铅铁矿石掉落` },
+            canAfford() { return player.tiers[0].gte(37500) },
             cost() { return new ExpantaNum(100000000) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
@@ -23586,7 +23593,7 @@ addLayer("carminite", {
                 return `${format(upgradeEffect(this.layer, this.id))}x`
             },
             tooltip() {
-                let t = `公式：10${quickSUP('二阶等级/' + f(10000) + quickSUP('0.9'))}<br>`
+                let t = `公式：10${quickSUP('二阶等级/' + f(5000) + quickSUP('0.9'))}<br>`
                 return t
             },
         },
@@ -23598,16 +23605,16 @@ addLayer("carminite", {
         },
         24: {
             title: "卡牌全收集",
-            description() { return `需求：二阶等级${f(40000)}<br>卡片仓库解锁最后一张新卡牌，解锁第4个激活卡牌槽位` },
-            canAfford() { return player.tiers[0].gte(40000) },
-            cost() { return new ExpantaNum(9e15) },
+            description() { return `需求：二阶等级${f(43400)}<br>卡片仓库解锁最后一张新卡牌，解锁第4个激活卡牌槽位` },
+            canAfford() { return player.tiers[0].gte(43400) },
+            cost() { return new ExpantaNum(3e16) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
         },
         25: {
             title: "卡牌激活上限",
-            description() { return `需求：二阶等级${f(41700)}<br>解锁第5个激活卡牌槽位` },
-            canAfford() { return player.tiers[0].gte(41700) },
-            cost() { return new ExpantaNum(2e16) },
+            description() { return `需求：二阶等级${f(45300)}<br>解锁第5个激活卡牌槽位` },
+            canAfford() { return player.tiers[0].gte(45300) },
+            cost() { return new ExpantaNum(6e16) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
         },
     },
@@ -24990,31 +24997,31 @@ addLayer("crafting_table", {
         },
         242: {
             title: "炽铁镐",
-            description() { return `需求：二阶等级${f(18100)}<br>解锁${this.title}的合成` },
+            description() { return `需求：二阶等级${f(18360)}<br>解锁${this.title}的合成` },
             currencyInternalName: "points",
             currencyDisplayName: "炽铁锭",
             currencyLayer: fiery,
-            canAfford() { return player.tiers[0].gte(18100) },
-            cost() { return new ExpantaNum(200000) },
+            canAfford() { return player.tiers[0].gte(18360) },
+            cost() { return new ExpantaNum(400000) },
             unlocked() { return hasUpgrade(fiery, 23) },
         },
         243: {
             title: "炽热增幅器",
-            description() { return `需求：二阶等级${f(18500)}<br>解锁${this.title}的合成` },
+            description() { return `需求：二阶等级${f(19800)}<br>解锁${this.title}的合成` },
             currencyInternalName: "points",
             currencyDisplayName: "炽铁锭",
             currencyLayer: fiery,
-            canAfford() { return player.tiers[0].gte(18500) },
-            cost() { return new ExpantaNum(1e13) },
+            canAfford() { return player.tiers[0].gte(19800) },
+            cost() { return new ExpantaNum(1e14) },
             unlocked() { return hasUpgrade(fiery, 23) },
         },
         244: {
             title: "炽铁随身热源",
-            description() { return `需求：二阶等级${f(30600)}<br>解锁${this.title}的合成` },
+            description() { return `需求：二阶等级${f(31666)}<br>解锁${this.title}的合成` },
             currencyInternalName: "points",
             currencyDisplayName: "炽铁锭",
             currencyLayer: fiery,
-            canAfford() { return player.tiers[0].gte(30600) },
+            canAfford() { return player.tiers[0].gte(31666) },
             cost() { return new ExpantaNum(3.3333e33) },
             unlocked() { return hasUpgrade(fiery, 23) },
         },
@@ -29094,7 +29101,7 @@ addLayer("crafting_table", {
             display() {
                 let d = `
                 需要工具：工厂环 + 铅锤<br>
-                需要材料：${f(1e13)}炽铁锭<br>
+                需要材料：${f(4e14)}炽铁锭<br>
                 复杂度：${formatWhole(this.complexity)}<br>
                 效果：解锁炽铁精华和使用炽铁精华合成炽铁锭的配方，你每秒被动地获取炽热之血×炽热之泪数量的炽铁精华<br>`
                 return d
@@ -29127,7 +29134,7 @@ addLayer("crafting_table", {
                 需要工具：工厂环 + 铅锤<br>
                 需要材料：${f(6.6686e33)}炽铁锭 + 2钻石奇点（不消耗）<br>
                 复杂度：${formatWhole(this.complexity)}<br>
-                效果：你对九头蛇和暮初恶魂带有4x的特攻，冰雪女王的冻结将不影响你的DEF<br>`
+                效果：你对九头蛇和暮初恶魂带有4x；对冰雪女王带有1.667x的特攻，冰雪女王的冻结将不影响你的DEF<br>`
                 return d
             },
             complexity: d(1.796e25),
@@ -29156,7 +29163,7 @@ addLayer("crafting_table", {
             display() {
                 let d = `
                 需要工具：工厂环 + 铅锤<br>
-                需要材料：${f(8000)}解构金属锭 + ${f(1e10)}暮光宝石 + ${f('e2.85e21')}红石粉<br>
+                需要材料：${f(8000)}解构金属锭 + ${f(1e10)}暮光宝石 + ${f('e4.21e21')}红石粉<br>
                 复杂度：${formatWhole(this.complexity)}<br>
                 效果：解锁更多暮色森林相关资源自动化<br>`
                 return d
@@ -29168,7 +29175,7 @@ addLayer("crafting_table", {
                     player.crafting_table.craftingItem = this.id,
                     player.fracturite.points = player.fracturite.points.sub(8000),
                     player.twilight_gem.points = player.twilight_gem.points.sub(1e10),
-                    player.redstone.points = player.redstone.points.sub('e2.85e21')
+                    player.redstone.points = player.redstone.points.sub('e4.21e21')
             },
             unlocked() { return hasUpgrade(ct, 245) },
             style() {
@@ -29191,20 +29198,20 @@ addLayer("crafting_table", {
             display() {
                 let d = `
                 需要工具：工厂环 + 铅锤<br>
-                需要材料：${f('e4.59e8')}铁树锭 + ${f('e37300000')}娜迦鳞片 + ${f('1e18256')}骑士金属锭 + ${f('1e6860')}雪怪首领毛皮 + ${f(5e17)}砷铅铁矿石<br>
+                需要材料：${f('e1.79e9')}铁树锭 + ${f('e1.45e8')}娜迦鳞片 + ${f('1e18700')}骑士金属锭 + ${f('1e6860')}雪怪首领毛皮 + ${f(5e17)}砷铅铁矿石<br>
                 复杂度：${formatWhole(this.complexity)}<br>
                 效果：允许你前往下界，请前往黑曜石层级搭建传送门<br>`
                 return d
             },
             complexity: d(2e25),
-            canClick() { return player.crafting_table.points.gte(1) && player.ironwood.points.gte('e4.59e8') && player.naga_scale.points.gte('e37300000') && player.knight_metal.points.gte('1e18256') && player.map.battle.drops.alpha_yeti_fur.gte('1e6860') && player.carminite.points.gte(5e17) && !hasCraftingItem(this.id) && !player.crafting_table.crafting && hasCraftingItem(492) && hasCraftingItem(181) },
+            canClick() { return player.crafting_table.points.gte(1) && player.ironwood.points.gte('e4.59e8') && player.naga_scale.points.gte('e1.45e8') && player.knight_metal.points.gte('1e18700') && player.map.battle.drops.alpha_yeti_fur.gte('1e7000') && player.carminite.points.gte(5e17) && !hasCraftingItem(this.id) && !player.crafting_table.crafting && hasCraftingItem(492) && hasCraftingItem(181) },
             onClick() {
                 player.crafting_table.crafting = true,
                     player.crafting_table.craftingItem = this.id,
-                    player.ironwood.points = player.ironwood.points.sub('e4.59e8'),
-                    player.naga_scale.points = player.naga_scale.points.sub('e37300000'),
-                    player.knight_metal.points = player.knight_metal.points.sub('1e18256'),
-                    player.map.battle.drops.alpha_yeti_fur = player.map.battle.drops.alpha_yeti_fur.sub('1e6860'),
+                    player.ironwood.points = player.ironwood.points.sub('e1.79e9'),
+                    player.naga_scale.points = player.naga_scale.points.sub('e1.45e8'),
+                    player.knight_metal.points = player.knight_metal.points.sub('1e18700'),
+                    player.map.battle.drops.alpha_yeti_fur = player.map.battle.drops.alpha_yeti_fur.sub('1e7000'),
                     player.carminite.points = player.carminite.points.sub(5e17)
             },
             unlocked() { return hasUpgrade(ct, 251) },
