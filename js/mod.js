@@ -20,7 +20,7 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.8",
+	num: "0.8fix - 25w37a",
 	name: "",
 }
 
@@ -28,7 +28,14 @@ function changelog() {
 	return (options.ch || modInfo.languageMod == false) ? `
 		<br><br><br><h1>更新日志:</h1><br>(含有<span style='color: red'>剧透</span>，请谨慎查看)<br><br>
 		<span style="font-size: 17px;">
-			<h3>v0.8 - 暮色森林</h3><br>
+				<br><br>
+			<h3>v0.8fix - 25w37a</h3><br>
+				- 版本终点：获得1魂金锭，约e1.00e3,460,000经验<br>
+				- 修复一些已知bug<br>
+				- 修复第1钢叶购买项的自动购买bug，重新平衡了1e12暮色森林征服点数里程碑后的数值<br>
+				- 此快照更新前的存档会重置钢叶购买项<br>
+				<br><br>
+				<h3>v0.8 - 暮色森林</h3><br>
 				- 版本终点：获得1魂金锭，约e1.00e3,120,000经验<br>
 				- 成就总数：134 + 11<br>
 				- 添加世界2层级：魔力水晶<br>
@@ -261,7 +268,7 @@ function displayThingsRes() {
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.soularium.points.gte(1) && player.points.gte('ee3120000')
+	return player.soularium.points.gte(1) && player.points.gte('ee3460000')
 }
 
 var date = {
@@ -573,4 +580,3 @@ function getOoMpsText(layer, res) {
 const Decimal = ExpantaNum
 const OmegaNum = ExpantaNum
 const PowiainaNum = ExpantaNum //有机会吗？
-
