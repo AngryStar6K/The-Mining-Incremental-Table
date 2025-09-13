@@ -31661,8 +31661,7 @@ addLayer("alloy_s", {
     },
 
     update(diff) {
-        if (isAlloyingItem() && player.furnace.speed.times(diff).gte(alloyingItemTemp(alloyingItemID()).sub(20))) player.alloy_s.temperature = alloyingItemTemp(alloyingItemID())
-        else if (isAlloyingItem() && player.alloy_s.temperature.lt(fuelMaxTemp(fuelID()))) player.alloy_s.temperature = player.alloy_s.temperature.add(player.furnace.speed.times(diff)).min(fuelMaxTemp(fuelID()))
+        if (isAlloyingItem() && player.alloy_s.temperature.lt(fuelMaxTemp(fuelID()))) player.alloy_s.temperature = player.alloy_s.temperature.add(player.furnace.speed.times(diff)).min(fuelMaxTemp(fuelID()))
 
         //更新最大页码
         // if (tmp[ct].clickables[31].unlocked) player[ct].maxPage = 2
