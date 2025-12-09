@@ -23,6 +23,7 @@ function getStartOptions() {
 		notation: 'Scientific',
 		updatingRate: 50,
 		newsShown: true,
+		unitLanguage: false,
 	}
 }
 
@@ -58,7 +59,8 @@ function updateStyle() {
 }
 function cursiveSetting() {
 	let on = options.cursive
-	document.body.style.setProperty('--font', on ? 'cursive, "bahnschrift", "Inconsolata", monospace' : '"bahnschrift", "Inconsolata", monospace');
+	document.body.style.setProperty('--font', on ? 'cursive, "a", "Inconsolata", "b", monospace' : '"a", "Inconsolata","b", monospace');
+	/*"Noto Sans SC" ,*/
 }
 function upgSizeSetting() {
 	let on = options.biggerUpgs
@@ -169,4 +171,8 @@ function setUpdatingRate() {
 
 function newsSetting() {
 	options.newsShown = !options.newsShown
+}
+
+function unitLanguageSetting() {
+	options.unitLanguage = !options.unitLanguage
 }

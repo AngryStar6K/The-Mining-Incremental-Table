@@ -450,6 +450,7 @@ var interval = setInterval(function() {
 	tmp.scrolled = document.getElementById('treeTab') && document.getElementById('treeTab').scrollTop > 30
 	updateTemp();
 	updateOomps(diff);
+	if (!firstTickCheck) firstTickCheck = true
 	updateWidth()
 	updateTabFormats()
 	updateTmpRes(diff)
@@ -502,6 +503,7 @@ function startInterval() {
 		tmp.scrolled = document.getElementById('treeTab') && document.getElementById('treeTab').scrollTop > 30
 		updateTemp();
 		updateOomps(diff);
+		if (!firstTickCheck) firstTickCheck = true
 		updateWidth()
 		updateTabFormats()
 		updateTmpRes(diff)

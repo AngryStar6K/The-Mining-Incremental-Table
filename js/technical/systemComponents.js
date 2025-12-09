@@ -237,7 +237,7 @@ var systemComponents = {
 			<a class="link" href="https://angrystar6k.github.io/The-Mining-Incremental-Table-BE" target="_blank">{{ geti18n()?"点击跳转":"Click Here" }}</a><br>
 			<h6 style="color:#aaa">性能优化版，需要转换存档，且版本终点超过F1.7976e308会停更</h6>
 		</div>
-  
+
 		<br><br><br><br>
 		
 		<h2>快捷键：</h2><br>
@@ -291,6 +291,7 @@ var systemComponents = {
 				<td><button class="opt" onclick="switchTheme()">主题: {{ getThemeName() }}<br><h6>(注：部分主题可能会导致一些资源文字难以看清)</br></button></td>
 				<td><button class="opt" onclick="setUpdatingRate()">更新频率: {{ options.updatingRate }}ms<br><h6></br></button></td>
 				<td><button class="opt" onclick="newsSetting()">滚动新闻: {{ options.newsShown ? "显示" : "隐藏" }}<br><h6></br></button></td>
+				<td><button class="opt" onclick="unitLanguageSetting()">单位语言: {{ options.unitLanguage ? "中文" : "英语" }}<br><h6></br></button></td>
 				</tr><br>
 			<tr>
 				<td><button class="opt" v-if="modInfo.otherLanguageMod==true" onclick="

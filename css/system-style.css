@@ -12,7 +12,7 @@
 
 h1, h2, h3, b, input, .pesterlog > * > * {
 	display: inline;
-	font-family: "bahnschrift", "Courier New", "Courier Prime", "Lucida Console",'Noto Sans SC', monospace;
+	font-family: var(--font);
 }
 
 *:focus {

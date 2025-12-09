@@ -6,7 +6,7 @@ body {
 	--color: #dfdfdf;
 	--points: #ffffff;
 	background: var(--background);
-	font-family: "bahnschrift", "Courier New", "Courier Prime", "Lucida Console", monospace;
+	font-family: var(--font);
 	touch-action: manipulation;
 }
 

@@ -9,7 +9,7 @@
 	box-shadow: var(--hqProperty2a), var(--hqProperty2b);
 	text-align: left;
 	font-size: var(--tabFont);
-	font-family: cursive, "bahnschrift", "Courier New", "Courier Prime", "Lucida Console", monospace;
+	font-family: var(--font);
 	font-weight: bold;
 	color: rgba(0, 0, 0, 0.5);
 	text-shadow: var(--hqProperty3);
@@ -33,7 +33,7 @@
 	box-shadow: var(--hqProperty2a), var(--hqProperty2b);
 	text-align: center;
 	font-size: var(--tabFont);
-	font-family: cursive, "bahnschrift", "Courier New", "Courier Prime", "Lucida Console", monospace;
+	font-family: var(--font);
 	font-weight: bold;
 	color: rgba(0, 0, 0, 0.5);
 	text-shadow: var(--hqProperty3);

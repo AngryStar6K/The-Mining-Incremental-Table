@@ -290,7 +290,9 @@ var formatPercent = fp = function (num) {
 function verse(x) {
     s = ExpantaNum.slog(d(x)).sub(ExpantaNum.log10(9))
     let verse1 = [2, 3, 4, 5]
-    let verse2 = ["multi", "meta", "xeno", "hyper"]
+    let verse2 = options.unitLanguage ? 
+    ["多重", "元", "异", "超"] :
+    ["multi", "meta", "xeno", "hyper"]
     let id = 0;
     if (s.gte(verse1[verse1.length - 1])) id = verse1.length - 1;
     else {
@@ -306,7 +308,9 @@ var formatTimeLong = ftl = function (seconds) {
     let years = seconds.div(31556952)
     let mlt = verse(years)
     let arv1 = [1, 1e15, 1e30, 1e45, 1e60, 1e75, 1e90, 1e105, 1e120, 1e135]
-    let arv2 = ["", "mega", "giga", "tera", "peta", "exa", "zetta", "yotta", "ronna", "quetta"]
+    let arv2 = options.unitLanguage ? 
+    ["", "兆", "吉", "太", "拍", "艾", "泽", "尧", "容", "昆"] :
+    ["", "mega", "giga", "tera", "peta", "exa", "zetta", "yotta", "ronna", "quetta"]
     let id = 0;
     let arch = mlt[0].logBase(1e15).floor().add(1)
     let archs = mlt[0].logBase(1e15)
@@ -316,19 +320,22 @@ var formatTimeLong = ftl = function (seconds) {
         if (id > 0) id--;
     }
     let mverse = arv2[id] + (arv2[id] != "" ? "-" : "") + mlt[1]
+    let archname = options.unitLanguage ? "高阶" : "arch"
     if (arch.gte(11)) {
-        mverse = "arch^" + formatWhole(arch) + (arv2[id] != "" ? "-" : "") + mlt[1]
-        if (arch.gte(10000)) mverse = "arch" + (arv2[id] != "" ? "-" : "") + mlt[1]
+        mverse = archname + "^" + formatWhole(arch) + (arv2[id] != "" ? "-" : "") + mlt[1]
+        if (arch.gte(10000)) mverse = archname + (arv2[id] != "" ? "-" : "") + mlt[1]
     }
-    if (mlt[1] == "multi") {
+    if (mlt[1] == "multi" || mlt[1] == "多重") {
         mverse = arv2[id]
-        if (arch.gte(11)) mverse = "arch<sup>" + formatWhole(arch) + "</sup>"
-        if (arch.gte(10000)) mverse = "arch"
-        if (arv2[id] == "") mverse = "multi"
+        if (arch.gte(11)) mverse = archname + "<sup>" + formatWhole(arch) + "</sup>"
+        if (arch.gte(10000)) mverse = archname
+        if (arv2[id] == "") mverse = options.unitLanguage ? "多重" : "multi"
     }
 
     let scale1 = [5.39121e-44, 1e-30, 1e-27, 1e-24, 1e-21, 1e-18, 1e-15, 1e-12, 1e-9, 1e-6, 0.001, 1, 60, 3600, 86400, 31556952, 31556952e3, 31556952e6, 31556952e9, 31556952e12, 31556952e15, 31556952e18, 31556952e21, 31556952e24, 31556952e27, 31556952e30, 31556952e40, 31556952e100]
-    let scale2 = [" Planck Times", " quectoseconds", " rontoseconds", " yoctoseconds", " zeptoseconds", " attoseconds", " femtoseconds"
+    let scale2 = options.unitLanguage ? 
+        ["普朗克时间", "亏秒", "柔秒", "幺秒", "仄秒", "阿秒", "飞秒", "皮秒", "纳秒", "微秒", "毫秒", "秒", "分钟", "小时", "天", "年", "千年", "百万年", "十亿年", "兆年", "千兆年", "百京年", "十垓年", "秭年", "千秭年", "百穰年", "简并纪", "黑洞纪"] :
+        [" Planck Times", " quectoseconds", " rontoseconds", " yoctoseconds", " zeptoseconds", " attoseconds", " femtoseconds"
         , " picoseconds", " nanoseconds", " microseconds", " milliseconds", " seconds", " minutes"
         , " hours", " days", " years", " millenniums", " megaannums", " gigaannums", " teraannums", " petaannums", " exaannums", " zettaannums", " yottaannums", " ronnaannums", " quettaannums", " degenerate eras", " black hole eras"]
     let id2 = 0;
@@ -338,18 +345,18 @@ var formatTimeLong = ftl = function (seconds) {
         if (id2 > 0) id2--;
     }
     if (seconds.lt('ee9') && seconds.gt(0)) return format(seconds.div(scale1[id2])) + scale2[id2]
-    if (seconds.eq(0)) return format(seconds) + " seconds"
+    if (seconds.eq(0)) return format(seconds) + (options.unitLanguage ? "秒" : " seconds")
     else if (years.lt("(10^)^6 9")) {
-        if (years.gte("eee56") && years.lt("eee69")) return format(years.log10().log10().div(1e56)) + " new big bangs"
-        if (years.gte("ee120") && years.lt("ee129")) return format(years.log10().div(1e120)) + " big rips"
+        if (years.gte("eee56") && years.lt("eee69")) return format(years.log10().log10().div(1e56)) + (options.unitLanguage ? "新大爆炸纪元" : " new big bangs")
+        if (years.gte("ee120") && years.lt("ee129")) return format(years.log10().div(1e120)) + (options.unitLanguage ? "大撕裂纪元" : " big rips")
         if (years.gte("ee9") && years.lt("(10^)^6 9")) {
-            if (arch.lt(11)) return format(mlt[0].div(arv1[id])) + " " + mverse + "verse ages"
-            else if (arch.lt(10000)) return format(mlt[0].div(new ExpantaNum(1e15).pow(arch.sub(1)))) + " " + mverse + "verse ages"
-            else return format(archs) + " " + mverse + "verse ages"
+            if (arch.lt(11)) return format(mlt[0].div(arv1[id])) + " " + mverse + (options.unitLanguage ? "宇宙纪元" : "verse ages")
+            else if (arch.lt(10000)) return format(mlt[0].div(new ExpantaNum(1e15).pow(arch.sub(1)))) + " " + mverse + (options.unitLanguage ? "宇宙纪元" : "verse ages")
+            else return format(archs) + " " + mverse + (options.unitLanguage ? "宇宙纪元" : "verse ages")
         }
     }
     else {
-        return format(d(10).pow(ExpantaNum.slog(years)).div(9e6)) + " omniverse ages"
+        return format(d(10).pow(ExpantaNum.slog(years)).div(9e6)) + (options.unitLanguage ? "全能宇宙纪元" : "omniverse ages")
     }
     // lodverse ages 9G6~9H6
     // meskoverse ages 9H6~6.95J5
@@ -625,9 +632,16 @@ function roman(num) { //附魔等级，显示1~3999级，4000+正常显示
 
 var formatRarity = fr = function (num, sigma, colored) {
     num = d(num)
-    let name1 = ["Common", "Uncommon", "Rare", "Unique", "Epic", "Legendary", "Mythic", "Transcendent", "Celestial", "Divine", "Flawless", "Extreme", "Almighty", "Zenith", "Exotic", "Wyvern", "Draconic", "Chaotic", "Orderly", "Theoretical", "Paradox"]
+    let name1 = options.unitLanguage ?
+    ["普通", "少见", "稀有", "独特", "史诗", "传说", "神话", "超凡", "天界", "神圣", "无暇", "极限", "全能", "天穹", "奇异", "飞龙", "神龙", "混沌", "秩序", "理论", "悖论"] :
+    ["Common", "Uncommon", "Rare", "Unique", "Epic", "Legendary", "Mythic", "Transcendent", "Celestial", "Divine", "Flawless", "Extreme", "Almighty", "Zenith", "Exotic", "Wyvern", "Draconic", "Chaotic", "Orderly", "Theoretical", "Paradox"]
     let color1 = ["a0a0a0", "1e8622", '0078c4', '0d40ff', '9c27b0', 'd68100', 'd50000', '00c3c3', '9696ff', 'ffc0c6', 'b896ff', 'fbfb00', 'def8a9', '622918', 'fc65aa', 'b8a5c5', 'f6c5aa', '4a4f55', 'f2ede8', '451360', '581358']
-    let name2 = ["", "Kilo", "Mega", "Giga", "Tera", "Peta", "Exa", "Zetta", "Yotta", "Ronna", "Quetta"]
+    let name2 = options.unitLanguage ? 
+    ["", "千", "兆", "吉", "太", "拍", "艾", "泽", "尧", "容", "昆"] :
+    ["", "Kilo", "Mega", "Giga", "Tera", "Peta", "Exa", "Zetta", "Yotta", "Ronna", "Quetta"]
+    let name3 = options.unitLanguage ? 
+    ['', '多重', '元', '超', '异', '全', '终焉', '欧米伽'] :
+    ['', 'Multi', 'Meta', 'Hyper', 'Ultra', 'Xeno', 'Omni', 'Mesko', 'Omega']
     let id1
     let id2
     if (num.lt(9e15)) {
@@ -638,6 +652,24 @@ var formatRarity = fr = function (num, sigma, colored) {
             id1 = 20
             id2 -= 1
         }
+    }
+    else if (num.gte('10^^9e15')) {
+        let lim = d(1.080220928150581)
+        let slognum = slog(num)
+        let id3 = slognum.sub(lim).floor()
+        return 'Lode<sup>' + formatWhole(id3) + '<sup>'
+    }
+    else {
+        let lim = d(1.080220928150581)
+        let slognum = slog(num)
+        let id3 = slognum.sub(lim).floor()
+        if (id3.lt(9)) Rname3 = name3[id3.toNumber()] + '-'
+        else Rname3 = 'Lode<sup>' + formatWhole(id3) + '<sup>-'
+        let mag = d(10).tetrate(slognum.sub(lim.add(id3).sub(1)).max(0)).floor()
+        console.log(f(mag))
+        let sigmaDisplay = ''
+        if (sigma) sigmaDisplay += ` [${fw(num)}σ]`
+        return Rname3 + formatRarity(mag, false, colored) + sigmaDisplay
     }
     let Rname1 = name1[id1]
     let Rname2 = id2 <= 10 ? name2[id2] : 'Arch<sup>' + formatWhole(id2) + '</sup>'
@@ -876,4 +908,28 @@ function fixedInfinity(num, precision) {
     if (num.abs().lt(Number.MAX_VALUE)) return scientific(num, precision)
     else if (ExpantaNum.isNaN(num)) return "NaN"
     else return (num.sign > 0 ? "" : "-") + "infinite"
+}
+
+function tiersNameChinese(num) {
+    let en = new ExpantaNum(num)
+    if (en.lte(0) || en.gt(1000)) return
+    let n = en.floor().toNumber()
+    if (n == 1000) return "一千"
+    let h = Math.floor(n / 100)
+    let d = Math.floor((n % 100) / 10)
+    let o = Math.floor(n % 10)
+    let ones = ["", "一", "二", "三", "四", "五", "六", "七", "八", "九"]
+    let magnitudes = ["", "十", "百", "千"]
+    let hr = ones[h] + magnitudes[2]
+    let dr = ones[d] + magnitudes[1]
+    let or = ones[o]
+    let result = ""
+    if (h == 0) hr = ''
+    if (d == 0) {
+        if (h == 0 || o == 0) dr = ''
+        else dr = '零'
+    }
+    if (d == 1 && h == 0) dr = magnitudes[1]
+    result = hr + dr + or
+    return result
 }

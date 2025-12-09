@@ -20,7 +20,7 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.8fix - 25w37a",
+	num: "0.9",
 	name: "",
 }
 
@@ -29,13 +29,23 @@ function changelog() {
 		<br><br><br><h1>更新日志:</h1><br>(含有<span style='color: red'>剧透</span>，请谨慎查看)<br><br>
 		<span style="font-size: 17px;">
 				<br><br>
+			<h3>v0.9 - 下界、魔力、增幅</h3><br>
+				- 版本终点：获得1炽炎矿石，1.000000F5经验<br>
+				- 成就总数：149 + 12<br>
+				- 添加世界1层级：信素<br>
+				- 添加世界2层级：源质钢、精灵钢<br>
+				- 添加世界4层级：下界石英、荧石、流明、荧光信素、炽炎<br>
+				- 层级选择现在可用！<br>
+				- 机械手现在可以寻找和挖掘矿物（需要实验性内容密码）<br>
+				- 不同的滚动新闻数量：167<br>
+				<br><br>
 			<h3>v0.8fix - 25w37a</h3><br>
 				- 版本终点：获得1魂金锭，约e1.00e3,460,000经验<br>
 				- 修复一些已知bug<br>
 				- 修复第1钢叶购买项的自动购买bug，重新平衡了1e12暮色森林征服点数里程碑后的数值<br>
 				- 此快照更新前的存档会重置钢叶购买项<br>
 				<br><br>
-				<h3>v0.8 - 暮色森林</h3><br>
+			<h3>v0.8 - 暮色森林</h3><br>
 				- 版本终点：获得1魂金锭，约e1.00e3,120,000经验<br>
 				- 成就总数：134 + 11<br>
 				- 添加世界2层级：魔力水晶<br>
@@ -167,7 +177,29 @@ function tiersUpdating(tier) {
 	t = tier.toNumber()
 	player.tiers[t - 1] = d(player.tiers[t - 1])
 	if (tier.eq(1)) player.tiers[t - 1] = player.level.max(1).div(50000).logBase(20).max(0).root(1.35).floor()
-	else if (tier.eq(2)) player.tiers[t - 1] = player.tiers[t - 2].max(0).div(10000).logBase(100).max(0).floor() //三阶等级增长简化为后续高阶等级做准备
+	else if (tier.eq(2)) player.tiers[t - 1] = player.tiers[t - 2].max(1).logBase(100000).floor() //三阶等级增长简化为后续高阶等级做准备
+}
+
+function omegaTierUpdating() { //1e500,000 3阶=100,000 4阶=1 5阶
+	if (player.tiers[0].lt(1e5)) return
+	let t2lv = player.tiers[0]
+	let tier_raw = t2lv.slog(1e5)
+	let tier = tier_raw.floor()
+	let top = tier_raw.sub(tier)
+	tier = tier.add(2)
+	let count = d(1e5).tetrate(top)
+	let countInt = count.floor()
+	let highest = [[countInt, tier]]
+	if (tier.gte(4) && tier.lt(1001)) {
+		let tier2 = tier.sub(1)
+		let count2 = d(100000).pow(count)
+		let highest2 = [count2, tier2]
+		highest.push(highest2)
+	}
+	player.omegaTier = highest[0][1]
+	player.highestTierAmount = highest[0][0]
+	if (highest.length >= 2) player.secondHTA = highest[1][0]
+	return highest
 }
 
 function nextLevelReq() {
@@ -177,8 +209,12 @@ function nextLevelReq() {
 function nextTiersReq(tier) {
 	tier = new ExpantaNum(tier)
 	t = tier.toNumber()
-	if (t == 1) return ExpantaNum.pow(20, player.tiers[t - 1].max(0).add(1).pow(1.35)).times(50000).ceil()
-	if (t == 2) return ExpantaNum.pow(100, player.tiers[t - 1].max(0).add(1)).times(10000).ceil()
+	if (t == 1) return ExpantaNum.pow(20, player.tiers[0].max(0).add(1).pow(1.35)).times(50000).ceil()
+	if (t == 2) return d(100000).pow(player.tiers[1].add(1))
+}
+
+function omegaTiersReq() {
+	return d(100000).pow(player.highestTierAmount.add(1))
 }
 
 
@@ -190,7 +226,10 @@ function addedPlayerData() {
 		lastTimePlayed: Date.now(),
 		gameSpeed: 1,
 		level: d(0),
-		tiers: [d(0), d(0), d(0), d(0), d(0)],
+		tiers: [d(0), d(0)],
+		omegaTier: d(0),
+		highestTierAmount: d(0),
+		secondHTA: d(0),
 		news: true,
 		devmode: false,
 		NaNpause: d(0),
@@ -268,7 +307,7 @@ function displayThingsRes() {
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.soularium.points.gte(1) && player.points.gte('ee3460000')
+	return player.torridite.ore.gte(1) && player.points.gte('10^^5')
 }
 
 var date = {
@@ -315,6 +354,33 @@ function getTpsDisplay() {
 	return display
 }
 
+
+function getLevelDisplay() {
+	let a = ''
+	let noShadow = options.textShadowShown ? "" : `style="text-shadow: none"`
+	//Lv
+	if (player.tiers[1].lt(100000)) {
+		a += `<br><span class="overlayThing">等级<h2  class="overlayThing" id="points" ${noShadow}> ${formatWhole(player.level)}</h2></span>`
+		//Next Lv Req
+		if (player.points.lt('ee12') && !tmp.experience.layerShown) a += `<br><span class="overlayThing">${format(player.points)}/${format(nextLevelReq())}</span>`
+		//T2Lv
+		if (hasAchievement('achievements', 123)) a += `<br><span class="overlayThing">二阶等级<h2  class="overlayThing" id="points" ${noShadow}> ${formatWhole(player.tiers[0])}</h2></span>`
+		//Next T2Lv Req
+		if (player.tiers[0].lt(1e5)) a += `<br><span class="overlayThing">${format(player.level)}/${format(nextTiersReq(1))}</span>`
+		//T3+Lv
+		if (hasAchievement('achievements', 202)) a += `<br><span class="overlayThing">三阶等级<h2  class="overlayThing" id="points" ${noShadow}> ${formatWhole(player.tiers[1])}</h2></span>`,
+			//Next T3Lv Req
+			a += `<br><span class="overlayThing">${format(player.tiers[0])}/${format(nextTiersReq(2))}</span>`
+	}
+	else {
+		a += `<br><span class="overlayThing">${tiersNameChinese(player.omegaTier.sub(1))}阶等级<h2  class="overlayThing" id="points" ${noShadow}> ${formatWhole(player.secondHTA)}</h2></span>`
+		a += `<br><span class="overlayThing">${tiersNameChinese(player.omegaTier)}阶等级<h2  class="overlayThing" id="points" ${noShadow}> ${formatWhole(player.highestTierAmount)}</h2></span>`
+		a += `<br><span class="overlayThing">${formatWhole(player.secondHTA)}/${formatWhole(omegaTiersReq())}</span>`
+	}
+	//hardcaps display
+	if (player.points.gte('e1.7976e308') && player.experience.crystal.lte(0)) a += `<br><br><span class="overlayThing">我不会让你走得更远了</span>`
+	return a
+}
 // 
 function getPointsDisplay() {
 	let a = ''
@@ -334,11 +400,7 @@ function getPointsDisplay() {
 		if (canGenPoints()) {
 			a += `<br><span class="overlayThing">(` + (tmp.other.oompsMag != 0 ? format(tmp.other.oomps) + " OoM" + (tmp.other.oompsMag < 0 ? "^^2" : tmp.other.oompsMag > 1 ? "^" + tmp.other.oompsMag : "") + "s" : formatSmall(getPointGen())) + `/sec)</span>`
 		}
-		a += `<br><span class="overlayThing">等级<h2  class="overlayThing" id="points" ${noShadow}> ${formatWhole(player.level)}</h2></span>`
-		if (player.points.lt('ee12') && !tmp.experience.layerShown) a += `<br><span class="overlayThing">${format(player.points)}/${format(nextLevelReq())}</span>`
-		if (hasAchievement('achievements', 123)) a += `<br><span class="overlayThing">二阶等级<h2  class="overlayThing" id="points" ${noShadow}> ${formatWhole(player.tiers[0])}</h2></span>`,
-			a += `<br><span class="overlayThing">${format(player.level)}/${format(nextTiersReq(1))}</span>`
-		if (player.points.gte('e1.7976e308') && player.experience.crystal.lte(0)) a += `<br><br><span class="overlayThing">我不会让你走得更远了</span>`
+		a += getLevelDisplay()
 		a += `<div style="margin-top: 3px"></div>`
 	}
 	a += '<br><div class="vl2"></div>'
@@ -366,6 +428,14 @@ function fixOldSave(oldVersion) {
 //6级运算
 ExpantaNum.prototype.hexate = function (x) {
 	return this.arrow(4)(x)
+}
+
+ExpantaNum.prototype.heptate = function (x) { //7、8级运算感觉可能没啥用了
+	return this.arrow(5)(x)
+}
+
+ExpantaNum.prototype.octate = function (x) {
+	return this.arrow(6)(x)
 }
 
 //检测shift和ctrl
@@ -479,33 +549,201 @@ function quickDoubleColor(str, colora, colorb) {
 
 //test
 const redeemCodes = { //不是哥们你觉得我会让你看到兑换码吗
-	"3eb8f27e2df57aaebf2b734f46208d9cc584afa566e46bb70357b6635c963618": {
+	"fad951e60f794da2e323911c1906a8451dfef80d067aa6e6f169990b9133fa06": {
 		reward: 1
 	},
-	"1478d0607ee143fbebaab2b357258ded95c78b31eff5e31ce2cd8e08a3b9147a": {
+	"89b0ee43d311d5f5f39015ed71b348a9011fc55cde50d101e70e3a28c94265ad": {
 		reward: 1
 	},
-	"ca1ab1c4a77f77d98de48c9c03d8b7e885cb088aa6c016449098f0767e456282": {
+	"808119fbfa5b01436a97d50cb9511cef42c5db3ef59e808a636bc80327183c10": {
 		reward: 1
 	},
 }
 
 Object.freeze(redeemCodes)
 
-async function sha256(input) {
-	// 这里使用浏览器的SubtleCrypto API或polyfill
-	// 实际实现会更复杂，这里只是示例
-	const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input))
-	return Array.from(new Uint8Array(hash))
-		.map(b => b.toString(16).padStart(2, '0'))
-		.join('')
+/**
+ * 同步 SHA-256 哈希函数
+ * 基于 JavaScript 的纯同步实现
+ * @param {string} message - 要哈希的消息
+ * @returns {string} - 十六进制格式的 SHA-256 哈希值
+ */
+function sha256(message) {
+	// 初始化常量
+	const K = [
+		0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
+		0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+		0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
+		0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+		0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc,
+		0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+		0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
+		0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+		0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
+		0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+		0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3,
+		0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+		0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5,
+		0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+		0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
+		0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
+	];
+
+	// 初始哈希值
+	let H = [
+		0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
+		0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
+	];
+
+	// 预处理消息
+	function preprocess(message) {
+		// 将消息转换为UTF-8编码的字节数组
+		const msgBytes = [];
+		for (let i = 0; i < message.length; i++) {
+			let code = message.charCodeAt(i);
+			if (code < 0x80) {
+				msgBytes.push(code);
+			} else if (code < 0x800) {
+				msgBytes.push(0xc0 | (code >> 6));
+				msgBytes.push(0x80 | (code & 0x3f));
+			} else if (code < 0xd800 || code >= 0xe000) {
+				msgBytes.push(0xe0 | (code >> 12));
+				msgBytes.push(0x80 | ((code >> 6) & 0x3f));
+				msgBytes.push(0x80 | (code & 0x3f));
+			} else {
+				// 代理对处理
+				i++;
+				code = 0x10000 + (((code & 0x3ff) << 10) | (message.charCodeAt(i) & 0x3ff));
+				msgBytes.push(0xf0 | (code >> 18));
+				msgBytes.push(0x80 | ((code >> 12) & 0x3f));
+				msgBytes.push(0x80 | ((code >> 6) & 0x3f));
+				msgBytes.push(0x80 | (code & 0x3f));
+			}
+		}
+
+		// 添加填充位
+		const len = msgBytes.length;
+		const bitLen = len * 8;
+
+		// 添加1位
+		msgBytes.push(0x80);
+
+		// 填充0直到长度 ≡ 448 (mod 512)
+		while ((msgBytes.length * 8) % 512 !== 448) {
+			msgBytes.push(0x00);
+		}
+
+		// 添加64位长度信息（大端序）
+		for (let i = 7; i >= 0; i--) {
+			msgBytes.push((bitLen >>> (i * 8)) & 0xff);
+		}
+
+		return msgBytes;
+	}
+
+	// 循环左移函数
+	function rotl(x, n) {
+		return (x << n) | (x >>> (32 - n));
+	}
+
+	// 右移函数
+	function rotr(x, n) {
+		return (x >>> n) | (x << (32 - n));
+	}
+
+	// 主函数
+	const bytes = preprocess(message);
+	const chunks = [];
+
+	// 将字节数组分割为512位块
+	for (let i = 0; i < bytes.length; i += 64) {
+		const chunk = [];
+		for (let j = 0; j < 64; j += 4) {
+			chunk.push(
+				(bytes[i + j] << 24) |
+				(bytes[i + j + 1] << 16) |
+				(bytes[i + j + 2] << 8) |
+				(bytes[i + j + 3])
+			);
+		}
+		chunks.push(chunk);
+	}
+
+	// 处理每个块
+	for (const chunk of chunks) {
+		const w = new Array(64);
+
+		// 将块复制到前16个字
+		for (let i = 0; i < 16; i++) {
+			w[i] = chunk[i];
+		}
+
+		// 扩展消息
+		for (let i = 16; i < 64; i++) {
+			const s0 = rotr(w[i - 15], 7) ^ rotr(w[i - 15], 18) ^ (w[i - 15] >>> 3);
+			const s1 = rotr(w[i - 2], 17) ^ rotr(w[i - 2], 19) ^ (w[i - 2] >>> 10);
+			w[i] = (w[i - 16] + s0 + w[i - 7] + s1) >>> 0; // >>> 0 确保为32位无符号整数
+		}
+
+		// 初始化工作变量
+		let [a, b, c, d, e, f, g, h] = H;
+
+		// 主循环
+		for (let i = 0; i < 64; i++) {
+			const S1 = rotr(e, 6) ^ rotr(e, 11) ^ rotr(e, 25);
+			const ch = (e & f) ^ (~e & g);
+			const temp1 = (h + S1 + ch + K[i] + w[i]) >>> 0;
+			const S0 = rotr(a, 2) ^ rotr(a, 13) ^ rotr(a, 22);
+			const maj = (a & b) ^ (a & c) ^ (b & c);
+			const temp2 = (S0 + maj) >>> 0;
+
+			h = g;
+			g = f;
+			f = e;
+			e = (d + temp1) >>> 0;
+			d = c;
+			c = b;
+			b = a;
+			a = (temp1 + temp2) >>> 0;
+		}
+
+		// 更新哈希值
+		H[0] = (H[0] + a) >>> 0;
+		H[1] = (H[1] + b) >>> 0;
+		H[2] = (H[2] + c) >>> 0;
+		H[3] = (H[3] + d) >>> 0;
+		H[4] = (H[4] + e) >>> 0;
+		H[5] = (H[5] + f) >>> 0;
+		H[6] = (H[6] + g) >>> 0;
+		H[7] = (H[7] + h) >>> 0;
+	}
+
+	// 将哈希值转换为十六进制字符串
+	let result = '';
+	for (let i = 0; i < H.length; i++) {
+		let hex = H[i].toString(16);
+		// 确保每个部分都是8位十六进制
+		while (hex.length < 8) {
+			hex = '0' + hex;
+		}
+		result += hex;
+	}
+
+	return result;
 }
 
-async function redeemCode() {
+Object.defineProperty(window, 'sha256', {
+	value: sha256,
+	writable: false,
+	configurable: false,
+	enumerable: true
+})
+
+function redeemCode() {
 	const salt = '9KeVd0LqsTNo35'
 	const input = prompt("请在此输入你的兑换码")
 	const code = salt.slice(0, 7) + input.trim().toUpperCase() + salt.slice(7)
-	const hash = await sha256(code);
+	const hash = sha256(code);
 	console.log(hash)
 
 	if (player.redeemedCodes[hash]) {
@@ -539,6 +777,16 @@ function updateTmpRes(diff) {
 	if (hasNormalAchievement(85)) {
 		if (!tmpres.invar) tmpres.invar = { energy: player.invar.energy }
 		updateResourceOoMps(invar, 'energy', diff)
+	}
+	if (hasCraftingItem(682)) {
+		if (!tmpres.lumium) tmpres.lumium = {
+			laser0: player.lumium.laser0,
+			laser1: player.lumium.laser1,
+			laser2: player.lumium.laser2,
+		}
+		updateResourceOoMps(lumium, 'laser0', diff)
+		updateResourceOoMps(lumium, 'laser1', diff)
+		updateResourceOoMps(lumium, 'laser2', diff)
 	}
 }
 
@@ -580,3 +828,5 @@ function getOoMpsText(layer, res) {
 const Decimal = ExpantaNum
 const OmegaNum = ExpantaNum
 const PowiainaNum = ExpantaNum //有机会吗？
+
+

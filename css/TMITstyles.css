@@ -1,4 +1,17 @@
 /* 通用：文本、升级、购买项、点击项分类box*/
+
+@font-face {
+  font-family: 'a';
+  src: local('bahnschrift'), local(monospace);
+  unicode-range: U+0000-001F, U+0020-007F, U+00B7, U+0391-03C9;
+}
+
+@font-face {
+  font-family: 'b';
+  src: local('楷体'), local('宋体');
+  unicode-range: U+0020, U+0080-00B6, U+00B8-0390, U+03CA-FFFF;
+}
+
 .displayBox {
   border-color: white;
   position: relative;
@@ -33,26 +46,26 @@
 }
 
 .background-twilight_forest {
-  background: 
-  linear-gradient(to bottom, #00000000 60%, #1c5221 60%, #1c5221 67.5%, #548049 67.5%, #548049 68.5%, #5f452f 68.5%, #5f452f 71.5%, #4a4a4a 71.5%, #4a4a4a 99%, #0d0d0d 99%, #0d0d0d 100%),
-  radial-gradient(#abcfe8 6%, #00000000 6%),
-  radial-gradient(#abcfe8 6%, #00000000 6%),
-  linear-gradient(to bottom, #436986 600%, #00000000 670%);
+  background:
+    linear-gradient(to bottom, #00000000 60%, #1c5221 60%, #1c5221 67.5%, #548049 67.5%, #548049 68.5%, #5f452f 68.5%, #5f452f 71.5%, #4a4a4a 71.5%, #4a4a4a 99%, #0d0d0d 99%, #0d0d0d 100%),
+    radial-gradient(#abcfe8 6%, #00000000 6%),
+    radial-gradient(#abcfe8 6%, #00000000 6%),
+    linear-gradient(to bottom, #436986 600%, #00000000 670%);
   background-size: 100% 100%, 30% 30%, 30% 30%, 100% 100%;
   background-position: 0 0, 0 0, 20% 20%, 0 0;
 }
 
 .background-nether {
-  background: 
-  linear-gradient(to bottom, #723232 12.5%, #00000000 12.5%),
-  linear-gradient(to bottom, #00000000 12.5%, #744848 12.5%, #744848 25%, #00000000 25%),
-  linear-gradient(to bottom, #00000000 25%, #30181c 25%, #30181c 37.5%, #00000000 37.5%),
-  linear-gradient(to right, #00000000 12.5%, #30181c 12.5%, #30181c, 31.25%, #00000000 31.25%, #00000000 68.75%, #30181c, 68.75%, #30181c 87.5%, #00000000 87.5%),
-  linear-gradient(to bottom, #00000000 0%, #00000000 87.5%, #d96616 87.5%),
-  linear-gradient(to right, #744848 12.5%, #00000000 12.5%, #00000000, 87.5%, #744848 87.5%),
-  linear-gradient(225deg, #00000000 31.25%, #30181c 31.25%, #30181c 43.75%, #00000000 43.75%),
-  linear-gradient(315deg, #00000000 56.25%, #30181c 56.25%, #30181c 68.75%, #00000000 68.75%),
-  linear-gradient(to bottom,  #00000000 12.5%, #744848 12.5%);
+  background:
+    linear-gradient(to bottom, #723232 12.5%, #00000000 12.5%),
+    linear-gradient(to bottom, #00000000 12.5%, #744848 12.5%, #744848 25%, #00000000 25%),
+    linear-gradient(to bottom, #00000000 25%, #30181c 25%, #30181c 37.5%, #00000000 37.5%),
+    linear-gradient(to right, #00000000 12.5%, #30181c 12.5%, #30181c, 31.25%, #00000000 31.25%, #00000000 68.75%, #30181c, 68.75%, #30181c 87.5%, #00000000 87.5%),
+    linear-gradient(to bottom, #00000000 0%, #00000000 87.5%, #d96616 87.5%),
+    linear-gradient(to right, #744848 12.5%, #00000000 12.5%, #00000000, 87.5%, #744848 87.5%),
+    linear-gradient(225deg, #00000000 31.25%, #30181c 31.25%, #30181c 43.75%, #00000000 43.75%),
+    linear-gradient(315deg, #00000000 56.25%, #30181c 56.25%, #30181c 68.75%, #00000000 68.75%),
+    linear-gradient(to bottom, #00000000 12.5%, #744848 12.5%);
 }
 
 .background-nether::before {
@@ -176,7 +189,7 @@
   }
 
   to {
-    background-position: 0 -5658px;
+    background-position: 0 -5120px;
   }
 }
 
@@ -186,7 +199,7 @@
   }
 
   to {
-    background-position: 0 -3182px;
+    background-position: 0 -3200px;
   }
 
 }
@@ -206,7 +219,7 @@
 }
 
 .molten-animation {
-  animation: molten-animation 1.8s steps(18) infinite alternate;
+  animation: molten-animation 2s steps(20) infinite alternate;
 }
 
 /* 红石琥珀金层级：文本样式 */
@@ -225,7 +238,7 @@
 
 /* 魔力钢层级：文本样式 */
 .text-manasteel {
-  background: linear-gradient(to bottom,  #005ee0 0%, #7db4ff 20%, #006bff 80%, #0045a3 100%);
+  background: linear-gradient(to bottom, #005ee0 0%, #7db4ff 20%, #006bff 80%, #0045a3 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -261,18 +274,38 @@
   text-shadow: 0 0 10px #172911;
 }
 
+.text-elementium {
+  background: linear-gradient(to bottom, #e90081 0%, #facae4 15%, #f15cae 80%, #ed339a 90%, #bb0067 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #f15cae;
+}
+
+.text-alfsteel {
+  background: linear-gradient(to bottom, #fcb600 0%, #bd5a00 15%, #fcbb00 80%, #e98000 90%, #763b00 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #fcbb00;
+}
+
 @keyframes fieryText {
-  0%, 100% {
+
+  0%,
+  100% {
     color: #191313;
     text-shadow: 0 0 10px #ffd83a;
   }
+
   50% {
     color: #662d09;
     text-shadow: 0 0 10px white;
   }
 }
 
-.text-fiery { /*#191313 #662d09*/
+.text-fiery {
+  /*#191313 #662d09*/
   animation: fieryText 4s ease-in-out infinite;
 }
 
@@ -284,16 +317,51 @@
   text-shadow: 0 0 10px #b38ef3;
 }
 
+.text-lumium {
+  background: linear-gradient(to bottom, #d28c2e 5%, #eff3ce 15%, #dee38b 25%, #f1f9df 75%, #e1e9b6 90%, #d09140 95%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #f1f9df;
+}
+
+.text-signalum {
+  background: linear-gradient(to bottom, #671500 5%, #ff891c 15%, #e13f00 30%, #ffa71a 60%, #f25200 80%, #671500 95%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #e13f00;
+}
+
+.text-glowing_signalum {
+  background: linear-gradient(to bottom, #671500 5%, #ff891c 15%, #e13f00 30%, #ffa71a 60%, #f25200 80%, #671500 95%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #fff030;
+}
+
+.text-torridite {
+  background: linear-gradient(to bottom, #68031f 5%, #b91d1d 10%, #fcac83 15%, #f15221 30%, #b91d1d 45%, #f15221 60%, #b91d1d 75%, #f15221 90%, #900613 95%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #b91d1d;
+}
+
 .platinum45deg {
   background: linear-gradient(45deg, #62d1f3 0%, #c8fbff 30%, #ffffff 50%, #aae3ff 80%, #476fbe 100%);
 }
 
 @keyframes fieryBg {
-  0%, 100% {
+
+  0%,
+  100% {
     background-color: #191313;
     border-color: #ffd83a;
     color: #ffd83a;
   }
+
   50% {
     background-color: #662d09;
     border-color: white;
@@ -323,7 +391,7 @@
 }
 
 .twilight_gem.milestoneDone {
-  background: repeating-linear-gradient(45deg,rgba(255, 0, 255, 0.5) 25%, rgba(255, 0, 255, 0) 50%, rgba(255, 0, 255, 0.5) 75%), #f50057;
+  background: repeating-linear-gradient(45deg, rgba(255, 0, 255, 0.5) 25%, rgba(255, 0, 255, 0) 50%, rgba(255, 0, 255, 0.5) 75%), #f50057;
   background-size: 300% 300%;
   animation: enchant-glow 12s linear infinite;
 }
@@ -342,46 +410,60 @@
 }
 
 @keyframes rainbowText {
-  0%, 100% {
+
+  0%,
+  100% {
     color: red;
     text-shadow: 0 0 10px red;
   }
+
   8.33% {
     color: orange;
     text-shadow: 0 0 10px orange;
   }
+
   16.67% {
     color: yellow;
     text-shadow: 0 0 10px yellow;
   }
+
   25% {
     color: lime;
     text-shadow: 0 0 10px lime;
   }
+
   33.33% {
     color: green;
     text-shadow: 0 0 10px green;
   }
+
   50% {
     color: cyan;
     border-color: cyan;
-  };
+  }
+
+  ;
+
   66.67% {
     color: blue;
     text-shadow: 0 0 10px blue;
   }
+
   75% {
     color: indigo;
     text-shadow: 0 0 10px indigo;
   }
+
   83.33% {
     color: purple;
     text-shadow: 0 0 10px purple;
   }
+
   91.67% {
     color: magenta;
     text-shadow: 0 0 10px magenta;
   }
+
   95.83% {
     color: pink;
     text-shadow: 0 0 10px pink;

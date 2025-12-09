@@ -1,4 +1,4 @@
-var textlength = 147
+var textlength = 167
 var texts =
     [
         "欢迎来到挖矿增量！",
@@ -89,7 +89,7 @@ var texts =
         "有生之年系列：挖矿增量页集齐元素周期表",
         "植物魔法是科技mod",
         "请将下列事件按发生顺序排序 1、暮色森林更新终焉城堡最终BOSS；2、深渊国度更新高版本；3、GTA6发售；4、RE-LOGIC更新Terraria1.4.5；5、IMR更新v0.8正式版；6、五小时后",
-        "1.21.9？不是吧！",
+        "1.21.9？不是吧！&emsp;&emsp;1.21.10都出来了，1.7.10有伴了！--二编&emsp;&emsp;1.21.11都来了，这下好了mojang你是会水版本的--三编&emsp;&emsp;你无敌了，直接改了版本命名方式下版本直接叫26.1了nb--四编",
         "购买末地外岛一环的房子是否会比末地外岛二环的房子需要更多的末影珍珠？末地外岛三万环的房子会不会白送都没有末影人要？",
         "Mek纸箱 绝对的神",
         "懒人厨房水槽 唯一真神",
@@ -148,6 +148,26 @@ var texts =
         "挖矿增量一定要有矿！\\o/\\o/\\o/",
         "Hyper meaning high. Glyc from gloucose meaning sugar. And -emia meaning presence in blood.",
         "点击这条新闻就能将经验获取变为原来的1J13/10倍！ &emsp;&emsp; &emsp;&emsp; &emsp;&emsp;... ... ... &emsp;&emsp; &emsp;&emsp; &emsp;&emsp;... ... ... &emsp;&emsp; &emsp;&emsp; &emsp;&emsp;你想说为什么没反应吗？并不是因为没有生效，是因为1J13 = 10，所以你的经验获取压根就没变。J13写成aJx的形式是2J13而不是1J13，2J13 = 10^^^^^^^^^^^^^10",
+        "核电，轻而易举啊！ &emsp;&emsp; &emsp;&emsp; &emsp;&emsp; 坏了坏了  &emsp;&emsp; &emsp;&emsp; &emsp;&emsp;xx死于核弹",
+        "xx取得了进度[辐射让你尝到金属味了？]&emsp;&emsp; &emsp;&emsp; &emsp;&emsp;xx取得了进度[不算好，也不算坏]&emsp;&emsp; &emsp;&emsp; &emsp;&emsp;xx死于辐射中毒",
+        "挖矿增量主世界的辐射：99nSv/h",
+        "如果你觉得挖矿增量的TPS太低导致难以忍受的话，你可以选择游玩Break Eternity Edition。BE版的TPS更加稳定，但是不会同步修复bug。一般来说，只有上一个版本的内容在BE版是稳定的。因此，在资源更新到F1.7977e308之前，或许BE版能得到更好的体验。不过超过这个数值，就没有办法继续在BE版游玩了。既然使用了ExpantaNum.js，有超过F1.7977e308甚至2.000000J1,000的计划，TPS低就是代价。",
+        "近日，一名工人在生产区工作操作不慎跌入256RPM的机械动力的粉碎轮，且忘记携带末影珍珠，导致其无法逃脱立刻死亡。望各位以此为戒，记住安全第一。",
+        "...  &emsp;&emsp;<span style=\"color:#83b332\">S-SPIN</span> SINGLE &emsp;&emsp; <span style=\"color:#a43d9a\">T-SPIN</span> DOUBLE &emsp;&emsp; <span style=\"color:#83b332\">S-SPIN</span> SINGLE &emsp;&emsp; <span style=\"color:#a43d9a\">T-SPIN</span> DOUBLE  &emsp;&emsp;<span style=\"color:#b46432\">L-SPIN</span> SINGLE &emsp;&emsp; <span style=\"color:#b46432\">L-SPIN</span> DOUBLE &emsp;&emsp; 5 COMBO &emsp;&emsp; B2B x36 &emsp;&emsp;!!!!&emsp;<span style=\"color:#31b282\">I5</span>",
+        "将一个圆形用m刀切割，最多切割成n块，这个f(m)=n的函数当m=0, 1, 2, 3, 4, 5时，n=1, 2, 4, 8, 16, 31。没错不是32",
+        "break_layer-K9e15.js",
+        "挖矿增量能够保持更新很久很久……可能层级数量会到任何其他模组树游戏都望尘莫及的地步",
+        "e^iπ+1=0",
+        "[Player name] is close to passing [Achievement name] world record! [Spectate] [Leaderboard]",
+        "GLHF",
+        "丢个预言：2033年7月28日，一个前所未有的大数库SVOnum.js诞生", //160
+        "mekanism核电之核移位（转移核废料桶）、核溢危（核废料溢出）、核易畏（坏了坏了）、核抑卫（/mek radiation removeAll）&emsp;&emsp; &emsp;&emsp; &emsp;&emsp;hyw",
+        "\"GTNH is like a job\"",
+        "草→转生→结晶→草之飞跃/钢珠(反草→匿名→液化→草之跳过/趣化)→银河>献祭(非自然草→常态→蒸发→草之跳跃)~((小行星→星盘→象限)→(星环=(行星→星座)))→超新星>(日出→日落→暮光)→循环→巨型循环→超巨型循环(黄铜→蓝色转生...",
+        "听说一条非常长的名字就会有人去读，但是这里是滚动新闻。所以会有非常长的新闻的话会有人去读吗？",
+        "手速！啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊！！！！",
+        "/gamemode creative",
+        "星能液的流动速度好快啊",
     ]
 var nt = ""
 var ntl = 0
