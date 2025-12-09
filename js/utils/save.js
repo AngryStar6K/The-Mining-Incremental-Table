@@ -307,7 +307,7 @@ function exportSaveToFile() {
     window.URL = window.URL || window.webkitURL;
     let a = document.createElement("a")
     a.href = window.URL.createObjectURL(file)
-    a.download = "The Mining Incremental Table Break Eternity Edition Save - "+new Date().toGMTString()+".txt"
+    a.download = "The Mining Incremental Table Save - "+new Date().toGMTString()+".txt"
     a.click()
 }
 
