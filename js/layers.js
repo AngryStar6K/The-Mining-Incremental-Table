@@ -33909,7 +33909,7 @@ addLayer("crafting_table", {
                 return d
             },
             complexity: d(1.888e25),
-            canClick() { return player.crafting_table.points.gte(1) && player.fracturite.points.gte(8000) && player.twilight_gem.points.gte(1e10) && player.redstone.points.gte('e2.85e21') && !player.crafting_table.crafting && !hasCraftingItem(this.id) && hasCraftingItem(492) && hasCraftingItem(181) },
+            canClick() { return player.crafting_table.points.gte(1) && player.fracturite.points.gte(8000) && player.twilight_gem.points.gte(1e10) && player.redstone.points.gte('e4.21e21') && !player.crafting_table.crafting && !hasCraftingItem(this.id) && hasCraftingItem(492) && hasCraftingItem(181) },
             onClick() {
                 player.crafting_table.crafting = true,
                     player.crafting_table.craftingItem = this.id,
