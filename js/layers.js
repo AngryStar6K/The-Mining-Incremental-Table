@@ -40941,7 +40941,7 @@ addLayer("rf", {
             currencyDisplayName: "信素锭",
             currencyLayer: signalum,
             cost() { return new ExpantaNum(100000) },
-            unlocked() { return hasMilestone(signalum, 1) },
+            unlocked() { return hasMilestone(signalum, 2) },
         },
     },
 
