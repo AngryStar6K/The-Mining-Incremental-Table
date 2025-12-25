@@ -39694,7 +39694,7 @@ addLayer("botania", {
             },
             display() {
                 let d = `
-                交易物品：1精灵尘
+                交易物品：1魔力钻石
                 交易花费：1魔力珍珠<br>
                 倍率：${fw(tmp.botania.alfheimTrades[4].mult)}x`
                 return d
