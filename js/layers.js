@@ -10222,7 +10222,7 @@ addLayer("constantan", {
             currencyLayer: constantan,
             canAfford() { return player.level.gte(773) },
             cost() { return new ExpantaNum(1234) },
-            unlocked() { return tmp.constantan.layerShown },
+            unlocked() { return hasMilestone(constantan, 0) },
             effect() {
                 let eff = player.constantan.points.max(0).add(1).pow(0.66)
                 if (hasUpgrade(constantan, 32)) eff = eff.pow(2)
@@ -10432,7 +10432,7 @@ addLayer("constantan", {
             },
             effBase() {
                 let b = d(2)
-                if (hasMilestone(constantan, 0)) b = b.add(buyableEffect(constantan, 12))
+                if (hasMilestone(constantan, 1)) b = b.add(buyableEffect(constantan, 12))
                 return b
             },
             effect(x) {
@@ -10498,7 +10498,7 @@ addLayer("constantan", {
                 let effect = x.times(this.effBase())
                 return effect
             },
-            unlocked() { return hasMilestone(constantan, 0) },
+            unlocked() { return hasMilestone(constantan, 1) },
             canAuto() { return hasMilestone(brass, 1) },
             auto() {
                 if (this.canAuto())
