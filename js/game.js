@@ -159,6 +159,7 @@ function layerDataReset(layer, keep = []) {
 
 	layOver(player[layer], getStartLayerData(layer))
 	player[layer].upgrades = []
+	player[layer].upgradesExpired = []
 	player[layer].milestones = []
 	player[layer].achievements = []
 
@@ -434,8 +435,8 @@ var interval = setInterval(function() {
 			offlineDiff *= player.gameSpeed - 1
 			let speedCost = diff * gameSpeedCost()
 			player.offTime.remain = Math.min(Math.max((player.offTime.remain - speedCost), 0), tmp.offline_progress.offlineLimit * 3600)
-			diff += offlineDiff
-			diffout += offlineDiff
+			diff = Math.max(0, diff + offlineDiff)
+			diffout = Math.max(0, diff)
 		}
 		else player.gameSpeed = 1
 		if (player.offTime.remain < 0) player.offTime.remain = Math.min(player.offTime.remain, -1),
@@ -488,8 +489,8 @@ function startInterval() {
 				offlineDiff *= player.gameSpeed - 1
 				let speedCost = diff * gameSpeedCost()
 				player.offTime.remain = Math.min(Math.max((player.offTime.remain - speedCost), 0), tmp.offline_progress.offlineLimit * 3600)
-				diff += offlineDiff
-				diffout += offlineDiff
+				diff = Math.max(0, diff + offlineDiff)
+				diffout = Math.max(0, diff)
 			}
 			else player.gameSpeed = 1
 			if (player.offTime.remain < 0) player.offTime.remain = Math.min(player.offTime.remain, -1),
