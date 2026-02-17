@@ -24907,7 +24907,7 @@ addLayer("steeleaf", {
         },
         32: {
             title: "不只是御寒",
-            description() { return `雪怪首领毛皮加成装甲碎片堆获取，且装甲碎片堆的合成倍率锁定为装甲碎片的1%，骑士金属锭熔炼倍率为装甲碎片堆的10%` },
+            description() { return `雪怪首领毛皮加成装甲碎片获取，且装甲碎片堆的合成倍率锁定为装甲碎片的1%，骑士金属锭熔炼倍率为装甲碎片堆的10%` },
             cost() { return new ExpantaNum(1.111e111) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
