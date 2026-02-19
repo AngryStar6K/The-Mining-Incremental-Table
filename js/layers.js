@@ -33874,7 +33874,7 @@ addLayer("crafting_table", {
                 需要工具：工厂环 + 铅锤<br>
                 需要材料：${f(6.6686e33)}炽铁锭 + 2钻石奇点（不消耗）<br>
                 复杂度：${formatWhole(this.complexity)}<br>
-                效果：你对九头蛇和暮初恶魂带有4x；对冰雪女王带有1.667x的特攻，冰雪女王的冻结将不影响你的DEF<br>`
+                效果：你对九头蛇和暮初恶魂带有4x特攻；对冰雪女王带有1.667x特攻，冰雪女王的冻结将不影响你的DEF<br>`
                 return d
             },
             complexity: d(1.796e25),
