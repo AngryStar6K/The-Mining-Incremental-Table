@@ -38033,7 +38033,7 @@ addLayer("sing_fus", {
                     ["display-text", function () { if (hasMilestone(sing_fus, 10)) return `你有 ${textResourceStyle(fw(singularity(platinum)), 'text-platinum')} 铂奇点，加成铂矿石获取 ${textResourceStyle(f(buyableEffect(sing_fus, 33)) + "x", 'text-platinum')}` }],
                     ["display-text", function () { if (hasMilestone(sing_fus, 11)) return `你有 ${textStyle_h2(fw(singularity(diamond)), 'a2fbea')} 钻石奇点，加成钻石矿石获取 ${textStyle_h2(f(buyableEffect(sing_fus, 34)) + "x", 'a2fbea')}` }],
                     ["display-text", function () { if (hasMilestone(sing_fus, 12)) return `你有 ${textStyle_h2(fw(singularity(emerald)), '17dd61')} 绿宝石奇点，加成工具匠补货倍率 ${textStyle_h2(f(buyableEffect(sing_fus, 41)) + "x", '17dd61')}` }],
-                    ["display-text", function () { if (hasMilestone(sing_fus, 12)) return `你有 ${textStyle_h2(fw(singularity(quartz)), 'dbccbf')} 石英奇点，加成石英矿石 ${textStyle_h2("^" + f(buyableEffect(sing_fus, 42)), 'dbccbf')}` }],
+                    ["display-text", function () { if (hasMilestone(sing_fus, 13)) return `你有 ${textStyle_h2(fw(singularity(quartz)), 'dbccbf')} 石英奇点，加成石英矿石 ${textStyle_h2("^" + f(buyableEffect(sing_fus, 42)), 'dbccbf')}` }],
                     "buyables",
                 ],
             },
