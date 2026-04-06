@@ -4596,7 +4596,7 @@ addLayer("offline_progress", {
                 return t
             },
             display() {
-                let d = "(实验性内容，不稳定)自动模拟玩家点击寻找和挖掘按钮，但是每次花费15秒离线时间，完整寻找挖掘共花费30秒，挖掘的矿物取决于你显示的层级页面<br>"
+                let d = "自动模拟玩家点击寻找和挖掘按钮，但是每次花费15秒离线时间，完整寻找挖掘共花费30秒，挖掘的矿物取决于你显示的层级页面<br>"
                 d += `状态：${player.offline_progress.mechanical_hand[53] ? '开' : '关'}`
                 return d
             },
