@@ -261,7 +261,9 @@ function updateMilestones(layer) {
 		if (!(hasMilestone(layer, id)) && layers[layer].milestones[id].done()) {
 			player[layer].milestones.push(id)
 			if (layers[layer].milestones[id].onComplete) layers[layer].milestones[id].onComplete()
-			if (tmp[layer].milestonePopups || tmp[layer].milestonePopups === undefined) doPopup("milestone", (options.ch || modInfo.languageMod==false)?tmp[layer].milestones[id].requirementDescription : tmp[layer].milestones[id].requirementDescriptionEN, (options.ch || modInfo.languageMod==false)?"获得里程碑!" : "Milestone Gotten!", 3, tmp[layer].color);
+			let nodeStyle = tmp[layer].nodeStyle
+			nodeStyle = nodeStyle ? nodeStyle.background : tmp[layer].color
+			if (tmp[layer].milestonePopups || tmp[layer].milestonePopups === undefined) doPopup("milestone", (options.ch || modInfo.languageMod==false)?tmp[layer].milestones[id].requirementDescription : tmp[layer].milestones[id].requirementDescriptionEN, (options.ch || modInfo.languageMod==false)?"获得里程碑!" : "Milestone Gotten!", 3, nodeStyle);
 			player[layer].lastMilestone = id
 		}
 	}
@@ -359,7 +361,7 @@ var activePopups = [];
 var popupID = 0;
 
 // Function to show popups
-function doPopup(type = "none", text = "This is a test popup.", title = "", timer = 3, color = "") {
+function doPopup(type = "none", text = "This is a test popup.", title = "", timer = 3, color = "", textcolor = "black") {
 	switch (type) {
 		case "achievement":
 			popupTitle = "Achievement Unlocked!";
@@ -378,7 +380,7 @@ function doPopup(type = "none", text = "This is a test popup.", title = "", time
 	popupMessage = text;
 	popupTimer = timer;
 
-	activePopups.push({ "time": popupTimer, "type": popupType, "title": popupTitle, "message": (popupMessage + "\n"), "id": popupID, "color": color })
+	activePopups.push({ "time": popupTimer, "type": popupType, "title": popupTitle, "message": (popupMessage + "\n"), "id": popupID, "color": color, "textcolor": textcolor, "small": options.smallPopup })
 	popupID++;
 }
 

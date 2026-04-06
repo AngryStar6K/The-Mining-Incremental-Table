@@ -1164,6 +1164,12 @@
   Q.pentate = Q.pent = function (x, y) {
     return ExpantaNum.arrow(x, 3, y);
   };
+  P.hexate = P.hex = function (other) {
+    return this.arrow(4)(other);
+  };
+  Q.hexate = Q.hex = function (x, y) {
+    return ExpantaNum.arrow(x, 4, y);
+  };
   //Uses linear approximations for real height
   P.arrow = function (arrows) {
     var t = this.clone();

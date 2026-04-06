@@ -10,6 +10,17 @@ function geti18n() {
 	return options.ch || modInfo.languageMod == false
 }
 
+function i18n(text, text2, component=true){
+	let lag = true
+	if(lag){
+		return text
+	}else if(text2!==undefined){
+		return text2
+	}else{
+		return text
+	}
+}
+
 var systemComponents = {
 	'tab-buttons': {
 		props: ['layer', 'data', 'name'],
@@ -147,66 +158,53 @@ var systemComponents = {
         <h1>{{geti18n()?modInfo.name:modInfo.nameI18N}}</h1>
         <br><br><br>
 
-        <h2>{{ geti18n()?"参与人员":"Authors" }}:</h2><br><br>
+        <h2>{{i18n("参与人员", "Authors", false)}}:</h2><br><br>
 		<div style="border: 3px solid #888; width:300px; height:30px; margin-top: 8px; padding:15px; border-radius: 5px; display: inline-table">
-			<h3>{{ geti18n()?"本模组作者":"Mod Author" }}:</h3><br>
+			<h3>{{i18n("本模组作者", "Mod Author", false)}}:</h3><br>
 			{{ modInfo.author }}<br><br>
-			<h6 style="color:#aaa">({{ geti18n()?"本Mod基于Shinwmyste的The Modding Table制作":"Based On Shinwmyste\'s The Modding Table" }})</h6>
+			<h6 style="color:#aaa">({{i18n("本Mod基于辉影神秘的The Modding Table制作", "Based On Shinwmyste\'s The Modding Table", false)}})</h6>
 		</div>
 		<div style="border: 3px solid #888; width:300px; height:30px; margin-top: 8px; padding:15px; border-radius: 5px; display: inline-table">
-			<h3>{{ geti18n()?"模组页作者":"The Modding Table Author" }}:</h3><br>
-			Shinwmyste<br><br><h6 style="color:#aaa">({{ geti18n()?"制作":"Developed" }} The Modding Tree <a v-bind:href="'https://github.com/shenmi124/The-Modding-Table/blob/main/changelog.md'" target="_blank" class="link" v-bind:style = "{'font-size': '10px', 'display': 'inline'}">{{TMT_VERSION.newtmtNum}}</a>)</h6>
+			<h3>{{i18n("模组页作者", "The Modding Table Author", false)}}:</h3><br>
+			辉影神秘<br><br><h6 style="color:#aaa">({{i18n("制作", "Developed", false)}} The Modding Table <a v-bind:href="'https://github.com/shenmi124/The-Modding-Table/blob/main/changelog.md'" target="_blank" class="link" v-bind:style = "{'font-size': '10px', 'display': 'inline'}">{{TMT_VERSION.newtmtNum}}</a>)</h6>
 		</div>
 		<div style="border: 3px solid #888; width:300px; height:30px; margin-top: 8px; padding:15px; border-radius: 5px; display: inline-table">
-			<h3>{{ geti18n()?"模组页帮助者":"The Modding Table Helper" }}:</h3><br>
-			QwQe308<br><br>
-			<h6 style="color:#aaa">({{ geti18n()?"一些零碎的改动":"Made Some Minor Changes" }})</h6>
+			<h3>{{i18n("模组页版本", "The Modding Table Version", false)}}:</h3><br>
+			<a v-bind:href="'https://github.com/shenmi124/The-Modding-Table/blob/main/changelog.md'" target="_blank" class="link" v-bind:style = "{'display': 'inline'}">{{TMT_VERSION.newtmtNum}}</a><br><br>
+			<h6 style="color:#aaa">({{i18n("同时感谢QwQe308的参与制作", "Also Thanks To QwQe308 For Their Help", false)}})</h6>
 		</div>
 		<div style="border: 3px solid #888; width:300px; height:30px; margin-top: 8px; padding:15px; border-radius: 5px; display: inline-table">
-			<h3>{{ geti18n()?"模板支持":"Original TMT Author" }}:</h3><br>
+			<h3>{{i18n("模板支持", "Original TMT Author", false)}}:</h3><br>
 			Acamaeda<br><br>
 			<h6 style="color:#aaa">(The Modding Tree <a v-bind:href="'https://github.com/Acamaeda/The-Modding-Tree/blob/master/changelog.md'" target="_blank" class="link" v-bind:style = "{'font-size': '10px', 'display': 'inline'}">{{TMT_VERSION.tmtNum}}</a>)</h6>
 		</div>
 		<br><br><br><br>
-
-        <h2>{{ geti18n()?"统计数据":"Statistics" }}:</h2><br><br>
-		<div style="border: 3px solid #888; width:300px; height:30px; margin-top: 8px; padding:15px; border-radius: 5px; display: inline-table">
-			<h3>{{ geti18n()?"游戏时长":"Game Time" }}:</h3><br>
-			{{ formatTime(player.timePlayed*1000) }}<br><br>
-		</div>
-		<div style="border: 3px solid #888; width:300px; height:30px; margin-top: 8px; padding:15px; border-radius: 5px; display: inline-table">
-			<h3>{{ modInfo.pointsName }}:</h3><br>
-			{{ format(player.points) }}<br><br>
-		</div>
-
-		<br><br><br><br>
 		
-        <h2>{{ geti18n()?"其他页面":"Other Pages" }}:</h2><br><br>
+        <h2>{{i18n("其他页面", "Other Pages", false)}}:</h2><br><br>
 		<div style="border: 3px solid #888; width:300px; height:30px; margin-top: 8px; padding:15px; border-radius: 5px; display: inline-table">
-			<h3>{{ geti18n()?"更新日志":"Changelog" }}:</h3><br>
-			<a class="link" onclick="showTab('changelog-tab');getActiveClass('Changelog')">{{ geti18n()?"点击跳转":"Click Here" }}</a><br>
-			<h6 style="color:#aaa">({{ geti18n()?"其实也可以点右上角的版本号":"The Top-Right Version Button Matters" }})</h6>
+			<h3>{{i18n("更新日志", "Changelog", false)}}:</h3><br>
+			<a class="link" onclick="showTab('changelog-tab');getActiveClass('Changelog')">{{i18n("点击跳转", "Click Here", false)}}</a><br>
+			<h6 style="color:#aaa">({{i18n("其实也可以点右上角的版本号", "The Top-Right Version Button Matters", false)}})</h6>
 		</div>
 		<div style="border: 3px solid #888; width:300px; height:30px; margin-top: 8px; padding:15px; border-radius: 5px; display: inline-table">
-			<h3>{{ geti18n()?"Shinwmyste的Discord":"Shinwmyste's Discord" }}:</h3><br>
-			<a class="link" href="https://discord.gg/DTJYvatRQA" target="_blank">{{ geti18n()?"点击跳转":"Click Here" }}</a><br>
-			<h6 style="color:#aaa">({{ geti18n()?"加入DC群":"Join Discord" }})</h6>
+			<h3>{{i18n("辉影神秘的Discord", "Shinwmyste's Discord", false)}}:</h3><br>
+			<a class="link" href="https://discord.gg/DTJYvatRQA" target="_blank">{{i18n("点击跳转", "Click Here", false)}}</a><br>
+			<h6 style="color:#aaa">({{i18n("加入DC群", "Join Discord", false)}})</h6>
 		</div>
 		<div style="border: 3px solid #888; width:300px; height:30px; margin-top: 8px; padding:15px; border-radius: 5px; display: inline-table">
-			<h3>{{geti18n()?"QQ群":"QQ Group"}}:</h3><br>
-			<a class="link" href="https://qm.qq.com/q/axo4Pc8xvG" target="_blank">{{ geti18n()?"点击跳转":"Click Here" }}</a><br>
-			<h6 style="color:#aaa"><s>({{geti18n()?"快点来,非常好玩(确信)":"I know you dont use this"}})</s></h6>
+			<h3>{{i18n("QQ群", "QQ Group", false)}}:</h3><br>
+			<a class="link" href="https://qm.qq.com/q/axo4Pc8xvG" target="_blank">{{i18n("点击跳转", "Click Here", false)}}</a><br>
+			<h6 style="color:#aaa"><s>({{i18n("快点来,非常好玩(确信)", "I know you dont use this", false)}})</s></h6>
 		</div>
 		<div style="border: 3px solid #888; width:300px; height:30px; margin-top: 8px; padding:15px; border-radius: 5px; display: inline-table">
-			<h3>{{ geti18n()?"捐助页面":"Donate Page" }}:</h3><br>
-			<a class="link" href="https://afdian.net/@Mysterious124" target="_blank">{{ geti18n()?"点击跳转":"Click Here" }}</a><br>
+			<h3>{{i18n("捐助页面", "Donate Page", false)}}:</h3><br>
+			<a class="link" href="https://afdian.com/a/Shinwmyste" target="_blank">{{i18n("点击跳转", "Click Here", false)}}</a><br>
 			<h6 style="color:#aaa">($_$)</h6>
 		</div>
-		
 		<div style="border: 3px solid #888; width:300px; height:30px; margin-top: 8px; padding:15px; border-radius: 5px; display: inline-table">
-			<h3>{{ geti18n()?"模组树Discord":"The Modding Tree Discord" }}:</h3><br>
-			<a class="link" href="https://discord.gg/F3xveHV" target="_blank">{{ geti18n()?"点击跳转":"Click Here" }}</a><br>
-			<h6 style="color:#aaa">({{ geti18n()?"就是这些":"That\'s all" }})</h6>
+			<h3>{{i18n("模组树Discord", "The Modding Tree Discord", false)}}:</h3><br>
+			<a class="link" href="https://discord.gg/F3xveHV" target="_blank">{{i18n("点击跳转", "Click Here", false)}}</a><br>
+			<h6 style="color:#aaa">({{i18n("就是这些", "That\'s all", false)}})</h6>
 		</div>
 
 		<br><br><br><br>
@@ -249,7 +247,10 @@ var systemComponents = {
 
 		<span>Phigr1301: 提供许多建议并协助修复bug<br>
 		BeautyFallenCat: 故事层级剧情的显示窗口样式Modal原作者<br>
-		MC_Edwin、TCreopargh：挖矿增量部分层级资源设计（美术设计，颜色等）原型整合包作者<br>
+		林雷：游戏beta版本测试员，反馈大量bug<br>
+		球球：提供大量建议，历史遗留bug解决方案启发<br>
+		Naruyoko：ExpantaNum.js原作者<br>
+		MC_Edwin、Greediest Studio、TCreopargh：挖矿增量部分层级资源设计（美术设计，颜色等）及原型整合包作者<br>
 		</span>
 		
 		<br><br><br><br></div>
@@ -292,7 +293,11 @@ var systemComponents = {
 				<td><button class="opt" onclick="setUpdatingRate()">更新频率: {{ options.updatingRate }}ms<br><h6></br></button></td>
 				<td><button class="opt" onclick="newsSetting()">滚动新闻: {{ options.newsShown ? "显示" : "隐藏" }}<br><h6></br></button></td>
 				<td><button class="opt" onclick="unitLanguageSetting()">单位语言: {{ options.unitLanguage ? "中文" : "英语" }}<br><h6></br></button></td>
-				</tr><br>
+			</tr><br>
+			<tr>
+				<td><h1>{{''}}&nbsp;&nbsp;&nbsp;</h1></td>
+				<td><button class="opt" onclick="switchPopupSize()">小提醒弹窗: {{ options.smallPopup ? "开" : "关" }}<br><h6></br></button></td>
+			</tr><br>
 			<tr>
 				<td><button class="opt" v-if="modInfo.otherLanguageMod==true" onclick="
                 options.ch=!options.ch;
@@ -320,7 +325,7 @@ var systemComponents = {
 	'node-mark': {
 		props: { 'layer': {}, data: {}, offset: { default: 0 }, scale: { default: 1 } },
 		template: `<div v-if='data'>
-			<div v-if='data === true' class='star' v-bind:style='{position: "absolute", left: (offset-10) + "px", top: (offset-10) + "px", transform: "scale( " + scale||1 + ", " + scale||1 + ")"}'></div>
+			<div v-if='data' v-bind:class='getMarkClass(data)' v-bind:style='{position: "absolute", left: (offset-10) + "px", top: (offset-10) + "px", transform: "scale( " + scale||1 + ", " + scale||1 + ")"}'></div>
 			<img v-else class='mark' v-bind:style='{position: "absolute", left: (offset-22) + "px", top: (offset-15) + "px", transform: "scale( " + scale||1 + ", " + scale||1 + ")"}' v-bind:src="data"></div>
 		</div>
 		`

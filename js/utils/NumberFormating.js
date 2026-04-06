@@ -149,7 +149,7 @@ function scientific(num, precision = 2, small = false) {
     if (num.abs().lt(1e-308)) return (0).toFixed(precision)
     if (num.sign < 0) return "-" + scientific(num.neg(), precision)
     if (num.isInfinite()) return "Infinity"
-    if (num.lt("0.0001")) { return scientific(num.rec(), precision) + "⁻¹" }
+    if (num.lt("0.0001")) { return scientific(num.rec(), precision) + "^(-1)" }
     else if (num.lt(1)) return regularFormat(num, precision + (small ? 2 : 0))
     else if (num.lt(1000)) return regularFormat(num, precision)
     else if (num.lt(1e12)) return commaFormat(num)
@@ -356,7 +356,7 @@ var formatTimeLong = ftl = function (seconds) {
         }
     }
     else {
-        return format(d(10).pow(ExpantaNum.slog(years)).div(9e6)) + (options.unitLanguage ? "全能宇宙纪元" : "omniverse ages")
+        return format(d(10).pow(ExpantaNum.slog(years)).div(9e6)) + (options.unitLanguage ? " 全能宇宙纪元" : " omniverse ages")
     }
     // lodverse ages 9G6~9H6
     // meskoverse ages 9H6~6.95J5
@@ -568,7 +568,7 @@ var formatExtremeSmallNum = fesn = function (num, precision = 2) { //伪装成�
     let precision2 = Math.max(4, precision)
     if (num.abs().gte(1e-308) && num.abs().lt(1000)) return format(num.rec(), precision)
     if (num.abs().gte(1000) && num.abs().lt("10^^5")) {
-        if (options.notation != 'Scientific') return format(num, precision) + "⁻¹"
+        if (options.notation != 'Scientific') return format(num, precision) + "^(-1)"
         else {
             let array = num.array
             let bottom = arraySearch(array, 0)
@@ -596,7 +596,7 @@ var formatExtremeSmallNum = fesn = function (num, precision = 2) { //伪装成�
             return f
         }
     }
-    else if (num.abs().gte("10^^5")) return format(num, precision) + "⁻¹"
+    else if (num.abs().gte("10^^5")) return format(num, precision) + "^(-1)"
 }
 
 function roman(num) { //附魔等级，显示1~3999级，4000+正常显示
@@ -664,7 +664,7 @@ var formatRarity = fr = function (num, sigma, colored) {
         let slognum = slog(num)
         let id3 = slognum.sub(lim).floor()
         if (id3.lt(9)) Rname3 = name3[id3.toNumber()] + '-'
-        else Rname3 = 'Lode<sup>' + formatWhole(id3) + '<sup>-'
+        else Rname3 = 'Lode<sup>' + formatWhole(id3) + '</sup>-'
         let mag = d(10).tetrate(slognum.sub(lim.add(id3).sub(1)).max(0)).floor()
         console.log(f(mag))
         let sigmaDisplay = ''
@@ -932,4 +932,17 @@ function tiersNameChinese(num) {
     if (d == 1 && h == 0) dr = magnitudes[1]
     result = hr + dr + or
     return result
+}
+
+function formatNoNegativeExponents(num, precision = 2) {
+    let absnum = new ExpantaNum(num).abs()
+    let sign = new ExpantaNum(num).sign == -1 ? '-' : ''
+    let formatR = ''
+    if (absnum.lt(new ExpantaNum(10).pow(-precision))) {
+        if (precision >= 1) formatR = '0.' + '0'.repeat(precision)
+        else formatR = '0'
+        formatR = sign + formatR
+        return formatR
+    }
+    return format(num, precision)
 }

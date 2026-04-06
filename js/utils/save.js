@@ -80,6 +80,7 @@ function getStartLayerData(layer) {
 		layerdata.clickables = getStartClickables(layer);
 	layerdata.spentOnBuyables = ExpantaNumZero;
 	layerdata.upgrades = [];
+	layerdata.upgradesExpired = [];
 	layerdata.milestones = [];
 	layerdata.lastMilestone = null;
 	layerdata.achievements = [];
@@ -172,6 +173,7 @@ function fixData(defaultData, newData) {
 			else if (Array.isArray(newData[item])) //专门给额外升级卡做的，所以为什么grid的getStartData和当前data类型不一致不行哼哼哼啊啊啊啊 2025.4.1
 				newData[item][0] = new ExpantaNum(newData[item][0]);
 			else
+				//console.log(newData[item])
 				newData[item] = new ExpantaNum(newData[item]);
 		}
 		else if ((!!defaultData[item]) && (typeof defaultData[item] === "object")) {
@@ -265,25 +267,28 @@ function setupModInfo() {
 function fixNaNs() {
 	NaNcheck(player);
 }
-function NaNcheck(data) {
+function NaNcheck(data, previous, name) {
 	for (item in data) {
 		if (data[item] == null) {
 		}
 		else if (Array.isArray(data[item])) {
-			NaNcheck(data[item]);
+			NaNcheck(data[item], data, item);
 		}
 		else if (data[item] !== data[item] || checkExpantaNumNaN(data[item])) {
 			if (!NaNalert) {
 				clearInterval(interval);
+				console.log(previous)
+				console.log(name)
+				console.log(data)
 				NaNalert = true;
 				alert("Invalid value found in player, named '" + item + "'. Please let the creator of this mod know! You can refresh the page, and you will be un-NaNed.")
 				return
 			}
 		}
-		else if (data[item] instanceof ExpantaNum) {
+		else if (data[item] instanceof ExpantaNum) {	
 		}
 		else if ((!!data[item]) && (data[item].constructor === Object)) {
-			NaNcheck(data[item]);
+			NaNcheck(data[item], data, item);
 		}
 	}
 }

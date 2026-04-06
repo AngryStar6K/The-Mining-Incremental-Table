@@ -1,18 +1,15 @@
 var firstTickCheck = false
-//v0.6需要检查的东西：更严谨的高炉结构检测、金升级9，贯穿全游戏的时间墙长度，优化下一步做什么提醒，奇点可聚合提醒
-//准备长期停更，顺便回到马造树重新优化
-//v0.6准备更新8层
-//最后重玩一遍调整平衡减少不必要的墙，进一步优化显示
+var globalStopBuying = function () { }
 
 console.log(`挖矿增量页 by AngryStar6K`)
 
-const ENMSI = ExpantaNum(Number.MAX_SAFE_INTEGER)
-const ExpantaNumInfinity = ExpantaNum(Number.MAX_VALUE)
+const ENMSI = new ExpantaNum(Number.MAX_SAFE_INTEGER)
+const ExpantaNumInfinity = new ExpantaNum(Number.MAX_VALUE)
 
-const tick = ExpantaNum(20)
+const tick = new ExpantaNum(20)
 
 function d(EN) {
-    return ExpantaNum(EN)
+    return new ExpantaNum(EN)
 }
 
 function f(num, precision) {
@@ -58,9 +55,19 @@ const resourceCheckInterval = setInterval(function () { //后续可能改为手�
 }, 60000) //1分钟检测一次
 
 function pinResource() {
-    if (tmp[player.tab].position < 0 || ['w2', 'w3', 'w4', '2layer', 'energy', 'blast_furnace', 'botania'].includes(player.tab)) return;
+    if (tmp[player.tab].position < 0 || ['w2', 'w3', 'w4', 'w5', '2layer', 'energy', 'blast_furnace', 'botania'].includes(player.tab)) return;
     if (player.resourcePinned.includes(player.tab)) player.resourcePinned.splice(player.resourcePinned.indexOf(player.tab), 1)
     else player.resourcePinned.push(player.tab)
+}
+
+function hideLayer() {
+    if (['0layer', '1layer', 'w2', 'w3', 'w4', '2layer', 'energy', 'layer_select'].includes(player.tab)) return;
+    if (player.layerHidden.includes(player.tab)) player.layerHidden.splice(player.layerHidden.indexOf(player.tab), 1)
+    else player.layerHidden.push(player.tab)
+}
+
+function layerHidden(layer) {
+    return player.layerHidden.includes(layer)
 }
 
 addLayer("0layer", {
@@ -85,6 +92,7 @@ addLayer("0layer", {
         tiersUpdating(1)
         tiersUpdating(2)
         omegaTierUpdating()
+        allTierUpdating()
     },
     tabFormat: [
         ["display-text", function () { return getPointsDisplay() }]
@@ -92,7 +100,7 @@ addLayer("0layer", {
 })
 
 function EN_compare(num) {
-    num = ExpantaNum(num)
+    num = new ExpantaNum(num)
     if (num.gte(0) && num.lt(1)) return format(num)
     else if (num.gte(1) && num.lt("1e3003")) return `Googol<sup>${format(num.log10().div(100), 4)}</sup>`
     else if (num.gte("1e3003") && num.lt("1e3000003")) return `Millillion<sup>${format(num.log10().div(3003), 4)}</sup>`
@@ -211,7 +219,7 @@ addLayer("statistics", {
     color: "#fefefe",
     type: "none",
     tooltip() { return false },
-    layerShown() { return true },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
     tabFormat: [
         ["display-text", function () { return getPointsDisplay() }],
         "blank",
@@ -276,6 +284,14 @@ addLayer("statistics", {
                 content: [
                     ["blank", "15px"],
                     ["microtabs", "world4"],
+                ]
+            },
+            "world5": {
+                unlocked() { return hasUpgrade(manyullyn, 35) },
+                name() { return '世界5' },
+                content: [
+                    ["blank", "15px"],
+                    ["microtabs", "world5"],
                 ]
             },
             "craft": {
@@ -470,7 +486,7 @@ addLayer("statistics", {
                 },
             },
             "more1": {
-                unlocked() { return tmp.lead.layerShown },
+                unlocked() { return tmp.lead.layerShown || layerHidden(lead) },
                 name() { return '更多' },
                 content: [
                     ["blank", "15px"],
@@ -612,7 +628,7 @@ addLayer("statistics", {
                 },
             },
             "more2": {
-                unlocked() { return tmp.gold.layerShown },
+                unlocked() { return tmp.gold.layerShown || layerHidden(gold) },
                 name() { return '更多' },
                 content: [
                     ["blank", "15px"],
@@ -748,7 +764,7 @@ addLayer("statistics", {
                 },
             },
             "more3": {
-                unlocked() { return tmp.emerald.layerShown },
+                unlocked() { return tmp.emerald.layerShown || layerHidden(emerald) },
                 name() { return '更多' },
                 content: [
                     ["blank", "15px"],
@@ -845,6 +861,7 @@ addLayer("statistics", {
                     ["display-text", function () { if (tmp.blast_furnace.layerShown) return `高炉建造${textStyle_h3(player.blast_furnace.built ? "已完成" : "未完成", '3a2f18')}` }],
                     "blank",
                     ["display-text", function () { if (hasUpgrade(glowing_signalum, 12)) return `你有${textAnimatedStyle(fw(player.blast_furnace.blazing_pyrotheum) + ' mB', 'blazing_pyrotheum', 'h3')}烈焰之炽焱` }],
+                    ["display-text", function () { if (hasUpgrade(enderium, 34)) return `你有${textAnimatedStyle(formatWhole(player.blast_furnace.geild_cryotheum) + ' mB', 'geild_cryotheum', 'h3')}极寒之凛冰` }],
                 ],
                 buttonStyle() {
                     return {
@@ -1096,7 +1113,7 @@ addLayer("statistics", {
                 },
             },
             "more1": {
-                unlocked() { return tmp.fiery.layerShown },
+                unlocked() { return tmp.fiery.layerShown || layerHidden(fiery) },
                 name() { return '更多' },
                 content: [
                     ["blank", "15px"],
@@ -1166,8 +1183,8 @@ addLayer("statistics", {
                     ["blank", "15px"],
                     ["display-text", () => `你有${textStyle_h3(fw(player.quartz.ore), 'dbccbf')}下界石英矿石`],
                     ["display-text", () => `你有${textStyle_h3(fw(player.quartz.points), 'dbccbf')}下界石英`],
-                    ["display-text", function () { if (hasUpgrade(quartz, 15)) return `你有${textStyle_h3(fw(player.quartz.oreBlack), '121110', 'dbccbf')}焦黑石英矿石`}],
-                    ["display-text", function () { if (hasUpgrade(quartz, 15)) return `你有${textStyle_h3(fw(player.quartz.black), '121110', 'dbccbf')}焦黑石英`}],
+                    ["display-text", function () { if (hasUpgrade(quartz, 15)) return `你有${textStyle_h3(fw(player.quartz.oreBlack), '121110', 'dbccbf')}焦黑石英矿石` }],
+                    ["display-text", function () { if (hasUpgrade(quartz, 15)) return `你有${textStyle_h3(fw(player.quartz.black), '121110', 'dbccbf')}焦黑石英` }],
                     "blank",
                     ["display-text", function () { if (hasMilestone(sing_fus, 13)) return `你有${textStyle_h3(fw(singularity(quartz)), 'dbccbf')}下界石英奇点` }],
                 ],
@@ -1199,9 +1216,9 @@ addLayer("statistics", {
                     ["blank", "15px"],
                     ["display-text", () => `你有${textResourceStyle(fw(player.lumium.points), 'text-lumium', 'h3')}流明锭`],
                     "blank",
-                    ["display-text", function () { if (hasUpgrade(lumium, 24)) return `你有${textResourceStyle(f(player.lumium.laser0), 'text-lumium', 'h3')}流明微光`}],
-                    ["display-text", function () { if (hasUpgrade(lumium, 24)) return `你有${textResourceStyle(f(player.lumium.laser1), 'text-lumium', 'h3')}流明光束`}],
-                    ["display-text", function () { if (hasUpgrade(lumium, 24)) return `你有${textResourceStyle(f(player.lumium.laser2), 'text-lumium', 'h3')}流明激光`}],
+                    ["display-text", function () { if (hasUpgrade(lumium, 24)) return `你有${textResourceStyle(f(player.lumium.laser0), 'text-lumium', 'h3')}流明微光` }],
+                    ["display-text", function () { if (hasUpgrade(lumium, 24)) return `你有${textResourceStyle(f(player.lumium.laser1), 'text-lumium', 'h3')}流明光束` }],
+                    ["display-text", function () { if (hasUpgrade(lumium, 24)) return `你有${textResourceStyle(f(player.lumium.laser2), 'text-lumium', 'h3')}流明激光` }],
                 ],
                 buttonStyle() {
                     return {
@@ -1231,6 +1248,14 @@ addLayer("statistics", {
                     ["blank", "15px"],
                     ["display-text", () => `你有${textResourceStyle(fw(player.torridite.ore), 'text-torridite', 'h3')}炽炎矿石`],
                     ["display-text", () => `你有${textResourceStyle(fw(player.torridite.points), 'text-torridite', 'h3')}炽炎锭`],
+                    "blank",
+                    ["display-text", function () {
+                        let asc = ''
+                        if (hasUpgrade(ardite, 23)) asc = ' Asc' + fw(player.torridite.coreAscend)
+                        return `你有${textResourceStyle(fw(player.torridite.core) + ' T' + fw(player.torridite.coreTier) + asc, 'text-torridite', 'h3')}炽炎核心`
+                    }],
+                    "blank",
+                    ["display-text", function () {  if (hasCraftingItem(702)) return `你有${textStyle_h3(formatWhole(player.torridite.refined), 'b91d1d', '4f1a1a')}强化下界岩`}],
                 ],
                 buttonStyle() {
                     return {
@@ -1239,7 +1264,148 @@ addLayer("statistics", {
                     }
                 },
             },
-        }
+            "more1": {
+                unlocked() { return tmp.cobalt.layerShown || layerHidden(cobalt) },
+                name() { return '更多' },
+                content: [
+                    ["blank", "15px"],
+                    ["microtabs", "world4more1"],
+                ],
+                buttonStyle() {
+                    return {
+                        'background-color': '#00000000'
+                    }
+                },
+            },
+        },
+        world4more1: {
+            "cobalt": {
+                unlocked() { return tmp.cobalt.layerShown },
+                name() { return '钴' },
+                content: [
+                    ["blank", "15px"],
+                    ["display-text", () => `你有${textResourceStyle(fw(player.cobalt.points), 'text-cobalt', 'h3')}钴锭`],
+                    "blank",
+                    ["display-text", function () { if (hasUpgrade(cobalt, 31)) return `你有${textResourceStyle(formatWhole(player.cobalt.high_energy), 'text-cobalt', 'h3')}高能钴` }],
+                    "blank",
+                    ["display-text", function () { if (hasMilestone(sing_fus, 15)) return `你有${textResourceStyle(fw(singularity(cobalt)), 'text-cobalt', 'h3')}钴奇点` }],
+                ],
+                buttonStyle() {
+                    return {
+                        'background-color': '#2376dd',
+                        'color': '#00000080'
+                    }
+                },
+            },
+            "ardite": {
+                unlocked() { return tmp.ardite.layerShown },
+                name() { return '阿迪特' },
+                content: [
+                    ["blank", "15px"],
+                    ["display-text", () => `你有${textResourceStyle(fw(player.ardite.points), 'text-ardite', 'h3')}阿迪特锭`],
+                    "blank",
+                    ["display-text", function () { if (hasMilestone(sing_fus, 16)) return `你有${textResourceStyle(fw(singularity(ardite)), 'text-ardite')}阿迪特奇点` }],
+                ],
+                buttonStyle() {
+                    return {
+                        'background-color': '#cd5117',
+                        'color': '#00000080'
+                    }
+                },
+            },
+            "manyullyn": {
+                unlocked() { return tmp.manyullyn.layerShown },
+                name() { return '玛玉灵' },
+                content: [
+                    ["blank", "15px"],
+                    ["display-text", () => `你有${textResourceStyle(fw(player.manyullyn.points), 'text-ardite', 'h3')}玛玉灵锭`],
+                    "blank",
+                    ["display-text", function () { if (hasUpgrade(manyullyn, 13)) return `玛玉灵得分：${textStyle_h3('(')}${textResourceStyle(f(player.manyullyn.score.c), 'text-cobalt', 'h3')}${textStyle_h3('×')}${textResourceStyle(f(player.manyullyn.score.a), 'text-ardite', 'h3')}${textStyle_h3('×')}${textStyle_h3(f(player.manyullyn.score.e), 'b1fe59')}${textStyle_h3(')')}${quickSUP(textResourceStyle(f(player.manyullyn.score.mp), 'text-manyullyn', 'h3') + (hasUpgrade(enderium, 13) ? (textStyle_h3('×') + textResourceStyle(f(player.manyullyn.score.en), 'text-enderium', 'h3')) : ''))}${textStyle_h3('=')}${textResourceStyle(f(player.manyullyn.score.m), 'text-manyullyn', 'h3')}` }],
+                ],
+                buttonStyle() {
+                    return {
+                        'background-color': '#a97de0',
+                        'color': '#00000080'
+                    }
+                },
+            },
+        },
+        world5: {
+            "enderium": {
+                unlocked() { return tmp.enderium.layerShown },
+                name() { return '末影' },
+                content: [
+                    ["blank", "15px"],
+                    ["display-text", () => `你有${textResourceStyle(fw(player.enderium.points), 'text-enderium', 'h3')}末影锭`],
+                ],
+                buttonStyle() {
+                    return {
+                        'background-color': '#0f5c5c',
+                        'color': '#00000080'
+                    }
+                },
+            },
+            "geild_enderium": {
+                unlocked() { return tmp.geild_enderium.layerShown },
+                name() { return '极寒末影' },
+                content: [
+                    ["blank", "15px"],
+                    ["display-text", () => `你有${textResourceStyle(fw(player.geild_enderium.points), 'text-geild_enderium', 'h3')}极寒末影锭`],
+                    "blank",
+                    ["display-text", function() { if (hasUpgrade(geild_enderium, 23)) return `你有${textResourceStyle(formatWhole(player.geild_enderium.geild_gem), 'text-geild_enderium', 'h3')}极寒水晶` }],
+                ],
+                buttonStyle() {
+                    return {
+                        'background-color': '#0f5c5c',
+                        'color': '#40b8fb'
+                    }
+                },
+            },
+            "dark_steel": {
+                unlocked() { return tmp.dark_steel.layerShown },
+                name() { return '玄钢' },
+                content: [
+                    ["blank", "15px"],
+                    ["display-text", () => `你有${textResourceStyle(fw(player.dark_steel.points), 'text-dark_steel', 'h3')}玄钢锭`],
+                ],
+                buttonStyle() {
+                    return {
+                        'background-color': '#535353',
+                        'color': '#00000080'
+                    }
+                },
+            },
+            "alumite": {
+                unlocked() { return tmp.alumite.layerShown },
+                name() { return '耐酸铝' },
+                content: [
+                    ["blank", "15px"],
+                    ["display-text", () => `你有${textResourceStyle(fw(player.alumite.points), 'text-alumite', 'h3')}耐酸铝锭`],
+                    "blank",
+                    ["display-text", function () { if (hasCraftingItem(772)) return `你有${textResourceStyle(f(player.alumite.score), 'text-alumite', 'h3')}耐酸铝得分` }],
+                ],
+                buttonStyle() {
+                    return {
+                        'background-color': '#f4ceec',
+                        'color': '#00000080'
+                    }
+                },
+            },
+            "end_steel": {
+                unlocked() { return tmp.end_steel.layerShown },
+                name() { return '末影钢' },
+                content: [
+                    ["blank", "15px"],
+                    ["display-text", () => `你有${textResourceStyle(fw(player.end_steel.points), 'text-end_steel', 'h3')}末影钢锭`],
+                ],
+                buttonStyle() {
+                    return {
+                        'background-color': '#f7f1bd',
+                        'color': '#00000080'
+                    }
+                },
+            },
+        },
     },
 })
 
@@ -1587,7 +1753,7 @@ addLayer("stories", {
     color: "#fcfdf5",
     type: "none",
     tooltip() { return false },
-    layerShown() { return true },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
 
     doReset() { return undefined },
 
@@ -1701,7 +1867,9 @@ function jumpToLayerSelect() {
 const jumpableLayers = ['statistics', 'stories', 'layer_select', 'achievements', 'offline_progress', 'map', 'wood', 'stone', 'copper', 'tin', 'bronze', 'iron',
     'nickel', 'aluminum', 'lead', 'constantan', 'invar', 'alumbrass', 'zinc', 'brass', 'steel', 'silver', 'gold', 'electrum', 'redstone', 'red_ele',
     'platinum', 'diamond', 'obsidian', 'emerald', 'experience', 'signalum', 'manasteel', 'terrasteel', 'elementium', 'alfsteel', 'vis_crystal', 'twilight_gem', 'ironwood',
-    'naga_scale', 'steeleaf', 'knight_metal', 'fracturite', 'fiery', 'carminite', 'soularium', 'quartz', 'glowstone', 'lumium', 'glowing_signalum', 'torridite',
+    'naga_scale', 'steeleaf', 'knight_metal', 'fracturite', 'fiery', 'carminite', 'soularium', 'quartz', 'glowstone', 'lumium', 'glowing_signalum', 'torridite', 'cobalt',
+    'ardite', 'manyullyn',
+    'enderium', 'geild_enderium', 'dark_steel', 'alumite', 'end_steel',
     'crafting_table', 'furnace', 'alloy_s', 'sing_fus', 'blast_furnace', 'botania', 'rf', 'mana',]
 
 function gridIDtoLayerName(id) {
@@ -1742,6 +1910,9 @@ addLayer("layer_select", {
             searching: false,
             pinned: [],
             showPinned: false,
+            layerPaused: {
+                1: false
+            },
         }
     },
     resource: "",
@@ -1790,7 +1961,7 @@ addLayer("layer_select", {
         getStyle(data, id) {
             if (!data) return { visibility: 'hidden' }
             else if (
-                !tmp[data].layerShown ||
+                (!tmp[data].layerShown && !layerHidden(data)) ||
                 (player.layer_select.searching && !tmp[data].symbol.includes(player.layer_select.search)) ||
                 (player.layer_select.showPinned && !player.layer_select.pinned.includes(data))
             ) return { visibility: 'hidden' }
@@ -1871,6 +2042,26 @@ addLayer("layer_select", {
                 }
             },
         },
+        21: {
+            display() {
+                let d = "暂停#3~27, 29~44资源层级tmp更新："
+                d += (player.layer_select.layerPaused[1] ? '开' : '关')
+                return d
+            },
+            canClick() { return tmp.offline_progress.enableDevTest },
+            onClick() {
+                player.layer_select.layerPaused[1] = !player.layer_select.layerPaused[1]
+            },
+            unlocked() { return hasMilestone(torridite, 38) },
+            style() {
+                return {
+                    'min-height': '100px',
+                    'width': '210px',
+                    'font-size': '20px',
+                    'border-radius': '0',
+                }
+            },
+        },
     },
 
     update(diff) {
@@ -1885,7 +2076,7 @@ addLayer("layer_select", {
     ],
     microtabs: {
         stuff: {
-            "stories": {
+            "choose": {
                 unlocked() { return true },
                 name() { return '层级选择' },
                 content: [
@@ -1916,7 +2107,18 @@ addLayer("layer_select", {
                     ["display-text", function () { return `shift+点击层级按钮可以标记层级，打开仅显示标记层级就会只显示已标记的层级，你可以选择显示当前进度需要的层级` }],
                 ]
             },
-
+            "pause": {
+                unlocked() { return hasMilestone(torridite, 38) },
+                name() { return '层级暂停' },
+                content: [
+                    ["blank", "15px"],
+                    ["clickables", [2]],
+                    "blank",
+                    ["display-text", function () { return `为拯救低TPS惨案，这里提供暂停部分层级的tmp自动更新选项` }],
+                    ["display-text", function () { return `暂停层级以节省计算量，提高TPS` }],
+                    ["display-text", function () { return `此功能暂时为实验性功能，有炸档和卡关风险，慎用` }],
+                ]
+            },
         },
     },
 })
@@ -1946,7 +2148,7 @@ addLayer("achievements", {
     color: "#ffe125",
     type: "none",
     tooltip() { return false },
-    layerShown() { return true },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
 
     doReset() { return undefined },
 
@@ -3342,7 +3544,7 @@ addLayer("achievements", {
         },
         197: {
             name: "勇往直下",
-            tooltip: "进入下界<br> 奖励：e1.000e24,000成就点数<br>在石头层级解锁多维度挖掘界面，你在下界挖掘石头可以获得下界岩，和第4排石头升级？？？<br><br> <i><s>“我们需要再深入些”</s></i>",
+            tooltip: "进入下界<br> 奖励：e1.000e24,000成就点数<br>在石头层级的更多挖掘子界面解锁下界的二级子界面，而且你在下界挖掘石头可以获得下界岩，并且解锁第4排石头升级？？？<br><br> <i><s>“我们需要再深入些”</s></i>",
             done() { return isAtLocation('nether') && this.unlocked() },
             onComplete() {
                 return player.achievements.points = player.achievements.points.add('ee24000')
@@ -3527,6 +3729,193 @@ addLayer("achievements", {
                 return d(player.achievements.achievements.length).sub(player.achievements.secret).gte(147)
             },
         },
+        223: {
+            name: "炽热的下界金属",
+            tooltip: "获得1炽炎锭<br> 奖励：ee1.00e1,048,576成就点数",
+            done() { return player.torridite.points.gte(1) && this.unlocked() },
+            onComplete() {
+                return player.achievements.points = player.achievements.points.add('eee1048576')
+            },
+            unlocked() {
+                return d(player.achievements.achievements.length).sub(player.achievements.secret).gte(147)
+            },
+        },
+        224: {
+            name: "“虚空方尖碑”",
+            tooltip: "晋升炽炎核心，开始使前期资源等于经验获取<br> 奖励：1.000000F5成就点数<br><br><i style = 'color: #8000a7'>\"The Void Obelisk: Centralize\" --- GCI</i>",
+            done() { return player.torridite.coreTier.gte(1) && this.unlocked() },
+            onComplete() {
+                return player.achievements.points = player.achievements.points.add('10^^5')
+            },
+            unlocked() {
+                return d(player.achievements.achievements.length).sub(player.achievements.secret).gte(147)
+            },
+        },
+        225: {
+            name: "Decker",
+            tooltip: "获得1.000000F10经验<br> 奖励：1.000000F7成就点数",
+            done() { return player.points.gte('10^^10') && this.unlocked() },
+            onComplete() {
+                return player.achievements.points = player.achievements.points.add('10^^7')
+            },
+            unlocked() {
+                return d(player.achievements.achievements.length).sub(player.achievements.secret).gte(147)
+            },
+        },
+        226: {
+            name: "Co",
+            tooltip: "解锁钴层级<br> 奖励：1.000000F10成就点数",
+            done() { return hasUpgrade(torridite, 35) && this.unlocked() },
+            onComplete() {
+                return player.achievements.points = player.achievements.points.add('10^^10')
+            },
+            unlocked() {
+                return d(player.achievements.achievements.length).sub(player.achievements.secret).gte(147)
+            },
+        },
+        227: {
+            name: "虚构的，但是格雷给出的“化学符号”是“Ar”",
+            tooltip: "解锁阿迪特层级<br> 奖励：1.000000F15成就点数",
+            done() { return hasUpgrade(torridite, 45) && this.unlocked() },
+            onComplete() {
+                return player.achievements.points = player.achievements.points.add('10^^15')
+            },
+            unlocked() {
+                return d(player.achievements.achievements.length).sub(player.achievements.secret).gte(147)
+            },
+        },
+        231: {
+            name: "Giggol",
+            tooltip: "获得1.000000F100经验<br> 奖励：1.000000F30成就点数",
+            done() { return player.points.gte('10^^100') && this.unlocked() },
+            onComplete() {
+                return player.achievements.points = player.achievements.points.add('10^^30')
+            },
+            unlocked() {
+                return d(player.achievements.achievements.length).sub(player.achievements.secret).gte(147)
+            },
+        },
+        232: {
+            name: "用它制造的金属块有\"$\"的符号",
+            tooltip: "解锁玛玉灵层级<br> 奖励：1.000000F50成就点数",
+            done() { return hasUpgrade(ardite, 35) && this.unlocked() },
+            onComplete() {
+                return player.achievements.points = player.achievements.points.add('10^^50')
+            },
+            unlocked() {
+                return d(player.achievements.achievements.length).sub(player.achievements.secret).gte(147)
+            },
+        },
+        233: {
+            name: "阶数的奇点",
+            tooltip: "到达一千阶等级1<br> 奖励：1.000000F100成就点数",
+            done() { return player.omegaTier.gte(1000) && this.unlocked() },
+            onComplete() {
+                return player.achievements.points = player.achievements.points.add('10^^100')
+            },
+            unlocked() {
+                return d(player.achievements.achievements.length).sub(player.achievements.secret).gte(147)
+            },
+        },
+        234: {
+            name: "内含传送的涌流",
+            tooltip: "解锁末影层级<br> 奖励：1.000000F300成就点数",
+            done() { return hasUpgrade(manyullyn, 35) && this.unlocked() },
+            onComplete() {
+                return player.achievements.points = player.achievements.points.add('10^^300')
+            },
+            unlocked() {
+                return d(player.achievements.achievements.length).sub(player.achievements.secret).gte(147)
+            },
+        },
+        235: {
+            name: "终极寒霜之物",
+            tooltip: "获得极寒之凛冰<br> 奖励：1.000000F1,000成就点数",
+            done() { return player.blast_furnace.geild_cryotheum.gte(1) && this.unlocked() },
+            onComplete() {
+                return player.achievements.points = player.achievements.points.add('10^^1000')
+            },
+            unlocked() {
+                return d(player.achievements.achievements.length).sub(player.achievements.secret).gte(147)
+            },
+        },
+        236: {
+            name: "注入寒霜",
+            tooltip: "解锁极寒末影层级<br> 奖励：1.000000F2,000成就点数",
+            done() { return hasUpgrade(enderium, 35) && this.unlocked() },
+            onComplete() {
+                return player.achievements.points = player.achievements.points.add('10^^2000')
+            },
+            unlocked() {
+                return d(player.achievements.achievements.length).sub(player.achievements.secret).gte(147)
+            },
+        },
+        237: {
+            name: "ω+1",
+            tooltip: "到达ω阶等级100,000<br> 奖励：1.000000F5,000成就点数<br><br>解锁ω+1阶等级",
+            done() { return player.omegaTier.gte(100000) && this.unlocked() },
+            onComplete() {
+                return player.achievements.points = player.achievements.points.add('10^^5000')
+            },
+            unlocked() {
+                return d(player.achievements.achievements.length).sub(player.achievements.secret).gte(147)
+            },
+        },
+        241: {
+            name: "经改造的坚硬钢铁",
+            tooltip: "解锁玄钢层级<br> 奖励：1.00000F10,000成就点数<br><br>解锁ω+1阶等级",
+            done() { return hasUpgrade(geild_enderium, 35) && this.unlocked() },
+            onComplete() {
+                return player.achievements.points = player.achievements.points.add('10^^10000')
+            },
+            unlocked() {
+                return d(player.achievements.achievements.length).sub(player.achievements.secret).gte(147)
+            },
+        },
+        242: {
+            name: "再也不用管奇点了！？……暂时是的",
+            tooltip: "获得第2玄钢里程碑<br> 奖励：1.0000F100,000成就点数<br>",
+            done() { return hasMilestone(dark_steel, 1) && this.unlocked() },
+            onComplete() {
+                return player.achievements.points = player.achievements.points.add('10^^100000')
+            },
+            unlocked() {
+                return d(player.achievements.achievements.length).sub(player.achievements.secret).gte(147)
+            },
+        },
+        243: {
+            name: "经强化的铝",
+            tooltip: "解锁耐酸铝层级<br> 奖励：1.000F1,000,000成就点数<br><br>解锁ω+1阶等级",
+            done() { return hasUpgrade(dark_steel, 35) && this.unlocked() },
+            onComplete() {
+                return player.achievements.points = player.achievements.points.add('10^^1000000')
+            },
+            unlocked() {
+                return d(player.achievements.achievements.length).sub(player.achievements.secret).gte(147)
+            },
+        },
+        244: {
+            name: "又一个……尽头吗？",
+            tooltip: "获得F1.7976e308经验<br> 奖励：F1,000,000,000成就点数",
+            done() { return player.points.gte('10^^1.7976e308') && this.unlocked() },
+            onComplete() {
+                return player.achievements.points = player.achievements.points.add('10^^1e9')
+            },
+            unlocked() {
+                return d(player.achievements.achievements.length).sub(player.achievements.secret).gte(147)
+            },
+        },
+        245: {
+            name: "无需进入末地",
+            tooltip: "解锁末影钢层级<br> 奖励：F1.0000e15成就点数",
+            done() { return hasUpgrade(alumite, 35) && this.unlocked() },
+            onComplete() {
+                return player.achievements.points = player.achievements.points.add('10^^1e15')
+            },
+            unlocked() {
+                return d(player.achievements.achievements.length).sub(player.achievements.secret).gte(147)
+            },
+        },
         //隐藏成就
         //虽然原则上不允许偷看源代码查看怎么完成隐藏成就但是我也管不到你就是了（乐）
         100011: {
@@ -3643,6 +4032,15 @@ addLayer("achievements", {
             },
             unlocked() { return hasAchievement('achievements', this.id) },
         },
+        100026: {
+            name: "俺寻思之力",
+            tooltip: "你真的去按[W]思索了。 <br><br> <i>“机械动力还是太权威了”</i>",
+            done() { return false },
+            onComplete() {
+                return player.achievements.secret = player.achievements.secret.add(1)
+            },
+            unlocked() { return hasAchievement('achievements', this.id) },
+        },
     },
 
     effect() {
@@ -3677,8 +4075,17 @@ addLayer("achievements", {
         //{ key: "w", description: "W: 切换到上一层级（区域显示层无效）", onPress() { jumpToNextLayer('up') } }, //不准卡onHold!
         //{ key: "s", description: "S: 切换到下一层级（区域显示层无效）", onPress() { jumpToNextLayer('down') } },
         { key: "p", description: "P: 按下使当前显示层级主资源在主界面固定/取消左上角快捷显示（部分无主资源层级不支持）", onPress() { pinResource() } },
+        { key: "l", description: "L: 跳转到层级选择", onPress() { showTab('layer_select'), globalStopBuying() } },
+        { key: "h", description: "H: 隐藏/显示当前层级", onPress() { hideLayer() } },
         { key: "F12", description: "", onPress() { player.console = true } },
         { key: "n", description: "", onPress() { if (player.devmode) clearInterval(interval) } },
+        {
+            key: "w", description: "", onPress() {
+                if (nt == "按[W]开始思索" && !hasAchievement('achievements', 100026)) doPopup("achievement", tmp.achievements.achievements[100026].name, "获得成就!", 3, tmp.achievements.color),
+                    player.achievements.achievements.push(100026),
+                    player.achievements.secret = player.achievements.secret.add(1)
+            }
+        }
     ],
 
     tabFormat: [
@@ -3750,7 +4157,7 @@ function mechanicalHandAutoMine(layer) {
     if (player.offTime.remain < 15) player.offline_progress.mechanical_hand[53] = false
     const supportLayers = [
         copper, tin, iron, nickel, aluminum, lead, zinc, silver, gold, redstone, platinum,
-        diamond, emerald, ironwood, quartz, glowstone
+        diamond, emerald, ironwood, quartz, glowstone, torridite, cobalt, ardite
     ]
     if (supportLayers.includes(layer)) {
         if (tmp[layer].clickables[11].canClick) {
@@ -3807,7 +4214,7 @@ addLayer("offline_progress", {
     color: "#b2ff59",
     type: "none",
     tooltip() { return false },
-    layerShown() { return true },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
 
     doReset() { return undefined },
 
@@ -4193,7 +4600,7 @@ addLayer("offline_progress", {
                 d += `状态：${player.offline_progress.mechanical_hand[53] ? '开' : '关'}`
                 return d
             },
-            canClick() { return player.offTime.remain >= 60 && player.gameSpeed <= 1 && options.offlineProd && tmp.offline_progress.enableDevTest },
+            canClick() { return player.offTime.remain >= 60 && player.gameSpeed <= 1 && options.offlineProd /*&& tmp.offline_progress.enableDevTest*/ },
             onClick() {
                 player.offline_progress.mechanical_hand[53] = !player.offline_progress.mechanical_hand[53]
             },
@@ -4493,7 +4900,8 @@ const enemies = {
         dropsZH: "暴雪棒",
         drop_gain: function () {
             let gain = d(1)
-            gain = gain.times(tmp.map.battle.LUCK.div("eeeeeee10").max(1).logBase(10).pow(3).add(1))
+            gain = gain.times(tmp.map.battle.LUCK.max('10^^10000').slog(10).sub(9999).pow(0.3))
+            if (hasMilestone(geild_enderium, 0)) gain = gain.times(tmp.geild_enderium.GCeffect[2])
             gain = gain.ceil()
             return gain
         },
@@ -4653,7 +5061,7 @@ addLayer("map", {
     color: "#548049",
     type: "none",
     tooltip() { return false },
-    layerShown() { return true },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
 
     doReset() { return undefined },
 
@@ -5051,6 +5459,40 @@ addLayer("map", {
                 if (this.canClick()) return { 'background-color': '#a61012' }
             },
         },
+        45: {
+            title() {
+                let t = "极寒射线"
+                return t
+            },
+            attack() {
+                let a = tmp.map.battle.ATK
+                let atk = a.times(7.5)
+                return atk
+            },
+            display() {
+                return `消耗10MP和${f(2.5e13)}RF立即造成${f(this.attack())}伤害，不受buff加成、暴击影响`
+            },
+            canClick() { return player.map.battle.enemy && player.map.battle.revival.eq(-1) && player.map.battle.curMP.gte(10) && player.rf.points.gte(2.5e13) },
+            onClick() {
+                player.rf.points = player.rf.points.sub(2.5e13)
+                player.map.battle.curMP = player.map.battle.curMP.sub(10).max(0)
+                if (player.map.battle.enemy_shield.gt(0)) player.map.battle.enemy_shield = player.map.battle.enemy_shield.sub(1) //先攻击护盾
+                else {
+                    let realatk = this.attack()
+                    player.map.battle.enemy_hp = player.map.battle.enemy_hp.sub(realatk.sub(enemies[player.map.battle.enemy].def)).max(0) //攻击敌人
+                    if (enemies[player.map.battle.enemy].hurt_drop) enemies[player.map.battle.enemy].hurt_drop() //如果敌人有受伤掉落则调用
+                }
+            },
+            unlocked() { return hasCraftingItem(761) },
+            styleClass: "attackClickables",
+            style() {
+                if (this.canClick()) return { 'background-color': '#40b8fb' }
+            },
+            tooltip() {
+                let mult = d(7.5)
+                return "ATK·" + f(mult)
+            },
+        },
         51: {
             title() {
                 let t = ""
@@ -5122,6 +5564,9 @@ addLayer("map", {
             style() {
                 if (this.canClick()) return { 'background-color': '#a61012' }
             },
+            tooltip() {
+                return "你只能获得1个米诺陶战斧"
+            }
         },
         55: {
             title() {
@@ -5286,7 +5731,7 @@ addLayer("map", {
                 }
             },
             tooltip() {
-                return "战斗LUCK值从" + "(没确定好)" + "开始影响暴雪棒掉落" + "<br>暴雪人会在攻击时施加debuff：冻结"
+                return "战斗LUCK值从" + f('10^^10000') + "开始影响暴雪棒掉落" + "<br>暴雪人会在攻击时施加debuff：冻结"
             }
         },
     },
@@ -5337,7 +5782,7 @@ addLayer("map", {
             realatk = realatk.times(tmp.map.battle.weakness)
             //if (d(options.updatingRate).gt(tb.atkspd * 1000)) realatk = realatk.div(d(options.updatingRate).div(tb.atkspd * 1000)).max(0)
             if ((pb.enemy == 'hydra' || pb.enemy == 'ur_ghast' || pb.enemy == 'blaze') && !pb.buffs.includes('burning')) player.map.battle.buffs.push('burning')
-            else if ((pb.enemy == 'snow_queen' || pb.enemy == 'blizz') && !pb.buffs.includes('frozen')) player.map.battle.buffs.push('frozen')
+            else if ((pb.enemy == 'snow_queen' || (pb.enemy == 'blizz' && !hasCraftingItem(752))) && !pb.buffs.includes('frozen')) player.map.battle.buffs.push('frozen')
             player.map.battle.curHP = pb.curHP.sub(realatk).max(0) //敌人攻击
             player.map.battle.enemy_attack_time = enemies[pb.enemy].attack_time //重置
         }
@@ -5364,6 +5809,7 @@ addLayer("map", {
             if (hasCraftingItem(491)) atk = atk.add(6) //全局加成
             if (hasCraftingItem(511)) atk = atk.times(2.5)
             if (hasCraftingItem(571)) atk = atk.add(5)
+            if (hasCraftingItem(712)) atk = atk.add(1)
 
             if (hasCraftingItem(552) && player.map.battle.enemy == 'naga') atk = atk.times(5) //特攻
             if (hasCraftingItem(561) && player.map.battle.enemy == 'lich') atk = atk.times(2)
@@ -5377,9 +5823,11 @@ addLayer("map", {
             if (hasCraftingItem(512)) def = def.add(7)
             if (hasCraftingItem(551)) def = def.add(2)
             if (player.map.battle.buffs.includes('frozen') && !hasCraftingItem(612)) def = d(0)
+            if (hasCraftingItem(752)) def = def.add(1)
             return def
         },
         LUCK() { //幸运值
+            if (hasMilestone(torridite, 26)) return getPointGen()
             let luck = d(0)
             if (hasUpgrade(terrasteel, 12)) luck = upgradeEffect(terrasteel, 12)
             return luck
@@ -5576,7 +6024,7 @@ addLayer("map", {
                                 ["raw-html", function () {
                                     let t = "未解锁"
                                     if (hasCraftingItem(571)) {
-                                        if (player.map.battle.buffs.length == 0) t = "无效果"
+                                        if (player.map.battle.buffs.length == 0) t = "无效果(buff/debuff)"
                                         else t = player.map.battle.buffs.map(n => getBuffNameZH(n)).join("、")
                                     }
                                     return `<div class = "instant" style = "width : 350px">${t}</div>`
@@ -5599,7 +6047,7 @@ addLayer("map", {
                     ],
                     "blank",
                     ["display-text", function () {
-                        let t = `攻击冷却：${f(player.map.battle.atkCooldown)}s/${f(tmp.map.atkspd)}s`
+                        let t = `攻击冷却：${formatNoNegativeExponents(player.map.battle.atkCooldown)}s/${f(tmp.map.atkspd)}s`
                         if (player.map.battle.curHP.lte(0)) t += ` 复活时间：${f(player.map.battle.revival)}s`
                         return t
                     }],
@@ -5608,7 +6056,7 @@ addLayer("map", {
                     }],
                     ["display-text", function () {
                         if (player.TPSwarn && hasCraftingItem(571)) return `你当前设定的更新频率不稳定，有无法战胜敌人的可能性。你可以降低游戏速度来稳定输出频率`
-                        else return "&emsp;<br>&emsp;"
+                        else return "&emsp; "
                     }],
                     ["microtabs", "battle_zone"],
                 ],
@@ -5655,15 +6103,21 @@ addLayer("map", {
                             }
                         ],
                     ]],
-                    "blank",
+                ],
+            },
+            "drops": {
+                unlocked() { return hasCraftingItem(491) },
+                name() { return '掉落物' },
+                content: [
+                    ["blank", "15px"],
                     ["display-text", function () { if (hasCraftingItem(491)) return `你有 ${textStyle_h2(fw(player.map.battle.drops.ender_pearl), '105051')} 末影珍珠` }],
                     ["display-text", function () { if (hasUpgrade(naga_scale, 31)) return `你有 ${textStyle_h2(fw(player.map.battle.drops.crown_of_lich), 'c29d08')} 巫妖头冠` }],
                     ["display-text", function () { if (hasCraftingItem(571)) return `你有 ${textStyle_h2(fw(player.map.battle.drops.minotaur_axe), '27b29a')} 米诺陶战斧` + (player.map.battle.drops.minotaur_axe.gte(1) ? '，解锁技能：狂战士' : '') }],
                     ["display-text", function () { if (hasCraftingItem(571)) return `你有 ${textStyle_h2(fw(player.map.battle.drops.alpha_yeti_fur), 'e4e4e4', '243e62')} 雪怪首领毛皮` }],
-                    ["display-text", function () { if (hasCraftingItem(571)) return `你有 ${textStyle_h2(fw(player.map.battle.drops.core_of_snow_queen), '8686b8')} 冰雪女王核心` }],
+                    ["display-text", function () { if (hasUpgrade(fracturite, 15)) return `你有 ${textStyle_h2(fw(player.map.battle.drops.core_of_snow_queen), '8686b8')} 冰雪女王核心` }],
                     ["display-text", function () { if (hasUpgrade(stone, 43)) return `你有 ${textStyle_h2(fw(player.map.battle.drops.blaze_rod), 'fff32d')} 烈焰棒` }],
                     ["display-text", function () { if (hasUpgrade(signalum, 21)) return `你有 ${textStyle_h2(fw(player.map.battle.drops.blizz_rod), '4be2ec')} 暴雪棒` }],
-                ],
+                ]
             },
         },
     },
@@ -5973,6 +6427,9 @@ addLayer("wood", {
             transwood: d(0),
             timewood: d(0),
 
+            crimsonStem: d(0),
+            warpedStem: d(0),
+
             chips: d(0),
         }
     },
@@ -5986,7 +6443,8 @@ addLayer("wood", {
     type: "none", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
     exponent: 0.5, // Prestige currency exponent
     gainMult() { // Calculate the multiplier for main currency from bonuses
-        m = d(1)
+        if (hasMilestone(torridite, 0)) return getPointGen()
+        let m = d(1)
         if (hasUpgrade(wood, 12)) m = m.times(upgradeEffect(wood, 12))
         if (hasUpgrade(wood, 22)) m = m.times(upgradeEffect(wood, 22))
         if (hasUpgrade(wood, 24)) m = m.times(2)
@@ -6011,7 +6469,7 @@ addLayer("wood", {
         return d(1)
     },
     row: 1, // Row the layer is in on the tree (0 is the first row)
-    layerShown() { return true },
+    layerShown() { return !layerHidden(this.layer) },
 
     doReset(resettingLayer) {
         if (layers[resettingLayer].name == ct && !hasMilestone(furnace, 0)) {
@@ -6057,8 +6515,9 @@ addLayer("wood", {
                     g = g.min(tmp.experience.xpHardcap) //知识精华之前，硬上限限制
                 }
 
-                if (hasUpgrade(experience, 32)) {
+                else if (hasUpgrade(experience, 32)) {
                     g = tmp.experience.xpHardcap
+                    if (hasUpgrade(torridite, 12)) g = g.max(tmp.torridite.torriditeXPGain)
                 }
                 return g
             },
@@ -6072,6 +6531,7 @@ addLayer("wood", {
             cost() { return new ExpantaNum(5) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.level.max(0).add(1).pow(1.35).floor()
                 return eff
             },
@@ -6089,6 +6549,7 @@ addLayer("wood", {
             cost() { return new ExpantaNum(15) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.wood.progress.max(1)
                 if (hasCraftingItem(21)) eff = d(10)
                 return eff
@@ -6109,6 +6570,7 @@ addLayer("wood", {
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             canAfford() { return player.level.gte(2) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let base = player.points.max(1).root(3)
                 if (base.lte(ExpantaNumInfinity)) eff = base
                 if (base.gt(ExpantaNumInfinity)) eff = base.div(ExpantaNumInfinity).root(10).times(ExpantaNumInfinity)
@@ -6139,6 +6601,7 @@ addLayer("wood", {
             cost() { return new ExpantaNum(144) },
             unlocked() { return hasCraftingItem(11) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.wood.points.max(1).pow(0.3)
                 return eff
             },
@@ -6157,6 +6620,7 @@ addLayer("wood", {
             canAfford() { return player.level.gte(4) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.achievements.points.max(1).root(2).floor()
                 return eff
             },
@@ -6278,7 +6742,8 @@ addLayer("wood", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -6340,6 +6805,10 @@ addLayer("wood", {
                 player.wood.darkWood = player.wood.darkWood.add(tmp.wood.logGain_twi.darkWood)
                 player.wood.twilightMangrove = player.wood.twilightMangrove.add(tmp.wood.logGain_twi.twilightMangrove)
             }
+            else if (isAtLocation('nether')) {
+                player.wood.crimsonStem = player.wood.crimsonStem.add(tmp.wood.logGain_ne.crimsonStem)
+                player.wood.warpedStem = player.wood.warpedStem.add(tmp.wood.logGain_ne.warpedStem)
+            }
         }
 
         if (player.wood.points.gt(player.wood.best)) player.wood.best = player.wood.points
@@ -6388,6 +6857,16 @@ addLayer("wood", {
             if (hasCraftingItem(432)) eff = eff.pow(1.15)
             return eff
         },
+
+        //nether
+        crimsonStem() {
+            let eff = player.wood.crimsonStem.max(0).add(1).pow(2.5)
+            return eff
+        },
+        warpedStem() {
+            let eff = player.wood.warpedStem.max(0).add(1).pow(2.5)
+            return eff
+        }
     },
 
     logGain: {
@@ -6429,6 +6908,7 @@ addLayer("wood", {
 
     logGain_twi: {
         twilightOak() {
+            if (hasMilestone(torridite, 38)) return getPointGen()
             let gain = d(0)
             if (hasUpgrade(ironwood, 11)) gain = gain.add(1)
             if (hasUpgrade(ironwood, 23)) gain = gain.times(upgradeEffect(ironwood, 23))
@@ -6444,13 +6924,32 @@ addLayer("wood", {
         },
         darkWood() {
             let gain = d(10).pow(this.canopyTreeWood().max(1).log10().div(112).pow(0.5)).sub(9).floor().max(0)
-            if (this.canopyTreeWood().lt(1e112)) gain = d(0)
+            if (this.canopyTreeWood().lt(1e112) || !hasUpgrade(knight_metal, 12)) gain = d(0)
             return gain
         },
         twilightMangrove() {
             let gain = this.darkWood().max(1).div(7e47).pow(0.12).floor().max(0)
             if (this.darkWood().gte(5e47) && this.darkWood().lt(7e47)) return d(1)
             if (!hasCraftingItem(601)) gain = d(0)
+            return gain
+        },
+    },
+
+    logGain_ne: {
+        crimsonStem() {
+            let gain = d(1)
+            if (hasUpgrade(manyullyn, 23)) gain = gain.times(upgradeEffect(manyullyn, 23))
+            if (hasUpgrade(manyullyn, 31)) gain = gain.pow(upgradeEffect(manyullyn, 31))
+            gain = gain.floor()
+            if (!hasCraftingItem(731)) gain = d(0)
+            return gain
+        },
+        warpedStem() {
+            let gain = d(1)
+            if (hasUpgrade(manyullyn, 23)) gain = gain.times(upgradeEffect(manyullyn, 23))
+            if (hasUpgrade(manyullyn, 31)) gain = gain.pow(upgradeEffect(manyullyn, 31))
+            gain = gain.floor()
+            if (!hasCraftingItem(731)) gain = d(0)
             return gain
         },
     },
@@ -6502,6 +7001,16 @@ addLayer("wood", {
             "log": {
                 unlocked() { return hasUpgrade(wood, 23) },
                 name() { return '原木' },
+                content: [
+                    ["blank", "15px"],
+                    ["microtabs", "log"],
+                ]
+            },
+        },
+        log: {
+            "overworld": {
+                unlocked() { return hasUpgrade(wood, 23) },
+                name() { return '主世界' },
                 content: [
                     ["blank", "15px"],
                     ["display-text", function () { return `按下shift查看相关获取以及效果公式，获取默认向下取整` }],
@@ -6568,18 +7077,8 @@ addLayer("wood", {
                     ["display-text", function () { return `在此页面的原木均需要在主世界才能手动获取（不影响自动化）` }],
                 ]
             },
-            "more": {
-                unlocked() { return hasUpgrade(ironwood, 11) },
-                name() { return '更多原木' },
-                content: [
-                    ["blank", "15px"],
-                    ["microtabs", "more_wood"],
-                ]
-            },
-        },
-        more_wood: {
             "twilight_forest": {
-                unlocked() { return true },
+                unlocked() { return hasUpgrade(ironwood, 11) },
                 name() { return '暮色森林' },
                 content: [
                     ["blank", "15px"],
@@ -6596,7 +7095,7 @@ addLayer("wood", {
                     }],
                     ["display-text", function () { if (hasCraftingItem(601)) return `你有 ${textStyle_h2(formatWhole(player.wood.twilightMangrove), 'ccb180')} 暮色红木` }],
                     ["display-text", function () {
-                        if (hasUpgrade(knight_metal, 12)) return shiftDown ? `暮色红木获取公式：(暮色橡木每次/${f(7e47)})${quickSUP('0.12')}，${f(5e47)}~${f(7e47)}获取为1` : ""
+                        if (hasCraftingItem(601)) return shiftDown ? `暮色红木获取公式：(黑木每次/${f(7e47)})${quickSUP('0.12')}，${f(5e47)}~${f(7e47)}获取为1` : ""
                     }],
                     "blank",
                     ["row", [["bar", "woodDestroying"], "blank", ["clickable", 11],]],
@@ -6609,6 +7108,27 @@ addLayer("wood", {
                     ["display-text", function () { if (hasCraftingItem(601)) return `破坏一次木头可额外产出 ${textStyle_h2(formatWhole(tmp.wood.logGain_twi.twilightMangrove), 'ccb180')} 暮色红木 （基于黑木获取，开始于${f(5e47)}黑木/次）` }],
                     "blank",
                     ["display-text", function () { return `在此页面的原木均需要在暮色森林才能手动获取（不影响自动化）` }],
+                    "blank",
+                ]
+            },
+            "nether": {
+                unlocked() { return hasCraftingItem(731) },
+                name() { return '下界' },
+                content: [
+                    ["blank", "15px"],
+                    ["display-text", function () { return `你有 ${textStyle_h2(formatWhole(player.wood.crimsonStem), '843d59')} 绯红菌柄，加成阿迪特得分 ${textStyle_h2(format(tmp.wood.logEffects.crimsonStem) + "x", '843d59')}` }],
+                    ["display-text", function () { if (shiftDown) return `效果公式：(x+1)${quickSUP('2.5')}` }],
+                    ["display-text", function () { return `你有 ${textStyle_h2(formatWhole(player.wood.warpedStem), '398c8b')} 诡异菌柄，加成钴得分 ${textStyle_h2(format(tmp.wood.logEffects.warpedStem) + "x", '398c8b')}` }],
+                    ["display-text", function () { if (shiftDown) return `效果公式：(x+1)${quickSUP('2.5')}` }],
+                    "blank",
+                    ["row", [["bar", "woodDestroying"], "blank", ["clickable", 11],]],
+                    "blank",
+                    "blank",
+                    ["display-text", function () { return `挖掘速度：${format(player.wood.speed)}/秒` }],
+                    ["display-text", function () { return `破坏一次木头可额外产出 ${textStyle_h2(formatWhole(tmp.wood.logGain_ne.crimsonStem), '843d59')} 绯红菌柄` }],
+                    ["display-text", function () { return `破坏一次木头可额外产出 ${textStyle_h2(formatWhole(tmp.wood.logGain_ne.warpedStem), '398c8b')} 诡异菌柄` }],
+                    "blank",
+                    ["display-text", function () { return `在此页面的原木均需要在下界才能手动获取（不影响自动化）` }],
                     "blank",
                 ]
             },
@@ -6640,6 +7160,7 @@ addLayer("stone", {
             marble: d(0),
             netherrack: d(0),
             soulSand: d(0),
+            blackStone: d(0),
             aether_stone: d(0),
             abyssal_stone: d(0),
         }
@@ -6661,7 +7182,8 @@ addLayer("stone", {
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
-        m = d(1)               // Factor in any bonuses multiplying gain here.
+        if (hasMilestone(torridite, 1)) return getPointGen()
+        let m = d(1)               // Factor in any bonuses multiplying gain here.
         if (hasUpgrade(stone, 12)) m = m.times(2)
         if (hasCraftingItem(22)) m = m.times(2)
         if (hasUpgrade(wood, 33)) m = m.times(3)
@@ -6684,7 +7206,7 @@ addLayer("stone", {
         return d(1)
     },
 
-    layerShown() { return hasNormalAchievement(16) },          // Returns a bool for if this layer's node should be visible in the tree.
+    layerShown() { return hasNormalAchievement(16) && !layerHidden(this.layer) },          // Returns a bool for if this layer's node should be visible in the tree.
 
     doReset(resettingLayer) {
         if (layers[resettingLayer].name == ct) {
@@ -6715,6 +7237,7 @@ addLayer("stone", {
             canAfford() { return player.level.gte(6) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.stone.points.max(0).add(10).log10().pow(5)
                 return eff
             },
@@ -6737,6 +7260,7 @@ addLayer("stone", {
             canAfford() { return player.level.gte(6) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.crafting_table.points.max(0).add(1).pow(2)
                 if (!hasUpgrade(diamond, 31)) eff = eff.min(1e100)
                 return eff
@@ -6775,6 +7299,7 @@ addLayer("stone", {
             cost() { return new ExpantaNum(880) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.crafting_table.points.max(0).add(1).pow(0.4)
                 return eff
             },
@@ -6802,6 +7327,7 @@ addLayer("stone", {
             cost() { return new ExpantaNum(10) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.stone.dirt.max(0).add(3).logBase(3)
                 return eff
             },
@@ -6826,6 +7352,7 @@ addLayer("stone", {
             canAfford() { return player.level.gte(21) },
             unlocked() { return hasCraftingItem(41) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.furnace.points.max(0).add(1).pow(0.4)
                 return eff
             },
@@ -6858,6 +7385,7 @@ addLayer("stone", {
             currencyDisplayName: "RF",
             currencyLayer: rf,
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.rf.points.max(0).add(1).pow(1.2)
                 return eff
             },
@@ -7053,7 +7581,8 @@ addLayer("stone", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px'
                 }
             },
         },
@@ -7125,6 +7654,7 @@ addLayer("stone", {
 
         //下界
         netherrack() {
+            if (hasMilestone(torridite, 37)) return getPointGen()
             let gain = d(1)
             if (hasUpgrade(stone, 41)) gain = gain.times(3)
             if (hasUpgrade(stone, 42)) gain = gain.times(4)
@@ -7136,6 +7666,11 @@ addLayer("stone", {
         soulSand() {
             let gain = this.netherrack().max(0).div(12).pow(0.33).floor()
             if (!hasUpgrade(stone, 44)) gain = d(0)
+            return gain
+        },
+        blackStone() {
+            let gain = d(2).pow(this.soulSand().max(10).slog(10).max(49).sub(50)).floor()
+            if (!hasCraftingItem(721)) gain = d(0)
             return gain
         },
     },
@@ -7154,7 +7689,8 @@ addLayer("stone", {
             if (isAtLocation('overworld')) player.stone.calcite = player.stone.calcite.add(tmp.stone.otherGain.calcite),
                 player.stone.amethyst = player.stone.amethyst.add(tmp.stone.otherGain.amethyst)
             if (isAtLocation('nether')) player.stone.netherrack = player.stone.netherrack.add(tmp.stone.otherGain.netherrack),
-                player.stone.soulSand = player.stone.soulSand.add(tmp.stone.otherGain.soulSand)
+                player.stone.soulSand = player.stone.soulSand.add(tmp.stone.otherGain.soulSand),
+                player.stone.blackStone = player.stone.blackStone.add(tmp.stone.otherGain.blackStone)
         }
 
         if (player.stone.points.gt(player.stone.best)) player.stone.best = player.stone.points
@@ -7173,6 +7709,7 @@ addLayer("stone", {
         if (hasCraftingItem(421)) speed = speed.times(3)
         if (hasCraftingItem(441)) speed = speed.times(1.25)
         if (hasCraftingItem(461)) speed = speed.times(2.5)
+        if (hasCraftingItem(711)) speed = speed.times(1.5)
         player.stone.speed = speed
 
         //奇点
@@ -7231,9 +7768,29 @@ addLayer("stone", {
                     ["buyables", [1]]
                 ]
             },
-            "more dig": {
-                unlocked() { return hasUpgrade(stone, 23) },
+            "more_dig": {
+                unlocked() { return hasUpgrade(stone, 23)/*hasNormalAchievement(197)*/ },
                 name() { return '更多挖掘' },
+                content: [
+                    ["blank", "15px"],
+                    ["microtabs", "multi_dim"],
+                ]
+            },
+            "singularity": {
+                unlocked() { return hasNormalAchievement(63) },
+                name() { return '奇点' },
+                content: [
+                    ["blank", "15px"],
+                    ["display-text", function () { if (hasNormalAchievement(63)) return `你有 ${textStyle_h2(fw(player.stone.singularity), '4a4a4a')} 石头奇点，加成石头获取 ${textStyle_h2(fw(buyableEffect(stone, 21)) + "x", '4a4a4a')}` }],
+                    "blank",
+                    ["buyables", [2]]
+                ]
+            },
+        },
+        multi_dim: {
+            "overworld": {
+                unlocked() { return hasUpgrade(stone, 23) },
+                name() { return '主世界' },
                 content: [
                     ["blank", "15px"],
                     ["display-text", function () { return `按下shift查看相关获取公式，获取默认向下取整` }],
@@ -7292,26 +7849,6 @@ addLayer("stone", {
                     ["display-text", function () { if (hasCraftingItem(572)) return `紫水晶碎片只出现在主世界` }],
                 ]
             },
-            "multi_dimensional": {
-                unlocked() { return hasNormalAchievement(197) },
-                name() { return '多维度挖掘' },
-                content: [
-                    ["blank", "15px"],
-                    ["microtabs", "multi_dim"],
-                ]
-            },
-            "singularity": {
-                unlocked() { return hasNormalAchievement(63) },
-                name() { return '奇点' },
-                content: [
-                    ["blank", "15px"],
-                    ["display-text", function () { if (hasNormalAchievement(63)) return `你有 ${textStyle_h2(fw(player.stone.singularity), '4a4a4a')} 石头奇点，加成石头获取 ${textStyle_h2(fw(buyableEffect(stone, 21)) + "x", '4a4a4a')}` }],
-                    "blank",
-                    ["buyables", [2]]
-                ]
-            },
-        },
-        multi_dim: {
             "nether": {
                 unlocked() { return hasNormalAchievement(197) },
                 name() { return '下界' },
@@ -7320,10 +7857,13 @@ addLayer("stone", {
                     ["display-text", function () { return `你有 ${textStyle_h2(formatWhole(player.stone.netherrack), '4f1a1a')} 下界岩` }],
                     ["display-text", function () { if (hasUpgrade(stone, 44)) return `你有 ${textStyle_h2(formatWhole(player.stone.soulSand), '423228')} 灵魂沙` }],
                     ["display-text", function () { if (shiftDown && hasUpgrade(stone, 44)) return `灵魂沙获取公式：(下界岩每次/12)<sup>0.33</sup>` }],
+                    ["display-text", function () { if (hasCraftingItem(721)) return `你有 ${textStyle_h2(formatWhole(player.stone.blackStone), '353339')} 黑石` }],
+                    ["display-text", function () { if (shiftDown && hasCraftingItem(721)) return `黑石获取公式：2${quickSUP('slg(灵魂沙每次)-50')}` }],
                     ["row", [["bar", "stoneDestroying"], "blank", "clickables",]],
                     "blank",
                     ["display-text", function () { return `破坏一次石头可额外产出 ${textStyle_h2(formatWhole(tmp.stone.otherGain.netherrack), '4f1a1a')} 下界岩` }],
                     ["display-text", function () { if (hasUpgrade(stone, 44)) return `破坏一次石头可额外产出 ${textStyle_h2(formatWhole(tmp.stone.otherGain.soulSand), '423228')} 灵魂沙（基于下界岩获取，开始于12下界岩/次）` }],
+                    ["display-text", function () { if (hasCraftingItem(721)) return `破坏一次石头可额外产出 ${textStyle_h2(formatWhole(tmp.stone.otherGain.blackStone), '353339')} 黑石（基于灵魂沙获取，开始于${f('10^^50')}灵魂沙/次）` }]
                 ]
             },
         },
@@ -7370,7 +7910,8 @@ addLayer("copper", {
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
-        m = d(1)                            // 矿物的gainMult是给对应矿石的
+        if (hasMilestone(torridite, 2)) return getPointGen()
+        let m = d(1)                            // 矿物的gainMult是给对应矿石的
         if (hasUpgrade(copper, 13)) m = m.times(3)
         if (hasUpgrade(copper, 15)) m = m.times(2)
         if (hasUpgrade(copper, 21)) m = m.times(upgradeEffect(copper, 21))
@@ -7384,7 +7925,7 @@ addLayer("copper", {
         return d(1)
     },
 
-    layerShown() { return hasNormalAchievement(24) },          // Returns a bool for if this layer's node should be visible in the tree.
+    layerShown() { return hasNormalAchievement(24) && !layerHidden(this.layer) },          // Returns a bool for if this layer's node should be visible in the tree.
 
     doReset(resettingLayer) {
         if (layers[resettingLayer] == ct) {
@@ -7416,6 +7957,7 @@ addLayer("copper", {
             canAfford() { return player.level.gte(15) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let lv = player.level
                 let eff = ExpantaNum.pow(10, lv.max(14).min(24).sub(14))
                 return eff
@@ -7447,6 +7989,7 @@ addLayer("copper", {
             canAfford() { return player.level.gte(17) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.level.max(0).times(2).pow(0.8).floor()
                 return eff
             },
@@ -7470,6 +8013,7 @@ addLayer("copper", {
             cost() { return new ExpantaNum(50) },
             unlocked() { return hasMilestone(ct, 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.level.max(0).div(3).floor().add(1)
                 return eff
             },
@@ -7490,6 +8034,7 @@ addLayer("copper", {
             cost() { return new ExpantaNum(500) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.level.max(0).div(6).floor().add(1)
                 return eff
             },
@@ -7507,6 +8052,7 @@ addLayer("copper", {
             cost() { return new ExpantaNum(360) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.copper.points.max(0).div(9).floor().add(1)
                 return eff
             },
@@ -7527,6 +8073,7 @@ addLayer("copper", {
             cost() { return new ExpantaNum(5e12) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.level.max(0).div(6).floor().add(1)
                 return eff
             },
@@ -7569,7 +8116,8 @@ addLayer("copper", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -7591,7 +8139,8 @@ addLayer("copper", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -7729,7 +8278,8 @@ addLayer("tin", {
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
-        m = d(1)                            // 矿物的gainMult是给对应矿石的
+        if (hasMilestone(torridite, 3)) return getPointGen()
+        let m = d(1)                            // 矿物的gainMult是给对应矿石的
         if (hasUpgrade(tin, 13)) m = m.times(upgradeEffect(tin, 13))
         if (hasUpgrade(bronze, 12)) m = m.times(upgradeEffect(bronze, 12))
         if (hasCraftingItem(92)) m = m.times(tmp.bronze.bronzePower.effect)
@@ -7740,7 +8290,7 @@ addLayer("tin", {
         return d(1)
     },
 
-    layerShown() { return hasNormalAchievement(34) },          // Returns a bool for if this layer's node should be visible in the tree.
+    layerShown() { return hasNormalAchievement(34) && !layerHidden(this.layer) },          // Returns a bool for if this layer's node should be visible in the tree.
 
     doReset(resettingLayer) {
         return undefined
@@ -7759,6 +8309,7 @@ addLayer("tin", {
             cost() { return new ExpantaNum(7) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.copper.points.max(1).pow(0.75)
                 if (hasCraftingItem(82)) eff = eff.pow(2)
                 return eff
@@ -7778,6 +8329,7 @@ addLayer("tin", {
             cost() { return new ExpantaNum(8) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.level.max(0).div(5).floor().add(1)
                 return eff
             },
@@ -7795,6 +8347,7 @@ addLayer("tin", {
             cost() { return new ExpantaNum(24) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.tin.points.max(1).pow(0.77).floor()
                 return eff
             },
@@ -7833,7 +8386,8 @@ addLayer("tin", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -7855,7 +8409,8 @@ addLayer("tin", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -7984,7 +8539,7 @@ addLayer("bronze", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(37) },
+    layerShown() { return hasNormalAchievement(37) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -8005,6 +8560,7 @@ addLayer("bronze", {
             cost() { return new ExpantaNum(45) },
             unlocked() { return hasNormalAchievement(41) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.bronze.points.max(1).pow(0.55).floor()
                 return eff
             },
@@ -8022,6 +8578,7 @@ addLayer("bronze", {
             cost() { return new ExpantaNum(90) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.bronze.points.max(1).pow(0.45).floor()
                 return eff
             },
@@ -8039,6 +8596,7 @@ addLayer("bronze", {
             cost() { return new ExpantaNum(120) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.bronze.points.max(1).pow(0.55).floor()
                 return eff
             },
@@ -8056,6 +8614,7 @@ addLayer("bronze", {
             cost() { return new ExpantaNum(140) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.bronze.points.max(1).pow(0.45).floor()
                 return eff
             },
@@ -8073,6 +8632,7 @@ addLayer("bronze", {
             cost() { return new ExpantaNum(160) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.bronze.points.max(1).pow(0.3).floor()
                 return eff
             },
@@ -8117,6 +8677,7 @@ addLayer("bronze", {
             cost() { return new ExpantaNum(275) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.level.max(1)
                 return eff
             },
@@ -8418,6 +8979,7 @@ addLayer("bronze", {
 
     bronzePower: {
         gain() {
+            if (hasMilestone(torridite, 4)) return getPointGen()
             let g = d(0)
             if (hasCraftingItem(92)) g = g.add(1),
                 g = g.times(buyableEffect(bronze, 11)),
@@ -8434,6 +8996,7 @@ addLayer("bronze", {
             player.bronze.power = player.bronze.power.add(this.gain().times(diffout)).max(0)
         },
         effect() {
+            if (hasMilestone(torridite, 4)) return getPointGen()
             let eff = d(10).pow(player.bronze.power.max(0).add(1).log10().root(2))
             if (hasCraftingItem(132)) eff = eff.pow(1.5)
             if (hasCraftingItem(142)) eff = eff.pow(challengeEffect(nickel, 11))
@@ -8529,7 +9092,7 @@ addLayer("bronze", {
                     ["display-text", function () { if (inChallenge(nickel, 12)) return `你当前在挑战“时间削弱”中，青铜力量获取速度变为^${f(player.nickel.chal2nerf, 4)}` }],
                     ["display-text", function () { if (inChallenge(nickel, 12)) return buyBuyableRateText() }],
                     ["display-text", function () { return `你有 ${textStyle_h2(f(player.bronze.power), 'ffd7a1')} 青铜力量，加成锡矿石获取 ${textStyle_h2(f(tmp.bronze.bronzePower.effect) + "x", 'ffd7a1')}` }],
-                    ["display-text", function () { return `(${textStyle_h2(tmpres['bronze power mag'] > 0 ? getOoMpsText(bronze, 'power') : f(tmp.bronze.bronzePower.gain), 'ffd7a1')}/sec)` }],
+                    ["display-text", function () { return `(${textStyle_h2(tmpres['bronze power mag'] != 0 ? getOoMpsText(bronze, 'power') : f(tmp.bronze.bronzePower.gain), 'ffd7a1')}/sec)` }],
                     ["display-text", function () {
                         let p = d(1)
                         if (hasCraftingItem(132)) p = p.times(1.5)
@@ -8587,7 +9150,8 @@ addLayer("iron", {
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
-        m = d(1)                            // 矿物的gainMult是给对应矿石的
+        if (hasMilestone(torridite, 5)) return getPointGen()
+        let m = d(1)                            // 矿物的gainMult是给对应矿石的
         if (hasUpgrade(iron, 12)) m = m.times(3)
         if (hasMilestone(iron, 0)) m = m.times(5)
         if (hasUpgrade(iron, 22)) m = m.times(upgradeEffect(iron, 22))
@@ -8603,7 +9167,7 @@ addLayer("iron", {
         return d(1)
     },
 
-    layerShown() { return hasNormalAchievement(46) },          // Returns a bool for if this layer's node should be visible in the tree.
+    layerShown() { return hasNormalAchievement(46) && !layerHidden(this.layer) },          // Returns a bool for if this layer's node should be visible in the tree.
 
     doReset(resettingLayer) {
         return undefined
@@ -8639,6 +9203,7 @@ addLayer("iron", {
             cost() { return new ExpantaNum(15) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = tmp.bronze.bronzePower.effect.max(1).root(2)
                 return eff
             },
@@ -8681,6 +9246,7 @@ addLayer("iron", {
             cost() { return new ExpantaNum(60) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.iron.water.max(2).logBase(2).floor().max(1)
                 return eff
             },
@@ -8698,6 +9264,7 @@ addLayer("iron", {
             cost() { return new ExpantaNum(780) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = d(10).pow(player.iron.lava.max(1).log10().times(20).pow(0.85))
                 return eff
             },
@@ -8719,6 +9286,7 @@ addLayer("iron", {
             canAfford() { return player.level.gte(115) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.crafting_table.items[122].add(1).max(1)
                 return eff
             },
@@ -8776,7 +9344,8 @@ addLayer("iron", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -8798,7 +9367,8 @@ addLayer("iron", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -8851,6 +9421,7 @@ addLayer("iron", {
     },
 
     fluidPerBucket() {
+        if (hasMilestone(torridite, 5)) return getPointGen()
         let f = d(1000)
         if (hasUpgrade(iron, 24)) f = f.times(upgradeEffect(iron, 24))
         return f
@@ -9036,7 +9607,8 @@ addLayer("nickel", {
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
-        m = d(1)                            // 矿物的gainMult是给对应矿石的
+        if (hasMilestone(torridite, 6)) return getPointGen()
+        let m = d(1)                            // 矿物的gainMult是给对应矿石的
         if (hasUpgrade(nickel, 11)) m = m.times(3)
         if (hasUpgrade(nickel, 13)) m = m.times(upgradeEffect(nickel, 13))
         if (hasUpgrade(nickel, 22)) m = m.times(challengeEffect(nickel, 12))
@@ -9050,7 +9622,7 @@ addLayer("nickel", {
         return d(1)
     },
 
-    layerShown() { return hasNormalAchievement(46) },          // Returns a bool for if this layer's node should be visible in the tree.
+    layerShown() { return hasNormalAchievement(46) && !layerHidden(this.layer) },          // Returns a bool for if this layer's node should be visible in the tree.
 
     doReset(resettingLayer) {
         return undefined
@@ -9084,6 +9656,7 @@ addLayer("nickel", {
             cost() { return new ExpantaNum(25) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.nickel.ore.max(0).add(2).logBase(2).pow(2).floor().max(1)
                 return eff
             },
@@ -9104,6 +9677,7 @@ addLayer("nickel", {
             cost() { return new ExpantaNum(114514) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.iron.ore.max(0).add(2).min('ee308').ssrt().floor()
                 return eff
             },
@@ -9169,6 +9743,7 @@ addLayer("nickel", {
             canAfford() { return player.level.gte(210) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.nickel.points.max(0).add(1).root(3)
                 if (hasUpgrade(lead, 11)) eff = eff.pow(2)
                 if (hasCraftingItem(201)) eff = eff.pow(1.5)
@@ -9218,7 +9793,8 @@ addLayer("nickel", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -9240,7 +9816,8 @@ addLayer("nickel", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -9493,7 +10070,8 @@ addLayer("aluminum", {
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
-        m = d(1)                            // 矿物的gainMult是给对应矿石的
+        if (hasMilestone(torridite, 7)) return getPointGen()
+        let m = d(1)                            // 矿物的gainMult是给对应矿石的
         if (hasUpgrade(aluminum, 11)) m = m.times(upgradeEffect(aluminum, 11))
         if (hasCraftingItem(171)) m = m.times(25)
         if (hasCraftingItem(181)) m = m.times(25)
@@ -9505,7 +10083,7 @@ addLayer("aluminum", {
         return d(1)
     },
 
-    layerShown() { return hasNormalAchievement(64) || hasUpgrade(nickel, 25) },          // Returns a bool for if this layer's node should be visible in the tree.
+    layerShown() { return (hasNormalAchievement(64) || hasUpgrade(nickel, 25)) && !layerHidden(this.layer) },          // Returns a bool for if this layer's node should be visible in the tree.
 
     doReset(resettingLayer) {
         return undefined
@@ -9521,6 +10099,7 @@ addLayer("aluminum", {
             cost() { return new ExpantaNum(5) },
             unlocked() { return tmp.aluminum.layerShown },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.bronze.power.max(1e100).logBase(1e100).sub(9.8).max(1).pow(2).floor()
                 return eff
             },
@@ -9592,6 +10171,7 @@ addLayer("aluminum", {
             cost() { return new ExpantaNum(1050) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.aluminum.points.max(1).pow(0.8)
                 if (hasCraftingItem(201)) eff = eff.pow(1.35)
                 return eff
@@ -9620,6 +10200,7 @@ addLayer("aluminum", {
             cost() { return new ExpantaNum(1650) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.iron.points.max(0).add(10).log10().root(1.33)
                 return eff
             },
@@ -9659,7 +10240,8 @@ addLayer("aluminum", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -9681,7 +10263,8 @@ addLayer("aluminum", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -9808,7 +10391,8 @@ addLayer("lead", {
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
-        m = d(1)                            // 矿物的gainMult是给对应矿石的
+        if (hasMilestone(torridite, 7)) return getPointGen()
+        let m = d(1)                            // 矿物的gainMult是给对应矿石的
         if (hasUpgrade(lead, 12)) m = m.times(4)
         if (hasUpgrade(lead, 13)) m = m.times(upgradeEffect(lead, 13))
         if (hasUpgrade(lead, 14)) m = m.times(upgradeEffect(lead, 14))
@@ -9822,7 +10406,7 @@ addLayer("lead", {
         return d(1)
     },
 
-    layerShown() { return hasNormalAchievement(64) || hasUpgrade(nickel, 25) },          // Returns a bool for if this layer's node should be visible in the tree.
+    layerShown() { return (hasNormalAchievement(64) || hasUpgrade(nickel, 25)) && !layerHidden(this.layer) },          // Returns a bool for if this layer's node should be visible in the tree.
 
     doReset(resettingLayer) {
         return undefined
@@ -9859,6 +10443,7 @@ addLayer("lead", {
             cost() { return new ExpantaNum(25) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.lead.ore.max(0).add(1).root(7)
                 return eff
             },
@@ -9880,6 +10465,7 @@ addLayer("lead", {
             cost() { return new ExpantaNum(40) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = d(3)
                 if (hasUpgrade(lead, 22)) eff = eff.pow(upgradeEffect(lead, 22))
                 return eff
@@ -9914,6 +10500,7 @@ addLayer("lead", {
             cost() { return new ExpantaNum(3200000) },
             unlocked() { return hasCraftingItem(192) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.lead.points.max(1).pow(1.15)
                 return eff
             },
@@ -9935,6 +10522,7 @@ addLayer("lead", {
             cost() { return new ExpantaNum(125000000) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.points.max(1e10).log10().log10()
                 if (hasUpgrade(electrum, 13)) eff = eff.pow(3.5)
                 return eff
@@ -10006,7 +10594,8 @@ addLayer("lead", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -10028,7 +10617,8 @@ addLayer("lead", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -10156,7 +10746,7 @@ addLayer("constantan", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(75) },
+    layerShown() { return hasNormalAchievement(75) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -10183,6 +10773,7 @@ addLayer("constantan", {
             cost() { return new ExpantaNum(160) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.constantan.points.max(0).add(1).pow(1.08)
                 return eff
             },
@@ -10224,6 +10815,7 @@ addLayer("constantan", {
             cost() { return new ExpantaNum(1234) },
             unlocked() { return hasMilestone(constantan, 0) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.constantan.points.max(0).add(1).pow(0.66)
                 if (hasUpgrade(constantan, 32)) eff = eff.pow(2)
                 return eff
@@ -10248,6 +10840,7 @@ addLayer("constantan", {
             cost() { return new ExpantaNum(10000000) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = tmp.constantan.essence.effect.max(1).root(2.2025)
                 return eff
             },
@@ -10269,6 +10862,7 @@ addLayer("constantan", {
             cost() { return new ExpantaNum(1e9) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.bronze.power.max(10).log10()
                 return eff
             },
@@ -10290,6 +10884,7 @@ addLayer("constantan", {
             cost() { return new ExpantaNum(1e28) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.constantan.essence.max(10).logBase(10).logBase(10).root(1.6).div(3.2).add(1)
                 return eff
             },
@@ -10321,6 +10916,7 @@ addLayer("constantan", {
             cost() { return new ExpantaNum(5e58) },
             unlocked() { return hasUpgrade(constantan, 25) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = d(10).pow(getBuyableAmount(constantan, 12).max(0))
                 if (hasUpgrade(constantan, 33)) eff = eff.pow(3)
                 return eff
@@ -10384,8 +10980,9 @@ addLayer("constantan", {
             cost() { return new ExpantaNum('5e2100') },
             unlocked() { return hasUpgrade(constantan, 35) },
             style() {
+                let w = options.biggerUpgs ? '750px' : '600px'
                 return {
-                    'width': '750px',
+                    'width': w,
                     'border-radius': '3.75px',
                 }
             },
@@ -10587,6 +11184,7 @@ addLayer("constantan", {
 
     essence: {
         gain() {
+            if (hasMilestone(torridite, 9)) return getPointGen()
             let g = d(0)
             if (hasCraftingItem(202)) g = g.add(1),
                 g = g.times(buyableEffect(constantan, 11))
@@ -10598,6 +11196,7 @@ addLayer("constantan", {
             return g
         },
         effect() {
+            if (hasMilestone(torridite, 9)) return getPointGen()
             let eff = d(10).pow(player.constantan.essence.max(0).add(1).log10().times(3).pow(0.5))
             if (hasUpgrade(zinc, 25)) eff = eff.pow(upgradeEffect(zinc, 25))
             return eff
@@ -10715,7 +11314,7 @@ addLayer("invar", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(75) },
+    layerShown() { return hasNormalAchievement(75) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -10790,6 +11389,7 @@ addLayer("invar", {
             cost() { return new ExpantaNum(1e16) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.invar.points.max(0).add(1).root(1.4)
                 return eff
             },
@@ -10820,6 +11420,7 @@ addLayer("invar", {
             cost() { return new ExpantaNum(1e38) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.invar.dimensions_inc[0].max(1).log10().pow(2.5).add(1)
                 return eff
             },
@@ -10861,6 +11462,7 @@ addLayer("invar", {
             cost() { return new ExpantaNum(1e81) },
             unlocked() { return hasUpgrade(invar, 31) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = d(10).pow(player.invar.energy.max(1).log10().pow(0.75).div(5))
                 return eff
             },
@@ -11605,6 +12207,7 @@ addLayer("invar", {
 
     energy: {
         gain() {
+            if (hasMilestone(torridite, 10)) return getPointGen()
             let g = d(0)
             if (hasNormalAchievement(85))
                 g = g.add(player.invar.dimensions_inc[0]).times(tmp.invar.buyables[11].mult).max(0)
@@ -11624,42 +12227,49 @@ addLayer("invar", {
 
     dimGain: {
         d1() {
+            if (hasMilestone(torridite, 10)) return getPointGen()
             let g = d(0)
             if (hasNormalAchievement(85))
                 g = player.invar.dimensions_inc[1].times(tmp.invar.buyables[12].mult)
             return g
         },
         d2() {
+            if (hasMilestone(torridite, 10)) return getPointGen()
             let g = d(0)
             if (hasNormalAchievement(85))
                 g = player.invar.dimensions_inc[2].times(tmp.invar.buyables[21].mult)
             return g
         },
         d3() {
+            if (hasMilestone(torridite, 10)) return getPointGen()
             let g = d(0)
             if (hasNormalAchievement(85))
                 g = player.invar.dimensions_inc[3].times(tmp.invar.buyables[22].mult)
             return g
         },
         d4() {
+            if (hasMilestone(torridite, 10)) return getPointGen()
             let g = d(0)
             if (player.invar.buyables[51].gte(1))
                 g = player.invar.dimensions_inc[4].times(tmp.invar.buyables[31].mult)
             return g
         },
         d5() {
+            if (hasMilestone(torridite, 10)) return getPointGen()
             let g = d(0)
             if (player.invar.buyables[51].gte(2))
                 g = player.invar.dimensions_inc[5].times(tmp.invar.buyables[32].mult)
             return g
         },
         d6() {
+            if (hasMilestone(torridite, 10)) return getPointGen()
             let g = d(0)
             if (player.invar.buyables[51].gte(3))
                 g = player.invar.dimensions_inc[6].times(tmp.invar.buyables[41].mult)
             return g
         },
         d7() {
+            if (hasMilestone(torridite, 10)) return getPointGen()
             let g = d(0)
             if (player.invar.buyables[51].gte(4))
                 g = player.invar.dimensions_inc[7].times(tmp.invar.buyables[42].mult)
@@ -11716,7 +12326,7 @@ addLayer("invar", {
                         <br>加成铁矿石获取 ${textStyle_h2(f(tmp.invar.energy.effect1) + "x", '95a7a1')}
                         <br>提升康铜精华倍增等级上限 ${textStyle_h2("+" + fw(tmp.invar.energy.effect2), '95a7a1')}`
                     }],
-                    ["display-text", function () { return `(${textStyle_h2(tmpres['invar energy mag'] > 0 ? getOoMpsText(invar, 'energy') : f(tmp.invar.energy.gain), '95a7a1')}/sec)` }],
+                    ["display-text", function () { return `(${textStyle_h2(tmpres['invar energy mag'] != 0 ? getOoMpsText(invar, 'energy') : f(tmp.invar.energy.gain), '95a7a1')}/sec)` }],
                     "blank",
                     ["display-text", function () { return `购买单个维度的乘数：${textStyle_h2(f(tmp.invar.multPer1DimBuy) + "x", '95a7a1')}` }],
                     "blank",
@@ -11778,7 +12388,7 @@ addLayer("alumbrass", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(92) },
+    layerShown() { return hasNormalAchievement(92) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -11805,6 +12415,7 @@ addLayer("alumbrass", {
             cost() { return new ExpantaNum(1000) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.alumbrass.points.max(0).add(1).pow(3.5)
                 if (hasUpgrade(zinc, 12)) eff = player.alumbrass.points.min(tmp.alloy_s.clickables[14].mult.times(300)).max(0).add(1).pow(4.2)
                 return eff
@@ -11838,6 +12449,7 @@ addLayer("alumbrass", {
             cost() { return new ExpantaNum('6.888e6888') },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = getBuyableAmount(invar, 52)
                 return eff
             },
@@ -11863,7 +12475,8 @@ addLayer("alumbrass", {
             cost() { return new ExpantaNum(150000) },
             unlocked() { return hasUpgrade(alumbrass, 15) },
             style() {
-                return { 'width': '187.5px' }
+                let w = options.biggerUpgs ? '187.5px' : '150px'
+                return { 'width': w }
             },
         },
         22: {
@@ -11873,7 +12486,8 @@ addLayer("alumbrass", {
             cost() { return new ExpantaNum(2000000) },
             unlocked() { return hasUpgrade(alumbrass, 21) },
             style() {
-                return { 'width': '187.5px' }
+                let w = options.biggerUpgs ? '187.5px' : '150px'
+                return { 'width': w }
             },
         },
         23: {
@@ -11883,7 +12497,8 @@ addLayer("alumbrass", {
             cost() { return new ExpantaNum(4000000) },
             unlocked() { return hasUpgrade(alumbrass, 22) },
             style() {
-                return { 'width': '187.5px' }
+                let w = options.biggerUpgs ? '187.5px' : '150px'
+                return { 'width': w }
             },
         },
         24: {
@@ -11893,6 +12508,7 @@ addLayer("alumbrass", {
             cost() { return new ExpantaNum(50000000) },
             unlocked() { return hasUpgrade(alumbrass, 23) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.alumbrass.points.max(1).log10().root(2).div(33.33).min(1060)
                 return eff
             },
@@ -11900,7 +12516,8 @@ addLayer("alumbrass", {
                 return `^${format(upgradeEffect(this.layer, this.id), 4)}`
             },
             style() {
-                return { 'width': '187.5px' }
+                let w = options.biggerUpgs ? '187.5px' : '150px'
+                return { 'width': w }
             },
             tooltip() {
                 let t = `公式：min(lg(铝黄铜锭)<sup>0.5</sup>/33.33, 0.4)`
@@ -12173,6 +12790,7 @@ addLayer("zinc", {
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
+        if (hasMilestone(torridite, 12)) return getPointGen()
         let m = d(1)                            // 矿物的gainMult是给对应矿石的
         if (hasUpgrade(zinc, 11)) m = m.times(2)
         if (hasUpgrade(zinc, 21)) m = m.times(upgradeEffect(zinc, 21))
@@ -12188,13 +12806,14 @@ addLayer("zinc", {
         return d(1)
     },
 
-    layerShown() { return hasNormalAchievement(95) },          // Returns a bool for if this layer's node should be visible in the tree.
+    layerShown() { return hasNormalAchievement(95) && !layerHidden(this.layer) },          // Returns a bool for if this layer's node should be visible in the tree.
 
     doReset(resettingLayer) {
         return undefined
     },
 
     chainChance() {
+        if (hasMilestone(torridite, 12)) return ExpantaNumOne
         let c = d(0.05)
         if (hasUpgrade(zinc, 14)) c = c.add(upgradeEffect(zinc, 14))
         if (hasUpgrade(brass, 11)) c = c.add(0.2)
@@ -12202,6 +12821,7 @@ addLayer("zinc", {
     },
 
     chainMult() {
+        if (hasMilestone(torridite, 12)) return getPointGen()
         let m = d(1)
         if (hasUpgrade(zinc, 13)) m = m.times(20)
         if (hasUpgrade(brass, 13)) m = m.times(upgradeEffect(brass, 13))
@@ -12258,6 +12878,7 @@ addLayer("zinc", {
             cost() { return new ExpantaNum(24) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumZero
                 let eff = player.zinc.ore.max(1).log10().root(2).div(20).min(0.75)
                 return eff
             },
@@ -12286,6 +12907,7 @@ addLayer("zinc", {
             cost() { return new ExpantaNum(36) },
             unlocked() { return hasUpgrade(zinc, 15) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.alumbrass.points.max(1).root(18)
                 return eff
             },
@@ -12304,6 +12926,7 @@ addLayer("zinc", {
             cost() { return new ExpantaNum(48) },
             unlocked() { return hasUpgrade(zinc, 21) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.zinc.points.max(1).pow(1.12)
                 return eff
             },
@@ -12329,6 +12952,7 @@ addLayer("zinc", {
             cost() { return new ExpantaNum(145) },
             unlocked() { return hasUpgrade(zinc, 23) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.bronze.power.max(1e10).log10().log10().div(2).max(1)
                 return eff
             },
@@ -12347,6 +12971,7 @@ addLayer("zinc", {
             cost() { return new ExpantaNum(288) },
             unlocked() { return hasUpgrade(zinc, 24) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.constantan.essence.max(1e10).log10().log10().div(2).max(1)
                 return eff
             },
@@ -12393,7 +13018,8 @@ addLayer("zinc", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -12415,7 +13041,8 @@ addLayer("zinc", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -12591,7 +13218,7 @@ addLayer("brass", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(97) },
+    layerShown() { return hasNormalAchievement(97) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -12618,6 +13245,7 @@ addLayer("brass", {
             cost() { return new ExpantaNum(50) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = d(10).pow(player.invar.points.max(1).root(60).ln().add(1).pow(0.9))
                 return eff
             },
@@ -12636,6 +13264,7 @@ addLayer("brass", {
             cost() { return new ExpantaNum(150) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.alumbrass.points.max(1).root(18)
                 return eff
             },
@@ -12654,6 +13283,7 @@ addLayer("brass", {
             cost() { return new ExpantaNum(450) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.brass.max_su.max(0).add(1).root(1.2).sub(5).max(1).min(20)
                 return eff
             },
@@ -12672,6 +13302,7 @@ addLayer("brass", {
             cost() { return new ExpantaNum(750) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.level.max(11200).sub(11199).pow(0.25)
                 return eff
             },
@@ -12690,6 +13321,7 @@ addLayer("brass", {
             cost() { return new ExpantaNum(1250) },
             unlocked() { return hasUpgrade(brass, 15) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.brass.points.max(1).min(tmp.alloy_s.clickables[15].mult.times(400)).logBase(8).max(1)
                 return eff
             },
@@ -12764,6 +13396,7 @@ addLayer("brass", {
                 if (isUpgradeCovered(this.layer, this.id)) su_upg_text_current = su_upg_text.main2()
             },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.brass.max_su.max(1).pow(3.5)
                 return eff
             },
@@ -13034,10 +13667,11 @@ addLayer("steel", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasMilestone(blast_furnace, 0) },
+    layerShown() { return hasMilestone(blast_furnace, 0) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
-        m = d(1)                            // 合金的gainMult是给对应合金倍率的？
+        if (hasMilestone(torridite, 14)) return getPointGen()
+        let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
         if (hasUpgrade(steel, 13)) m = m.times(3)
         if (hasUpgrade(steel, 14)) m = m.times(upgradeEffect(steel, 14))
         if (hasMilestone(steel, 0)) m = m.times(3)
@@ -13391,6 +14025,7 @@ addLayer("silver", {
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
+        if (hasMilestone(torridite, 15)) return getPointGen()
         let m = d(1)                            // 矿物的gainMult是给对应矿石的
         if (hasUpgrade(silver, 11)) m = m.times(3)
         if (hasUpgrade(silver, 12)) m = m.times(upgradeEffect(silver, 12))
@@ -13407,7 +14042,7 @@ addLayer("silver", {
         return d(1)
     },
 
-    layerShown() { return hasNormalAchievement(113) },          // Returns a bool for if this layer's node should be visible in the tree.
+    layerShown() { return hasNormalAchievement(113) && !layerHidden(this.layer) },          // Returns a bool for if this layer's node should be visible in the tree.
 
     doReset(resettingLayer) {
         return undefined
@@ -13432,6 +14067,7 @@ addLayer("silver", {
             cost() { return new ExpantaNum(20) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.steel.points.div(5e9).pow(0.35).max(1)
                 return eff
             },
@@ -13452,6 +14088,7 @@ addLayer("silver", {
             cost() { return new ExpantaNum(35) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.silver.ore.max(1).pow(0.2)
                 return eff
             },
@@ -13489,6 +14126,7 @@ addLayer("silver", {
             cost() { return new ExpantaNum(25) },
             unlocked() { return hasUpgrade(this.layer, 15) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.silver.points.max(1).pow(0.3)
                 return eff
             },
@@ -13524,6 +14162,7 @@ addLayer("silver", {
             cost() { return new ExpantaNum(49) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = tmp.silver.chainMult
                 return eff
             },
@@ -13552,6 +14191,7 @@ addLayer("silver", {
             cost() { return new ExpantaNum(244) },
             unlocked() { return hasUpgrade(this.layer, 25) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let v = Object.values(player.silver.grid).filter(v => v == 1).length
                 v = d(v)
                 if (hasUpgrade(silver, 33)) v = v.pow(2)
@@ -13626,7 +14266,8 @@ addLayer("silver", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -13648,7 +14289,8 @@ addLayer("silver", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -13705,12 +14347,14 @@ addLayer("silver", {
     },
 
     chainChance() {
+        if (hasMilestone(torridite, 15)) return ExpantaNumOne
         let c = d(0.05)
         if (hasCraftingItem(312)) c = c.add(tmp.silver.veinEff.toCC)
         return c
     },
 
     chainMult() {
+        if (hasMilestone(torridite, 15)) return getPointGen()
         let m = d(1)
         if (hasUpgrade(silver, 14)) m = m.times(20)
         if (hasCraftingItem(312)) m = m.times(tmp.silver.veinEff.toCM)
@@ -13742,6 +14386,7 @@ addLayer("silver", {
     },
 
     veinMult() {
+        if (hasMilestone(torridite, 15)) return getPointGen()
         let m = d(1)
         if (hasUpgrade(silver, 25)) m = m.times(4)
         if (hasUpgrade(silver, 31)) m = m.times(upgradeEffect(silver, 31))
@@ -14025,6 +14670,7 @@ addLayer("gold", {
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
+        if (hasMilestone(torridite, 16)) return getPointGen()
         let m = d(1)                            // 矿物的gainMult是给对应矿石的
         if (hasUpgrade(gold, 11)) m = m.times(3)
         if (hasUpgrade(gold, 12)) m = m.times(upgradeEffect(gold, 12))
@@ -14040,7 +14686,7 @@ addLayer("gold", {
         return d(1)
     },
 
-    layerShown() { return hasNormalAchievement(113) },          // Returns a bool for if this layer's node should be visible in the tree.
+    layerShown() { return hasNormalAchievement(113) && !layerHidden(this.layer) },          // Returns a bool for if this layer's node should be visible in the tree.
 
     doReset(resettingLayer) {
         return undefined
@@ -14070,6 +14716,7 @@ addLayer("gold", {
             cost() { return new ExpantaNum(24) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.silver.points.div(1e10).pow(0.3).max(1)
                 if (eff.gte('1e500')) eff = d(10).pow(eff.log10().pow(0.8)).times('5.3704343164e355')
                 return eff
@@ -14107,6 +14754,7 @@ addLayer("gold", {
             cost() { return new ExpantaNum(25) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let sc = d(1e12)
                 let eff = player.gold.points.max(1).add(1).pow(2.3).div(sc).max(1).pow(0.2).times(player.gold.points.max(1).add(1).pow(2.3).min(sc))
                 return eff
@@ -14154,6 +14802,7 @@ addLayer("gold", {
             cost() { return new ExpantaNum(150000) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = tmp.gold.timeEff.pow(0.7)
                 return eff
             },
@@ -14212,6 +14861,7 @@ addLayer("gold", {
             cost() { return new ExpantaNum(1e30) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = tmp.gold.chainMult.pow(0.8)
                 return eff
             },
@@ -14250,6 +14900,7 @@ addLayer("gold", {
             cost() { return new ExpantaNum(1e40) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.level.max(10).log10().sub(4).max(1)
                 return eff
             },
@@ -14564,7 +15215,8 @@ addLayer("gold", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -14586,7 +15238,8 @@ addLayer("gold", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -14773,7 +15426,7 @@ addLayer("gold", {
             style() {
                 return {
                     'border-radius': '10px',
-                    'height': '360px'
+                    'height': '390px'
                 }
             },
         },
@@ -14805,12 +15458,14 @@ addLayer("gold", {
     },
 
     chainChance() {
+        if (hasMilestone(torridite, 16)) return ExpantaNumOne
         let c = d(0.05)
         if (hasUpgrade(gold, 33)) c = c.add(tmp.gold.goldUpg13eff.toCC)
         return c
     },
 
     chainMult() {
+        if (hasMilestone(torridite, 16)) return getPointGen()
         let m = d(1)
         if (hasUpgrade(gold, 13)) m = d(10)
         if (hasUpgrade(gold, 33)) m = m.times(tmp.gold.goldUpg13eff.toCM)
@@ -14843,6 +15498,7 @@ addLayer("gold", {
     },
 
     timewarp() {
+        if (hasMilestone(torridite, 16)) return getPointGen()
         let m = d(1)
         if (hasUpgrade(gold, 22)) m = m.times(buyableEffect(gold, 11))
         if (hasUpgrade(gold, 23)) m = m.times(3)
@@ -15116,7 +15772,7 @@ addLayer("electrum", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(123) },
+    layerShown() { return hasNormalAchievement(123) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -15170,12 +15826,14 @@ addLayer("electrum", {
             cost() { return new ExpantaNum('1e61100') },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effBase() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let b = d(10)
                 if (hasUpgrade(redstone, 14)) b = b.times(upgradeEffect(redstone, 14))
                 if (hasUpgrade(electrum, 33)) b = b.times(upgradeEffect(electrum, 33))
                 return b
             },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = this.effBase().pow(player.tiers[0])
                 return eff
             },
@@ -15215,6 +15873,7 @@ addLayer("electrum", {
             cost() { return new ExpantaNum('1e1685') },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.electrum.points.max(0).add(1).log10().pow(d(2).logBase(20)).max(1)
                 return eff
             },
@@ -15237,6 +15896,7 @@ addLayer("electrum", {
             cost() { return new ExpantaNum('1e2077') },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.electrum.points.max(0).add(10).log10().pow(2)
                 return eff
             },
@@ -15281,6 +15941,7 @@ addLayer("electrum", {
             cost() { return new ExpantaNum('1e6630') },
             unlocked() { return hasCraftingItem(361) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let amt = tmp.electrum.row3upgsbought
                 let eff = d(1e15).pow(amt)
                 return eff
@@ -15304,6 +15965,7 @@ addLayer("electrum", {
             cost() { return new ExpantaNum(1e267) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let amt = tmp.electrum.row3upgsbought
                 let eff = d(2).times(amt).floor()
                 return eff
@@ -15327,6 +15989,7 @@ addLayer("electrum", {
             cost() { return new ExpantaNum(1e267) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let amt = tmp.electrum.row3upgsbought
                 let eff = d(2).pow(amt.pow(1.5))
                 return eff
@@ -15361,6 +16024,7 @@ addLayer("electrum", {
             cost() { return new ExpantaNum('1e379') },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = d(0.025).times(player.redstone.destabilized).min(0.45)
                 return eff
             },
@@ -15374,6 +16038,7 @@ addLayer("electrum", {
     },
 
     row3upgsbought() {
+        if (hasMilestone(torridite, 17)) return getPointGen()
         let upgs = player.electrum.upgrades
         let amt = upgs.filter(id => id >= 31).length
         amt = d(amt)
@@ -15474,9 +16139,10 @@ addLayer("redstone", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(126) },
+    layerShown() { return hasNormalAchievement(126) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
+        if (hasMilestone(torridite, 18)) return getPointGen()
         let m = d(1)                            // 红石矿石倍率
         if (hasUpgrade(redstone, 12)) m = m.times(upgradeEffect(redstone, 12))
         if (hasUpgrade(redstone, 13)) m = m.times(tmp.redstone.signalEff)
@@ -15525,6 +16191,7 @@ addLayer("redstone", {
             cost() { return new ExpantaNum(55) },
             unlocked() { return tmp.redstone.layerShown },
             extraPower() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let exp = d(1e10)
                 if (hasUpgrade(redstone, 31)) exp = exp.times(upgradeEffect(redstone, 31))
                 if (hasUpgrade(redstone, 32)) exp = exp.times(upgradeEffect(redstone, 32))
@@ -15560,6 +16227,7 @@ addLayer("redstone", {
             cost() { return new ExpantaNum(145) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.level.add(1).log10().add(1)
                 return eff
             },
@@ -15583,6 +16251,7 @@ addLayer("redstone", {
             cost() { return new ExpantaNum(512000) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let exp = d(1.11)
                 if (hasUpgrade(redstone, 34)) exp = exp.times(2)
                 let eff = player.redstone.points.add(1).log10().add(1).pow(exp)
@@ -15640,11 +16309,13 @@ addLayer("redstone", {
             cost() { return new ExpantaNum(1.21e21) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             base() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let b = d(1)
                 if (hasUpgrade(platinum, 25)) b = b.times(3)
                 return b
             },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.tiers[0].times(this.base()).max(0)
                 return eff
             },
@@ -15678,6 +16349,7 @@ addLayer("redstone", {
             description: '第三行的红石升级购买数量以指数加成第一个红石升级的效果',
             cost() { return new ExpantaNum(1.44e62) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let upgs = player.redstone.upgrades
                 let eff = 1
                 eff += upgs.filter(id => id >= 31 && id < 40).length
@@ -15703,6 +16375,7 @@ addLayer("redstone", {
             description: '需求：等级7,600,000,000<br>时钟储存的时间以指数加成第一个红石升级的效果',
             cost() { return new ExpantaNum(1.68e62) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.gold.stored_time.add(1).div('1e1400').log10().pow(0.34).max(1)
                 if (hasUpgrade(platinum, 24)) eff = eff.pow(upgradeEffect(platinum, 24))
                 return eff
@@ -15723,6 +16396,7 @@ addLayer("redstone", {
             description: '最高的时运附魔等级以指数加成第一个红石升级的效果',
             cost() { return new ExpantaNum(1e72) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = tmp.redstone.highestFortuneLv.div(10).add(1).pow(1.35)
                 if (hasUpgrade(platinum, 24)) eff = eff.pow(upgradeEffect(platinum, 24))
                 return eff
@@ -15769,6 +16443,7 @@ addLayer("redstone", {
             cost() { return new ExpantaNum(1e13) },
             unlocked() { return hasUpgrade(this.layer, 35) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.redstone.ore.add(1).logBase(1000).add(1).pow(2.4)
                 return eff
             },
@@ -15802,6 +16477,7 @@ addLayer("redstone", {
             cost() { return new ExpantaNum(3.1313e31) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumZero
                 let eff = getBuyableAmount(redstone, 11).pow(2).times(2)
                 return eff
             },
@@ -15824,6 +16500,7 @@ addLayer("redstone", {
             cost() { return new ExpantaNum(1.25e32) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumZero
                 let eff = getBuyableAmount(redstone, 22).pow(0.5)
                 return eff
             },
@@ -15855,6 +16532,7 @@ addLayer("redstone", {
             cost() { return new ExpantaNum(8) },
             unlocked() { return hasUpgrade(this.layer, 45) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = tmp.redstone.fortuneEff
                 return eff
             },
@@ -15901,10 +16579,12 @@ addLayer("redstone", {
             cost() { return new ExpantaNum(2.5e204) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effBase() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let b = d(10)
                 return b
             },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let lv = tmp.redstone.highestFortuneLv.max(20)
                 let eff = this.effBase().pow(lv.sub(20))
                 return eff
@@ -16133,7 +16813,8 @@ addLayer("redstone", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -16155,7 +16836,8 @@ addLayer("redstone", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -16400,6 +17082,7 @@ addLayer("redstone", {
     },
 
     highestFortuneLv() {
+        if (hasMilestone(torridite, 18)) return getPointGen()
         if (hasMilestone(emerald, 0)) return tmp.redstone.fortuneExtraMaxLevel
         let lv = d(0)
         let grid = tmp.redstone.grid
@@ -16420,6 +17103,7 @@ addLayer("redstone", {
     },
 
     fortuneExtraCardChance() {
+        if (hasMilestone(torridite, 18)) return d(0.5)
         let c = d(0.05)
         if (hasUpgrade(electrum, 35)) c = c.add(upgradeEffect(electrum, 35))
         c = c.min(0.5)
@@ -16484,6 +17168,7 @@ addLayer("redstone", {
     },
 
     maxSignal() {
+        if (hasMilestone(torridite, 18)) return getPointGen()
         let s = d(15)
         if (hasUpgrade(redstone, 15)) s = s.times(5)
         if (hasUpgrade(redstone, 22)) s = s.times(upgradeEffect(redstone, 22))
@@ -16509,6 +17194,7 @@ addLayer("redstone", {
     },
 
     clathrate_in_ore() {
+        if (hasMilestone(torridite, 18)) return getPointGen()
         let g = d(4)
         if (hasUpgrade(redstone, 51)) g = g.times(upgradeEffect(redstone, 51))
         if (hasUpgrade(redstone, 55)) g = g.times(upgradeEffect(redstone, 55))
@@ -16768,7 +17454,7 @@ addLayer("red_ele", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(134) },
+    layerShown() { return hasNormalAchievement(134) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -16789,6 +17475,7 @@ addLayer("red_ele", {
             cost() { return new ExpantaNum(8) },
             unlocked() { return tmp.red_ele.layerShown },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.redstone.molten.add(1).log10().pow(2).add(1)
                 return eff
             },
@@ -16808,6 +17495,7 @@ addLayer("red_ele", {
             cost() { return new ExpantaNum(60) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.red_ele.points.add(1).log10().pow(3).add(1)
                 if (eff.gte(100000)) eff = eff.div(100000).pow(0.25).times(100000)
                 return eff
@@ -16854,11 +17542,13 @@ addLayer("red_ele", {
             cost() { return new ExpantaNum('1e545') },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             base() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let b = d(5)
                 if (hasCraftingItem(412)) b = b.add(tmp.wood.logEffects.darkOak)
                 return b
             },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = this.base().pow(player.tiers[0].max(4).sub(4))
                 return eff
             },
@@ -17063,9 +17753,10 @@ addLayer("platinum", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(146) },
+    layerShown() { return hasNormalAchievement(146) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
+        if (hasMilestone(torridite, 21)) return getPointGen()
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
         if (hasUpgrade(platinum, 11)) m = m.times(upgradeEffect(platinum, 11))
         if (hasUpgrade(obsidian, 11)) m = m.times(2000)
@@ -17092,6 +17783,7 @@ addLayer("platinum", {
             cost() { return new ExpantaNum(15) },
             unlocked() { return tmp.platinum.layerShown },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = d(2).pow(tmp.redstone.highestFortuneLv.sub(60).max(0))
                 return eff
             },
@@ -17121,6 +17813,7 @@ addLayer("platinum", {
             cost() { return new ExpantaNum(45000) },
             unlocked() { return hasUpgrade(platinum, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = d(10).pow(player.redstone.destabilized.max(0))
                 return eff
             },
@@ -17141,6 +17834,7 @@ addLayer("platinum", {
             cost() { return new ExpantaNum(200000000) },
             unlocked() { return hasUpgrade(platinum, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumZero
                 let eff = d(0.05).times(player.redstone.destabilized.max(0)).min(0.95)
                 return eff
             },
@@ -17182,6 +17876,7 @@ addLayer("platinum", {
             cost() { return new ExpantaNum(2e18) },
             unlocked() { return hasUpgrade(platinum, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.platinum.ore.max(1).pow(0.1)
                 return eff
             },
@@ -17199,6 +17894,7 @@ addLayer("platinum", {
             cost() { return new ExpantaNum(50000) },
             unlocked() { return hasUpgrade(platinum, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.platinum.points.add(10).log10().root(2).div(10).add(1).min(2)
                 return eff
             },
@@ -17238,7 +17934,8 @@ addLayer("platinum", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -17260,7 +17957,8 @@ addLayer("platinum", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -17293,7 +17991,7 @@ addLayer("platinum", {
 
     update(diff) {
         if (player.platinum.finding) player.platinum.findingProgress = player.platinum.findingProgress.add(player.copper.speed.times(diff))
-        if (player.platinum.findingProgress.gte(rarity(gold))) player.platinum.findingProgress = d(0),
+        if (player.platinum.findingProgress.gte(rarity(platinum))) player.platinum.findingProgress = d(0),
             player.platinum.finding = false,
             player.platinum.found = true
 
@@ -17307,12 +18005,14 @@ addLayer("platinum", {
     },
 
     chainChance() {
+        if (hasMilestone(torridite, 18)) return ExpantaNumOne
         let c = d(0.05)
         if (hasUpgrade(platinum, 14)) c = c.add(upgradeEffect(platinum, 14))
         return c
     },
 
     chainMult() {
+        if (hasMilestone(torridite, 18)) return getPointGen()
         let m = d(1)
         if (hasUpgrade(platinum, 12)) m = d(10)
         if (hasUpgrade(platinum, 13)) m = m.times(upgradeEffect(platinum, 13))
@@ -17421,9 +18121,10 @@ addLayer("diamond", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(146) },
+    layerShown() { return hasNormalAchievement(146) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
+        if (hasMilestone(torridite, 22)) return getPointGen()
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
         if (hasUpgrade(platinum, 25)) m = m.times(5)
         if (hasUpgrade(diamond, 14)) m = m.times(upgradeEffect(diamond, 14))
@@ -17482,11 +18183,13 @@ addLayer("diamond", {
             cost() { return new ExpantaNum('1e800') },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effPowerFactor() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let p = d(0.75)
                 if (hasUpgrade(diamond, 44)) p = p.add(0.06)
                 return p
             },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = d(10).pow(player.diamond.points.add(1).log10().pow(this.effPowerFactor()))
                 return eff
             },
@@ -17507,6 +18210,7 @@ addLayer("diamond", {
             cost() { return new ExpantaNum(100) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let ore = player.diamond.ore
                 let exp = d(0.24).sub(ore.max(1).log10().div(1000)).max(0.124)
                 let eff = ore.add(1).pow(exp)
@@ -17526,6 +18230,7 @@ addLayer("diamond", {
             cost() { return new ExpantaNum(400) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.diamond.points.times(3).add(1).pow(0.23)
                 return eff
             },
@@ -17572,6 +18277,7 @@ addLayer("diamond", {
             cost() { return new ExpantaNum(180) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = tmp.redstone.highestFortuneLv.max(224).sub(224).pow(1.25).add(1)
                 return eff
             },
@@ -17593,6 +18299,7 @@ addLayer("diamond", {
             cost() { return new ExpantaNum(5e19) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let hc = 8.28 + 1 / 300
                 if (hasUpgrade(obsidian, 32)) hc = d(Infinity)
                 let eff = tmp.redstone.highestFortuneLv.max(254).sub(254).div(300).min(hc)
@@ -17615,6 +18322,7 @@ addLayer("diamond", {
             currencyLayer: diamond,
             cost() { return new ExpantaNum(15000) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let f = Object.values(player.diamond.grid).filter(id => id >= 2).length
                 f = d(f)
                 let eff = f.add(1).pow(1.25)
@@ -17681,6 +18389,7 @@ addLayer("diamond", {
             cost() { return new ExpantaNum(5e27) },
             unlocked() { return hasUpgrade(this.layer, 35) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 if (hasMilestone(emerald, 1)) return d(25).pow(1.35)
                 let f = Object.values(player.diamond.grid).filter(id => id >= 3).length
                 f = d(f)
@@ -17701,6 +18410,7 @@ addLayer("diamond", {
             cost() { return new ExpantaNum(1e30) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 if (hasMilestone(emerald, 1)) return d(25).pow(2.25)
                 let f = Object.values(player.diamond.grid).filter(id => id == 4).length
                 f = d(f)
@@ -17721,10 +18431,12 @@ addLayer("diamond", {
             cost() { return new ExpantaNum(3.2e32) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.redstone.destabilized.max(0)
                 return eff
             },
             effect2() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.redstone.destabilized.div(10).max(0).floor()
                 return eff
             },
@@ -17771,7 +18483,8 @@ addLayer("diamond", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -17793,7 +18506,8 @@ addLayer("diamond", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -17926,6 +18640,7 @@ addLayer("diamond", {
 
     flawlessMult: {
         1() {
+            if (hasMilestone(torridite, 22)) return getPointGen()
             let m = d(1)
             if (hasUpgrade(diamond, 22)) m = m.times(3)
             if (hasUpgrade(diamond, 25)) m = m.times(upgradeEffect(diamond, 25))
@@ -17934,6 +18649,7 @@ addLayer("diamond", {
             return m
         },
         2() {
+            if (hasMilestone(torridite, 22)) return getPointGen()
             let m = this[1]().times(5)
             if (hasUpgrade(diamond, 23)) m = m.times(upgradeEffect(diamond, 23))
             if (hasUpgrade(diamond, 41)) m = m.times(upgradeEffect(diamond, 41))
@@ -17942,6 +18658,7 @@ addLayer("diamond", {
             return m
         },
         3() {
+            if (hasMilestone(torridite, 22)) return getPointGen()
             let m = this[2]().times(10)
             if (hasUpgrade(diamond, 42)) m = m.times(upgradeEffect(diamond, 42))
             if (hasUpgrade(obsidian, 14)) m = m.times(upgradeEffect(obsidian, 14))
@@ -17949,6 +18666,7 @@ addLayer("diamond", {
             return m
         },
         4() {
+            if (hasMilestone(torridite, 22)) return getPointGen()
             let m = this[3]().times(1000000)
             if (hasUpgrade(emerald, 12)) m = m.times(upgradeEffect(emerald, 12))
             m = m.floor()
@@ -17958,6 +18676,7 @@ addLayer("diamond", {
 
     flawlessChance: {
         1() {
+            if (hasMilestone(torridite, 22)) return 1e300
             let c = 0.05
             if (hasUpgrade(diamond, 24)) c = c + upgradeEffect(diamond, 24).min(1e300).toNumber()
             return c
@@ -18235,9 +18954,10 @@ addLayer("obsidian", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(151) || hasCraftingItem(421) },
+    layerShown() { return (hasNormalAchievement(151) || hasCraftingItem(421)) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
+        if (hasMilestone(torridite, 23)) return getPointGen()
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
         if (hasUpgrade(diamond, 45)) m = m.times(5)
         if (hasUpgrade(obsidian, 12)) m = m.times(upgradeEffect(obsidian, 12))
@@ -18283,6 +19003,7 @@ addLayer("obsidian", {
             cost() { return new ExpantaNum(30) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 if (hasUpgrade(obsidian, 31)) return d(5)
                 let o = Object.values(player.obsidian.grid).filter(id => id.block == 4).length
                 o = d(o)
@@ -18311,6 +19032,7 @@ addLayer("obsidian", {
                 return p
             },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.stone.basalt.max(0).add(1).pow(this.effPowerFactor())
                 return eff
             },
@@ -18333,6 +19055,7 @@ addLayer("obsidian", {
             cost() { return new ExpantaNum(500) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.obsidian.points.max(0).times(20).add(1).root(2)
                 return eff
             },
@@ -18364,6 +19087,7 @@ addLayer("obsidian", {
             cost() { return new ExpantaNum(4.32e14) },
             unlocked() { return hasUpgrade(this.layer, 15) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.iron.lava.div(1.44e13).max(1).pow(0.33)
                 return eff
             },
@@ -18384,6 +19108,7 @@ addLayer("obsidian", {
             cost() { return new ExpantaNum(4.32e14) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.iron.water.div(1e14).max(1).pow(0.32)
                 return eff
             },
@@ -18406,6 +19131,7 @@ addLayer("obsidian", {
                 return p
             },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.stone.basalt.max(1).pow(this.effPowerFactor())
                 return eff
             },
@@ -18428,6 +19154,7 @@ addLayer("obsidian", {
                 return p
             },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.stone.basalt.max(1).pow(this.effPowerFactor())
                 return eff
             },
@@ -18461,6 +19188,7 @@ addLayer("obsidian", {
             cost() { return new ExpantaNum(1e54) },
             unlocked() { return hasUpgrade(this.layer, 25) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 if (hasMilestone(emerald, 1)) return d(202507)
                 let w = Object.values(player.obsidian.grid).filter(id => id.block == 1).length
                 let l = Object.values(player.obsidian.grid).filter(id => id.block == 2).length
@@ -18607,12 +19335,12 @@ addLayer("obsidian", {
                     }
                     else if (data.block == 1) {
                         data.block = 4
-                        resetFlowingProgress(id)
                         player.obsidian.placeCooldown = 5 // 放置冷却5秒
                         player.obsidian.placeBlock = "none" // 放置后清除放置状态
                         if (!data.flowing) { // 若为水源
                             player.obsidian.placed.water = false // 覆盖水后清除放置水状态
                         }
+                        resetFlowingProgress(id)
                     }
                     else if (data.block == 2) return
                 }
@@ -19015,7 +19743,7 @@ addLayer("obsidian", {
                     "blank",
                     ["display-text", function () { return `想要获得黑曜石，你需要先在上方面板产生一个黑曜石。它不能通过寻找获得` }],
                     ["display-text", function () { return `流体会流动，黑曜石通过水流向熔岩源获得。你也可以直接将熔岩倒在水上或者将水倒在熔岩源上` }],
-                    ["display-text", function () { return `版面上最多只能同时存在1格水源和1格熔岩源` }],
+                    ["display-text", function () { return `版面上最多只能同时存在1格熔岩源` }],
                     ["display-text", function () { return `产生黑曜石必然会消耗一个熔岩源` }],
                     ["display-text", function () { return `若水接触流动熔岩会产生石头，还请注意` }],
                     ["display-text", function () { return `流体放置有5秒冷却，黑曜石不能被直接移除` }],
@@ -19111,9 +19839,10 @@ addLayer("emerald", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(156) },
+    layerShown() { return hasNormalAchievement(156) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
+        if (hasMilestone(torridite, 24)) return getPointGen()
         let m = d(1)                            // 绿宝石矿倍率
         if (hasUpgrade(emerald, 13)) m = m.times(upgradeEffect(emerald, 13))
         if (hasUpgrade(emerald, 14)) m = m.times(upgradeEffect(emerald, 14))
@@ -19146,6 +19875,7 @@ addLayer("emerald", {
     },
 
     tradeMult1() { //村民交易
+        if (hasMilestone(torridite, 24)) return getPointGen()
         let m = d(1)
         if (hasUpgrade(emerald, 23)) m = m.times(upgradeEffect(emerald, 23))
         if (hasCraftingItem(472)) m = m.times(tmp.emerald.holyEff)
@@ -19154,6 +19884,7 @@ addLayer("emerald", {
     },
 
     tradeMult2() { //村民交易
+        if (hasMilestone(torridite, 24)) return getPointGen()
         let m = d(1)
         if (hasUpgrade(emerald, 34)) m = m.times(upgradeEffect(emerald, 34))
         if (hasUpgrade(experience, 34)) m = m.times(upgradeEffect(experience, 34))
@@ -19211,6 +19942,7 @@ addLayer("emerald", {
             cost() { return new ExpantaNum('1.12e345678') },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 if (hasMilestone(emerald, 1)) return d(25).pow(10)
                 let f = Object.values(player.diamond.grid).filter(id => id == 5).length
                 f = d(f)
@@ -19236,6 +19968,7 @@ addLayer("emerald", {
             cost() { return new ExpantaNum('1e400000') },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = d(3).pow(player.tiers[0].max(19).sub(19))
                 return eff
             },
@@ -19256,6 +19989,7 @@ addLayer("emerald", {
             cost() { return new ExpantaNum(45) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.emerald.ore.max(0).add(1).pow(0.5)
                 return eff
             },
@@ -19279,6 +20013,7 @@ addLayer("emerald", {
             cost() { return new ExpantaNum(250000) },
             unlocked() { return hasUpgrade(this.layer, 15) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = d(10).pow(player.redstone.points.max(10).log10().div(30000).pow(0.75)).min('1e1000')
                 return eff
             },
@@ -19296,6 +20031,7 @@ addLayer("emerald", {
             cost() { return new ExpantaNum(2500000) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.emerald.points.max(0).add(1).pow(0.77)
                 return eff
             },
@@ -19313,6 +20049,7 @@ addLayer("emerald", {
             cost() { return new ExpantaNum(7500000) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.emerald.ore.max(0).add(1).pow(0.4)
                 return eff
             },
@@ -19380,6 +20117,7 @@ addLayer("emerald", {
             cost() { return new ExpantaNum(5e58) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.points.max(1e10).log10().log10()
                 return eff
             },
@@ -19418,7 +20156,8 @@ addLayer("emerald", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -19440,7 +20179,8 @@ addLayer("emerald", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -19781,7 +20521,7 @@ addLayer("experience", {
     color: "#b2ff59",
     type: "custom",
     tooltip() { return false },
-    layerShown() { return hasNormalAchievement(164) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return hasNormalAchievement(164) && !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
 
     baseResource: "points",                 // The name of the resource your prestige gain is based on.
     baseAmount() { return player.points },  // A function to return the current amount of baseResource.
@@ -19792,6 +20532,7 @@ addLayer("experience", {
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
+        if (hasMilestone(torridite, 25)) return getPointGen()
         let m = d(1)                            // 知识精华锭的获取倍率
         if (hasUpgrade(experience, 11)) m = m.times(3)
         if (hasUpgrade(experience, 13)) m = m.times(upgradeEffect(experience, 13))
@@ -19801,12 +20542,14 @@ addLayer("experience", {
         return m
     },
     gainExp() {                             // Returns the exponent to your gain of the prestige resource.
+        if (hasMilestone(torridite, 25)) return ExpantaNumOne
         let e = d(1)
         if (hasUpgrade(experience, 31)) e = e.times(upgradeEffect(experience, 31))
         return e
     },
 
     getResetGain() {
+        if (hasMilestone(torridite, 25)) return getPointGen()
         let mult = tmp.experience.gainMult
         let g = player.points.max(1e10).log10().log10().sub(307.2547155599167).root(5).pow(tmp.experience.gainExp).max(0).times(mult)
         g = g.floor()
@@ -19814,6 +20557,7 @@ addLayer("experience", {
     },
 
     getNextAt() {
+        if (hasMilestone(torridite, 25)) return getPointGen()
         let mult = tmp.experience.gainMult
         let gain = tmp.experience.getResetGain
         let baseGain = gain.add(1).div(mult)
@@ -19863,6 +20607,7 @@ addLayer("experience", {
             cost() { return new ExpantaNum(150) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.experience.crystal.add(1).pow(2)
                 return eff
             },
@@ -19890,6 +20635,7 @@ addLayer("experience", {
             cost() { return new ExpantaNum(1e17) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.emerald.points.add(1).pow(0.2)
                 return eff
             },
@@ -19949,6 +20695,7 @@ addLayer("experience", {
             cost() { return new ExpantaNum('1e505') },
             unlocked() { return hasUpgrade(this.layer, 25) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.experience.crystal.max(0).add(1)
                 if (hasCraftingItem(502)) eff = eff.times(1.5)
                 return eff
@@ -19988,6 +20735,7 @@ addLayer("experience", {
             cost() { return new ExpantaNum('1e1030') },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.emerald.points.max(0).add(1).pow(0.77)
                 return eff
             },
@@ -20372,6 +21120,7 @@ addLayer("experience", {
 
     xpGenesisPunishment: {
         1() { //lg层数
+            if (hasUpgrade(torridite, 12)) return d(0)
             hc = tmp.experience.xpHardcap_raw
             let hcslog = hc.slog(10)
             let weaken = d(0.35)
@@ -20439,8 +21188,8 @@ addLayer("experience", {
                     "blank",
                     "buyables",
                     "blank",
-                    ["display-text", function () { if (player.points.gte('eee5000')) return `由于你的经验过高，受到创世神罚I，你的经验获取被 x→lg${quickSUP(f(tmp.experience.xpGenesisPunishment[1], 4))}(x)` }],
-                    ["display-text", function () { if (player.points.gte('10^^5')) return `由于你的经验过高，达到了知识精华的承受极限，在解锁下一个机制之前，你的经验受一个硬上限限制！` }],
+                    ["display-text", function () { if (player.points.gte('eee5000') && !hasUpgrade(torridite, 12)) return `由于你的经验过高，受到创世神罚I，你的经验获取被 x→lg${quickSUP(f(tmp.experience.xpGenesisPunishment[1], 4))}(x)` }],
+                    ["display-text", function () { if (player.points.gte('10^^5') && !hasUpgrade(torridite, 12)) return `由于你的经验过高，达到了知识精华的承受极限，在解锁下一个机制之前，你的经验受一个硬上限限制！` }],
                 ]
             },
         },
@@ -20474,7 +21223,7 @@ addLayer("signalum", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(215) },
+    layerShown() { return hasNormalAchievement(215) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -20514,7 +21263,7 @@ addLayer("signalum", {
         },
         13: {
             title: "强信号",
-            description() { return `三阶等级从15开始（包含）每级使信素合金倍率变为${f(this.effPow())}x`}, 
+            description() { return `三阶等级从15开始（包含）每级使信素合金倍率变为${f(this.effPow())}x` },
             currencyDisplayName() { return `经验 + ${f(150)} 信素锭` },
             currencyInternalName: "points",
             canAfford() { return player.signalum.points.gte(150) },
@@ -20747,7 +21496,7 @@ addLayer("manasteel", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(145) },
+    layerShown() { return hasNormalAchievement(145) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -20774,6 +21523,7 @@ addLayer("manasteel", {
             cost() { return new ExpantaNum(12) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.botania.endoflame.add(1).max(1)
                 return eff
             },
@@ -20791,6 +21541,7 @@ addLayer("manasteel", {
             cost() { return new ExpantaNum(50) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.mana.best.max(1).ln().pow(1.24).add(1)
                 return eff
             },
@@ -20814,6 +21565,7 @@ addLayer("manasteel", {
             cost() { return new ExpantaNum(135) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.botania.pure_daisy.add(1).max(1)
                 return eff
             },
@@ -20844,6 +21596,7 @@ addLayer("manasteel", {
             cost() { return new ExpantaNum(2e7) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.mana.points.max(1).log10().add(1).floor()
                 return eff
             },
@@ -20861,6 +21614,7 @@ addLayer("manasteel", {
             cost() { return new ExpantaNum(1.666e9) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.botania.rosa_arcana.add(1).max(1)
                 if (hasUpgrade(terrasteel, 31)) eff = eff.pow(5)
                 return eff
@@ -20880,6 +21634,7 @@ addLayer("manasteel", {
             cost() { return new ExpantaNum(5e10) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = d(10).pow(player.experience.points.max(1).log10().div(100).pow(0.85))
                 return eff
             },
@@ -20903,6 +21658,7 @@ addLayer("manasteel", {
             cost() { return new ExpantaNum(6.6666e16) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.emerald.points.div(1e110).max(1).pow(0.1).min(1e89)
                 return eff
             },
@@ -20996,7 +21752,7 @@ addLayer("terrasteel", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(171) },
+    layerShown() { return hasNormalAchievement(171) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -21017,6 +21773,7 @@ addLayer("terrasteel", {
             cost() { return new ExpantaNum(1) },
             unlocked() { return tmp.terrasteel.layerShown },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = d(25).pow(player.terrasteel.points.max(0).min(5)).times(player.terrasteel.points.sub(4).max(1))
                 return eff
             },
@@ -21035,6 +21792,7 @@ addLayer("terrasteel", {
             cost() { return new ExpantaNum(10) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.terrasteel.points.max(0).add(1).pow(0.35)
                 return eff
             },
@@ -21065,6 +21823,7 @@ addLayer("terrasteel", {
             cost() { return new ExpantaNum(58) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.terrasteel.points.max(0).add(1).pow(27)
                 return eff
             },
@@ -21094,6 +21853,7 @@ addLayer("terrasteel", {
             cost() { return new ExpantaNum(1e14) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.terrasteel.points.max(1).log10().div(20).add(1).pow(1.05)
                 return eff
             },
@@ -21129,6 +21889,7 @@ addLayer("terrasteel", {
             cost() { return new ExpantaNum(1e48) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.botania.endoflame.pow(5).add(1)
                 return eff
             },
@@ -21146,6 +21907,7 @@ addLayer("terrasteel", {
             cost() { return new ExpantaNum(2e56) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.terrasteel.points.max(1).log10().add(1)
                 return eff
             },
@@ -21400,22 +22162,22 @@ function importAmplifierPreset(id) {
             else if (name == 'ms') {
                 if (player.elementium.buyables[12].lt(1)) name = ''
                 else amplifier[ids[i]].name = 'ms',
-                used += 1
+                    used += 1
             }
             else if (name == 'ts') {
                 if (player.elementium.buyables[12].lt(2)) name = ''
                 else amplifier[ids[i]].name = 'ts',
-                used += 1
+                    used += 1
             }
             else if (name == 'et') {
                 if (player.elementium.buyables[12].lt(3)) name = ''
                 else amplifier[ids[i]].name = 'et',
-                used += 1
+                    used += 1
             }
             else if (name == 'as') {
                 if (player.elementium.buyables[12].lt(4)) name = ''
                 else amplifier[ids[i]].name = 'as',
-                used += 1
+                    used += 1
             }
             else amplifier[ids[i]].name = ''
         }
@@ -21478,7 +22240,7 @@ addLayer("elementium", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(207) },
+    layerShown() { return hasNormalAchievement(207) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -21728,7 +22490,7 @@ addLayer("elementium", {
                 return f
             },
             effect() {
-                let eff = player.elementium.points.max(20).log10().ssrt().div(this.effDivFactor()).add(1)
+                let eff = player.elementium.points.max(20).log10().min('ee308').ssrt().div(this.effDivFactor()).add(1)
                 return eff
             },
             effectDisplay() {
@@ -21828,6 +22590,7 @@ addLayer("elementium", {
                     'width': '50px',
                     'font-size': '20px',
                     'color': 'white',
+                    margin: '-7px',
                 }
             },
         },
@@ -21845,6 +22608,7 @@ addLayer("elementium", {
                     'background-color': '#f15cae',
                     'border-radius': '2.5px',
                     'color': 'white',
+                    margin: '-7px',
                 }
             },
         },
@@ -21863,6 +22627,7 @@ addLayer("elementium", {
                     'width': '50px',
                     'font-size': '20px',
                     'color': 'white',
+                    margin: '-7px',
                 }
             },
         },
@@ -21880,6 +22645,7 @@ addLayer("elementium", {
                     'font-size': '10px',
                     'background': 'linear-gradient(45deg, #005ee0 0%, #7db4ff 20%, #006bff 80%, #0045a3 100%)',
                     'border-radius': '2.5px',
+                    margin: '-7px',
                 }
             },
             unlocked() { return getBuyableAmount(elementium, 12).gte(1) },
@@ -21899,6 +22665,7 @@ addLayer("elementium", {
                     'font-size': '10px',
                     'background': "linear-gradient(45deg, #2f8300 0%, #9fff57 15%, #53f900 80%, #39bc00 90%, #277c00 100%)",
                     'border-radius': '2.5px',
+                    margin: '-7px',
                 }
             },
             unlocked() { return getBuyableAmount(elementium, 12).gte(2) },
@@ -21918,6 +22685,7 @@ addLayer("elementium", {
                     'font-size': '10px',
                     'background': "linear-gradient(45deg, #e90081 0%, #facae4 15%, #f15cae 80%, #ed339a 90%, #bb0067 100%)",
                     'border-radius': '2.5px',
+                    margin: '-7px',
                 }
             },
             unlocked() { return getBuyableAmount(elementium, 12).gte(3) },
@@ -21937,10 +22705,11 @@ addLayer("elementium", {
                     'font-size': '10px',
                     'background': "linear-gradient(45deg, #fcb600 0%, #bd5a00 15%, #fcbb00 80%, #e98000 90%, #763b00 100%)",
                     'border-radius': '2.5px',
+                    margin: '-7px',
                 }
             },
             unlocked() { return getBuyableAmount(elementium, 12).gte(4) },
-            tooltip: "源质钢增幅器基础指数影响：泰拉钢增幅器基础倍率（自身不受相邻加成和中心加成影响）"
+            tooltip: "精灵钢增幅器基础指数影响：泰拉钢增幅器基础倍率（自身不受相邻加成和中心加成影响）"
         },
         51: {
             display() {
@@ -22482,7 +23251,7 @@ addLayer("alfsteel", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(212) },
+    layerShown() { return hasNormalAchievement(212) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -22693,7 +23462,7 @@ addLayer("alfsteel", {
             unlocked() { return hasUpgrade(alfsteel, 15) },
             style() {
                 return {
-                    'border-radius': '5%',
+                    'border-radius': '10px',
                     height: '360px',
                 }
             },
@@ -22740,7 +23509,7 @@ addLayer("alfsteel", {
             unlocked() { return hasUpgrade(alfsteel, 15) },
             style() {
                 return {
-                    'border-radius': '5%',
+                    'border-radius': '10px',
                     height: '360px',
                 }
             },
@@ -22787,7 +23556,7 @@ addLayer("alfsteel", {
             unlocked() { return hasUpgrade(alfsteel, 33) },
             style() {
                 return {
-                    'border-radius': '5%',
+                    'border-radius': '10px',
                     height: '360px',
                 }
             },
@@ -22836,7 +23605,7 @@ addLayer("alfsteel", {
             unlocked() { return hasUpgrade(alfsteel, 33) },
             style() {
                 return {
-                    'border-radius': '5%',
+                    'border-radius': '10px',
                     height: '360px',
                 }
             },
@@ -22950,7 +23719,7 @@ addLayer("vis_crystal", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(174) },
+    layerShown() { return hasNormalAchievement(174) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(3)
@@ -22993,7 +23762,8 @@ addLayer("vis_crystal", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -23015,7 +23785,8 @@ addLayer("vis_crystal", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -23240,7 +24011,7 @@ addLayer("twilight_gem", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(176) },
+    layerShown() { return hasNormalAchievement(176) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -23767,9 +24538,10 @@ addLayer("ironwood", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(177) },
+    layerShown() { return hasNormalAchievement(177) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
+        if (hasMilestone(torridite, 28)) return getPointGen()
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
         if (hasUpgrade(ironwood, 13)) m = m.times(3)
         if (hasUpgrade(ironwood, 22)) m = m.times(upgradeEffect(ironwood, 22))
@@ -23793,7 +24565,7 @@ addLayer("ironwood", {
     upgrades: {
         11: {
             title: "暮色伐木工",
-            description: "在木头层级解锁新页面：更多原木，以及解锁其子界面：暮色森林，你现在如果在暮色森林，撸树时能获得暮色橡木。且解锁在铁树-原料和木头-更多原木-暮色森林的页面来回跳转按钮",
+            description: "在木头层级原木子界面解锁二级子界面：暮色森林，你现在如果在暮色森林，撸树时能获得暮色橡木。且解锁在铁树-原料和木头-原木-暮色森林的页面来回跳转按钮",
             cost() { return new ExpantaNum(0) },
             unlocked() { return tmp.ironwood.layerShown },
         },
@@ -23839,6 +24611,7 @@ addLayer("ironwood", {
             cost() { return new ExpantaNum(50) },
             unlocked() { return hasUpgrade(this.layer, 15) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.ironwood.points.add(10).log10().pow(0.5).sub(1).div(2.529822128134704).add(1).max(1)
                 return eff
             },
@@ -23857,6 +24630,7 @@ addLayer("ironwood", {
             cost() { return new ExpantaNum(120) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.wood.twilightOak.add(1).pow(0.52).max(1)
                 return eff
             },
@@ -23875,6 +24649,7 @@ addLayer("ironwood", {
             cost() { return new ExpantaNum(1888) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.ironwood.points.add(1).pow(0.52).max(1)
                 return eff
             },
@@ -23893,6 +24668,7 @@ addLayer("ironwood", {
             cost() { return new ExpantaNum(8000) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = tmp.redstone.highestFortuneLv.max(0).div(1e12).pow(1.5).max(1)
                 return eff
             },
@@ -23927,6 +24703,7 @@ addLayer("ironwood", {
             cost() { return new ExpantaNum(77) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.wood.canopyTreeWood.add(1).pow(1.52).max(1)
                 return eff
             },
@@ -23947,6 +24724,7 @@ addLayer("ironwood", {
             cost() { return new ExpantaNum(114514) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let p = d(0.8)
                 if (hasCraftingItem(572)) p = p.times(13)
                 let eff = player.stone.calcite.add(1).max(1).pow(p)
@@ -23981,7 +24759,7 @@ addLayer("ironwood", {
     clickables: {
         21: {
             title() {
-                let t = "跳转到 木头-更多原木-暮色森林"
+                let t = "跳转到 木头-原木-暮色森林"
                 return t
             },
             display() {
@@ -23991,8 +24769,8 @@ addLayer("ironwood", {
             canClick() { return true },
             onClick() {
                 showTab(wood),
-                    player.subtabs.wood.stuff = 'more',
-                    player.subtabs.wood.more_wood = 'twilight_forest'
+                    player.subtabs.wood.stuff = 'log',
+                    player.subtabs.wood.log = 'twilight_forest'
             },
             onHold() {
                 this.onClick()
@@ -24024,7 +24802,8 @@ addLayer("ironwood", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -24046,7 +24825,8 @@ addLayer("ironwood", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -24063,6 +24843,7 @@ addLayer("ironwood", {
                 return d
             },
             mult() {
+                if (hasMilestone(torridite, 28)) return getPointGen()
                 let m = d(1)
                 if (hasUpgrade(ironwood, 22)) m = m.times(upgradeEffect(ironwood, 22))
                 if (hasUpgrade(ironwood, 32)) m = m.times(upgradeEffect(ironwood, 32))
@@ -24215,7 +24996,7 @@ addLayer("naga_scale", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(181) },
+    layerShown() { return hasNormalAchievement(181) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -24267,6 +25048,7 @@ addLayer("naga_scale", {
             cost() { return new ExpantaNum(6) },
             unlocked() { return tmp.naga_scale.layerShown },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.naga_scale.points.add(1).max(1).pow(6.8)
                 return eff
             },
@@ -24292,11 +25074,13 @@ addLayer("naga_scale", {
             cost() { return new ExpantaNum(36) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effPowerFactor() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let p = d(0.02)
                 if (hasUpgrade(naga_scale, 32)) p = p.times(3)
                 return p
             },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = tmp.map.battle.LUCK.add(1).pow(this.effPowerFactor()).max(1)
                 return eff
             },
@@ -24329,6 +25113,7 @@ addLayer("naga_scale", {
             cost() { return new ExpantaNum(350000) },
             unlocked() { return hasUpgrade(this.layer, 15) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.naga_scale.points.add(1).max(1).pow(2.2)
                 return eff
             },
@@ -24347,6 +25132,7 @@ addLayer("naga_scale", {
             cost() { return new ExpantaNum(400000) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumZero
                 let eff = tmp.naga_scale.rarityLevel.div(2).floor().min(6)
                 return eff
             },
@@ -24384,6 +25170,7 @@ addLayer("naga_scale", {
                 return hc
             },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.map.battle.drops.naga_loot_chest.add(1).pow(1.5).min(this.hardcap())
                 return eff
             },
@@ -24729,9 +25516,10 @@ addLayer("steeleaf", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(184) },
+    layerShown() { return hasNormalAchievement(184) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
+        if (hasMilestone(torridite, 30)) return getPointGen()
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
         let b = d(3)
         if (hasUpgrade(fiery, 31)) b = tmp.twilight_gem.conquerEffects[4]
@@ -24745,6 +25533,7 @@ addLayer("steeleaf", {
         return m
     },
     extraMult() {
+        if (hasMilestone(torridite, 30)) return getPointGen()
         let m = d(1)
         if (hasUpgrade(knight_metal, 13)) m = m.times(upgradeEffect(knight_metal, 13))
         if (hasUpgrade(steeleaf, 25)) m = m.times(upgradeEffect(steeleaf, 25))
@@ -24752,6 +25541,7 @@ addLayer("steeleaf", {
         return m
     },
     chestMult() {
+        if (hasMilestone(torridite, 30)) return getPointGen()
         let m = d(1)
         if (hasUpgrade(steeleaf, 13)) m = m.times(5)
         if (hasUpgrade(steeleaf, 25)) m = m.times(20)
@@ -24768,6 +25558,7 @@ addLayer("steeleaf", {
     },
     lootSlots() {
         let s = 3
+        if (hasUpgrade(steeleaf, 22)) s += 3
         return s
     },
     gainExp() {                             // Returns the exponent to your gain of the prestige resource.
@@ -24800,6 +25591,7 @@ addLayer("steeleaf", {
             cost() { return new ExpantaNum(6) },
             unlocked() { return tmp.naga_scale.layerShown },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.steeleaf.points.add(1).max(1).pow(3)
                 return eff
             },
@@ -24832,6 +25624,7 @@ addLayer("steeleaf", {
             cost() { return new ExpantaNum(180) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = tmp.naga_scale.rarityLevel.div(15).floor().max(0)
                 return eff
             },
@@ -24859,7 +25652,7 @@ addLayer("steeleaf", {
         },
         22: {
             title: "疯狂的提升力量",
-            description() { return `需求：二阶等级${f(6050)}<br>“提升优化器”MK.2提供免费等级到“提升优化器MK.1”` },
+            description() { return `需求：二阶等级${f(6050)}<br>打开钢叶奖励箱奖励格+3（历史遗留问题，效果失效惨案，标题就不改了，警钟长鸣）` },
             canAfford() { return player.tiers[0].gte(6050) },
             cost() { return new ExpantaNum(4e17) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
@@ -24885,6 +25678,7 @@ addLayer("steeleaf", {
             cost() { return new ExpantaNum(1e28) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effectiveAmount() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 return tmp.steeleaf.chestMult.times(6).max(1)
             },
             effect() {
@@ -24911,6 +25705,7 @@ addLayer("steeleaf", {
             cost() { return new ExpantaNum(1.111e111) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.map.battle.drops.alpha_yeti_fur.max(1)
                 return eff
             },
@@ -25403,7 +26198,7 @@ addLayer("knight_metal", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasCraftingItem(571) },
+    layerShown() { return hasCraftingItem(571) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -25446,6 +26241,7 @@ addLayer("knight_metal", {
             cost() { return new ExpantaNum(35) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.wood.darkWood.add(1).pow(0.45).max(1)
                 return eff
             },
@@ -25473,6 +26269,7 @@ addLayer("knight_metal", {
             cost() { return new ExpantaNum(20) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.knight_metal.points.add(1).max(1).pow(1.45)
                 return eff
             },
@@ -25581,6 +26378,7 @@ addLayer("knight_metal", {
                 return d
             },
             mult() {
+                if (hasMilestone(torridite, 31)) return getPointGen()
                 let m = d(1)
                 if (hasUpgrade(knight_metal, 21)) m = m.times(20)
                 if (hasUpgrade(steeleaf, 32)) m = player.map.battle.drops.armor_shard.div(100).max(1)
@@ -25679,7 +26477,7 @@ addLayer("fracturite", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(192) },
+    layerShown() { return hasNormalAchievement(192) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -25787,7 +26585,7 @@ addLayer("fiery", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(193) },
+    layerShown() { return hasNormalAchievement(193) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -25818,6 +26616,7 @@ addLayer("fiery", {
             cost() { return new ExpantaNum(12) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = d(10).pow(player.fiery.best.add(1).log10().pow(0.75).times(150))
                 return eff
             },
@@ -25879,6 +26678,7 @@ addLayer("fiery", {
             cost() { return new ExpantaNum(50) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.wood.twilightMangrove.add(1).log10().pow(5).add(1)
                 return eff
             },
@@ -25933,6 +26733,7 @@ addLayer("fiery", {
     },
 
     fieryIngotMult() {
+        if (hasMilestone(torridite, 32)) return getPointGen()
         let m = d(1)
         if (hasUpgrade(fiery, 15)) m = d(0.1).times(ExpantaNum.max(player.map.battle.drops.fiery_blood, player.map.battle.drops.fiery_tears))
         m = m.floor().max(1)
@@ -26121,7 +26922,7 @@ addLayer("carminite", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasUpgrade(fracturite, 15) },
+    layerShown() { return hasUpgrade(fracturite, 15) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -26165,6 +26966,7 @@ addLayer("carminite", {
             cost() { return new ExpantaNum(10000) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = d(10).pow(player.twilight_gem.points.add(1).log10().pow(0.75))
                 return eff
             },
@@ -26182,6 +26984,7 @@ addLayer("carminite", {
             cost() { return new ExpantaNum(252525) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = d(10).pow(player.carminite.points.add(1).log10().pow(0.75))
                 return eff
             },
@@ -26212,6 +27015,7 @@ addLayer("carminite", {
             cost() { return new ExpantaNum(100000000) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = d(10).pow(player.tiers[0].max(1).div(5000).pow(0.9))
                 return eff
             },
@@ -26322,7 +27126,7 @@ addLayer("soularium", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(201) },
+    layerShown() { return hasNormalAchievement(201) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -26350,6 +27154,7 @@ addLayer("soularium", {
             cost() { return new ExpantaNum(45) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.stone.netherrack.add(1).max(1).pow(0.25)
                 return eff
             },
@@ -26372,6 +27177,7 @@ addLayer("soularium", {
                 return p
             },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.soularium.best.add(1).max(1).pow(this.effPow())
                 return eff
             },
@@ -26405,6 +27211,7 @@ addLayer("soularium", {
             cost() { return new ExpantaNum(16) },
             unlocked() { return hasUpgrade(this.layer, 15) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = d(10).pow(player.soularium.soul.add(1).log10().times(1.5).pow(0.99))
                 return eff
             },
@@ -26425,6 +27232,7 @@ addLayer("soularium", {
             cost() { return new ExpantaNum(12358) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.stone.soulSand.max(1).pow(0.8)
                 return eff
             },
@@ -26442,6 +27250,7 @@ addLayer("soularium", {
             cost() { return new ExpantaNum(229028) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.soularium.points.add(100).log10().div(2).pow(2)
                 return eff
             },
@@ -26467,6 +27276,7 @@ addLayer("soularium", {
             cost() { return new ExpantaNum(6e8) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.tiers[0].max(1).pow(2)
                 return eff
             },
@@ -26485,11 +27295,13 @@ addLayer("soularium", {
             cost() { return new ExpantaNum(1e9) },
             unlocked() { return hasUpgrade(this.layer, 25) },
             effPow() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let p = d(1.2)
                 if (hasUpgrade(quartz, 31)) p = p.times(5)
                 return p
             },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.tiers[0].pow(this.effPow())
                 return eff
             },
@@ -26508,6 +27320,7 @@ addLayer("soularium", {
             cost() { return new ExpantaNum(1e10) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.tiers[0].pow(1.2)
                 return eff
             },
@@ -26543,6 +27356,7 @@ addLayer("soularium", {
     },
 
     soulBottleCapacity() {
+        if (hasMilestone(torridite, 34)) return getPointGen()
         let cap = d(8)
         if (hasUpgrade(soularium, 24)) cap = cap.pow(3)
         if (hasUpgrade(quartz, 21)) cap = cap.pow(tmp.quartz.effectBlack)
@@ -26695,9 +27509,10 @@ addLayer("quartz", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(204) },
+    layerShown() { return hasNormalAchievement(204) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
+        if (hasMilestone(torridite, 35)) return getPointGen()
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
         if (hasUpgrade(quartz, 13)) m = m.times(upgradeEffect(quartz, 13))
         if (hasUpgrade(quartz, 14)) m = m.times(upgradeEffect(quartz, 14))
@@ -26711,6 +27526,7 @@ addLayer("quartz", {
         return d(1)
     },
     gainMultBlack() {
+        if (hasMilestone(torridite, 35)) return getPointGen()
         let m = d(1)
         if (hasUpgrade(quartz, 22)) m = m.times(upgradeEffect(quartz, 22))
         if (hasUpgrade(elementium, 13)) m = m.times(tmp.elementium.effect)
@@ -26772,6 +27588,7 @@ addLayer("quartz", {
             cost() { return new ExpantaNum(30) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = tmp.redstone.highestFortuneLv.max(1e20).log10().sub(19).pow(3)
                 return eff
             },
@@ -26789,6 +27606,7 @@ addLayer("quartz", {
             cost() { return new ExpantaNum(100) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = d(10).pow(player.quartz.ore.add(1).log10().times(0.6).pow(0.99))
                 return eff
             },
@@ -26806,6 +27624,7 @@ addLayer("quartz", {
             cost() { return new ExpantaNum(2000) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = d(10).pow(player.stone.soulSand.add(1).log10().times(0.03).pow(0.99))
                 return eff
             },
@@ -26843,6 +27662,7 @@ addLayer("quartz", {
             cost() { return new ExpantaNum(200) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = d(10).pow(player.quartz.oreBlack.add(1).log10().times(0.45).pow(0.99))
                 return eff
             },
@@ -26864,6 +27684,7 @@ addLayer("quartz", {
             cost() { return new ExpantaNum(5000) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = d(10).pow(player.quartz.black.add(1).log10().times(0.3).pow(0.99))
                 return eff
             },
@@ -26885,6 +27706,7 @@ addLayer("quartz", {
             cost() { return new ExpantaNum(500000) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = d(10).pow(player.quartz.points.add(1).log10().times(0.3).pow(0.99))
                 return eff
             },
@@ -26966,7 +27788,8 @@ addLayer("quartz", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -26988,7 +27811,8 @@ addLayer("quartz", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -27005,7 +27829,8 @@ addLayer("quartz", {
                 return {
                     'min-height': '50px',
                     'width': '200px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -27201,9 +28026,10 @@ addLayer("glowstone", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(205) },
+    layerShown() { return hasNormalAchievement(205) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
+        if (hasMilestone(torridite, 36)) return getPointGen()
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
         if (hasUpgrade(glowstone, 11)) m = m.times(3)
         if (hasUpgrade(lumium, 12)) m = m.times(upgradeEffect(lumium, 12))
@@ -27258,7 +28084,8 @@ addLayer("glowstone", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -27280,7 +28107,8 @@ addLayer("glowstone", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -27310,6 +28138,7 @@ addLayer("glowstone", {
             cost() { return new ExpantaNum('e3.8745e17') },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.glowstone.points.max(1).pow(0.9)
                 return eff
             },
@@ -27332,6 +28161,7 @@ addLayer("glowstone", {
             cost() { return new ExpantaNum('e1.4180e13') },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.glowstone.points.max(1).pow(0.4)
                 return eff
             },
@@ -27481,7 +28311,11 @@ addLayer("lumium", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(214) },
+    layerShown() { return hasNormalAchievement(214) && !layerHidden(this.layer) },
+
+    doReset() {
+        return undefined
+    },
 
     upgrades: {
         11: {
@@ -27947,14 +28781,14 @@ addLayer("lumium", {
                         ["column", [
                             ["buyable", "weak"],
                             ["display-text", function () { return `流明微光：${textResourceStyle(f(player.lumium.laser0), 'text-lumium', 'h3')}` }],
-                            ["display-text", function () { return `(${textResourceStyle(tmpres['lumium laser0 mag'] > 0 ? getOoMpsText(lumium, 'laser0') : f(tmp.lumium.laserGain[0]), 'text-lumium', 'h3')}/sec)` }],
+                            ["display-text", function () { return `(${textResourceStyle(tmpres['lumium laser0 mag'] != 0 ? getOoMpsText(lumium, 'laser0') : f(tmp.lumium.laserGain[0]), 'text-lumium', 'h3')}/sec)` }],
                         ], {
                                 'width': '500px'
                             }],
                         ["column", [
                             ["buyable", "normal"],
                             ["display-text", function () { return `流明光束：${textResourceStyle(f(player.lumium.laser1), 'text-lumium', 'h3')}` }],
-                            ["display-text", function () { return `(${textResourceStyle(tmpres['lumium laser1 mag'] > 0 ? getOoMpsText(lumium, 'laser1') : f(tmp.lumium.laserGain[1]), 'text-lumium', 'h3')}/sec)` }],
+                            ["display-text", function () { return `(${textResourceStyle(tmpres['lumium laser1 mag'] != 0 ? getOoMpsText(lumium, 'laser1') : f(tmp.lumium.laserGain[1]), 'text-lumium', 'h3')}/sec)` }],
                         ], {
                                 'width': '500px'
                             }],
@@ -27963,7 +28797,7 @@ addLayer("lumium", {
                     ["column", [
                         ["buyable", "strong"],
                         ["display-text", function () { return `流明激光：${textResourceStyle(f(player.lumium.laser2), 'text-lumium', 'h3')}` }],
-                        ["display-text", function () { return `(${textResourceStyle(tmpres['lumium laser2 mag'] > 0 ? getOoMpsText(lumium, 'laser2') : f(tmp.lumium.laserGain[2]), 'text-lumium', 'h3')}/sec)` }],
+                        ["display-text", function () { return `(${textResourceStyle(tmpres['lumium laser2 mag'] != 0 ? getOoMpsText(lumium, 'laser2') : f(tmp.lumium.laserGain[2]), 'text-lumium', 'h3')}/sec)` }],
                     ]],
                     "blank",
                     ["display-text", function () { return `你的流明微光使荧石块挖掘数量变为 ${textResourceStyle(f(tmp.lumium.laserEff) + 'x', 'text-lumium')}` }],
@@ -28007,7 +28841,7 @@ addLayer("glowing_signalum", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(221) || hasUpgrade(signalum, 35) },
+    layerShown() { return (hasNormalAchievement(221) || hasUpgrade(signalum, 35)) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -28158,6 +28992,10 @@ addLayer("torridite", {
             finding: false,
             found: false,
             singularity: d(0),
+            core: d(0),
+            coreTier: d(0),
+            coreAscend: d(0),
+            refined: d(0),
         }
     },
 
@@ -28178,14 +29016,271 @@ addLayer("torridite", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasUpgrade(glowing_signalum, 25) },
+    layerShown() { return hasUpgrade(glowing_signalum, 25) && !layerHidden(this.layer) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
+        if (hasUpgrade(torridite, 14)) m = m.times(upgradeEffect(torridite, 14))
+        if (hasCraftingItem(701)) m = m.times(1000000)
+        if (hasMilestone(sing_fus, 14)) m = m.times(buyableEffect(sing_fus, 43))
+        m = m.floor()
         return m
     },
     gainExp() {                             // Returns the exponent to your gain of the prestige resource.
         return d(1)
+    },
+
+    upgrades: {
+        11: {
+            title: "吸收了下界岩的炽热精华",
+            description() { return `解锁炽炎锭的熔炼配方` },
+            currencyDisplayName: '炽炎矿石',
+            currencyInternalName: 'ore',
+            currencyLayer: torridite,
+            cost() { return new ExpantaNum(5) },
+            unlocked() { return tmp.torridite.layerShown },
+        },
+        12: {
+            title: "炽热的核心",
+            description() { return `解锁炽炎核心，炽炎里程碑` },
+            cost() { return new ExpantaNum(5) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        13: {
+            title: "灼热",
+            description() { return `每次炽炎核心晋升都使炽炎核心获取变为7x` },
+            currencyDisplayName: '炽炎核心',
+            currencyInternalName: 'core',
+            currencyLayer: torridite,
+            cost() { return new ExpantaNum(50000) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = d(7).pow(player.torridite.coreTier.max(0))
+                return eff
+            },
+            effectDisplay() {
+                return `${format(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：7${quickSUP('T')}`
+                return t
+            },
+        },
+        14: {
+            title: "灼热延伸",
+            description() { return `炽炎核心加成炽炎矿石挖掘和炽炎锭熔炼倍率` },
+            currencyDisplayName: '炽炎核心',
+            currencyInternalName: 'core',
+            currencyLayer: torridite,
+            cost() { return new ExpantaNum(1e9) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = player.torridite.core.max(1).pow(0.17)
+                return eff
+            },
+            effectDisplay() {
+                return `${format(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：炽炎核心${quickSUP('0.17')}`
+                return t
+            },
+        },
+        15: {
+            title: "灼热基数",
+            description() { return `+1到炽炎购买项“倍增”基数` },
+            cost() { return new ExpantaNum(12000) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        21: {
+            title: "灼热连锁",
+            description() { return `解锁炽炎矿石的连锁挖掘` },
+            cost() { return new ExpantaNum(1e8) },
+            unlocked() { return hasUpgrade(this.layer, 15) },
+        },
+        22: {
+            title: "灼热经验",
+            description() { return `经验加成炽炎核心获取` },
+            cost() { return new ExpantaNum(1e9) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = player.points.max(10).slog(10).pow(2)
+                return eff
+            },
+            effectDisplay() {
+                return `${format(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：slog${quickSUB('10')}(经验)${quickSUP('2')}`
+                return t
+            },
+        },
+        23: {
+            title: "灼热暴击",
+            description() { return `炽炎核心在第7次晋升后，每次晋升使炽炎矿石连锁概率+2.5%（硬上限+95%）` },
+            cost() { return new ExpantaNum(3e11) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = player.torridite.coreTier.max(7).sub(7).times(0.025).min(0.95)
+                return eff
+            },
+            effectDisplay() {
+                return `+${formatPercent(upgradeEffect(this.layer, this.id))}`
+            },
+            tooltip() {
+                let t = `公式：(T-7)·0.025`
+                return t
+            },
+        },
+        24: {
+            title: "灼热基数+",
+            description() { return `再次+1到炽炎购买项“倍增”基数` },
+            cost() { return new ExpantaNum(1e13) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        25: {
+            title: "灼热造物",
+            description() { return `解锁炽炎相关的合成图纸` },
+            cost() { return new ExpantaNum(1e26) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        31: {
+            title: "强化增效",
+            description() { return `炽炎核心在第26次晋升后，每次晋升使强化下界岩获取变为2x` },
+            cost() { return new ExpantaNum(3e68) },
+            unlocked() { return hasUpgrade(this.layer, 25) },
+            effect() {
+                let eff = d(2).pow(player.torridite.coreTier.sub(26).max(0))
+                return eff
+            },
+            effectDisplay() {
+                return `${f(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：2${quickSUP('T-26')}`
+                return t
+            },
+        },
+        32: {
+            title: "强化增效",
+            description() { return `炽炎核心加成强化下界岩获取` },
+            cost() { return new ExpantaNum(1e71) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = player.torridite.core.max(1).pow(0.007)
+                return eff
+            },
+            effectDisplay() {
+                return `${f(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：炽炎核心${quickSUP('0.007')}`
+                return t
+            },
+        },
+        33: {
+            title: "灼热经验+",
+            description() { return `经验加成强化下界岩获取` },
+            cost() { return new ExpantaNum(1e102) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = player.points.max(10).slog(10).pow(1.25)
+                return eff
+            },
+            effectDisplay() {
+                return `${f(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：slog${quickSUB('10')}(经验)${quickSUP('1.25')}`
+                return t
+            },
+        },
+        34: {
+            title: "灼热强化",
+            description() { return `强化下界岩加成自身` },
+            cost() { return new ExpantaNum(1e118) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = player.torridite.refined.max(1).pow(0.15)
+                return eff
+            },
+            effectDisplay() {
+                return `${f(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：强化下界岩${quickSUP('0.15')}`
+                return t
+            },
+        },
+        35: {
+            title: "更强的",
+            description() { return `解锁一个新世界4层级` },
+            cost() { return new ExpantaNum(1e140) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        41: {
+            title: "钴晋升",
+            description() { return `炽炎核心在第46次晋升后，每次晋升钴矿石获取变为2x` },
+            cost() { return new ExpantaNum(1e166) },
+            unlocked() { return hasUpgrade(this.layer, 35) },
+            effect() {
+                let eff = d(2).pow(player.torridite.coreTier.sub(46).max(0))
+                return eff
+            },
+            effectDisplay() {
+                return `${f(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：2${quickSUP('T-46')}`
+                return t
+            },
+        },
+        42: {
+            title: "钴熔炼晋升",
+            description() { return `炽炎核心在第46次晋升后，每次晋升钴锭熔炼倍率变为1.95x` },
+            cost() { return new ExpantaNum(1e168) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = d(1.95).pow(player.torridite.coreTier.sub(46).max(0))
+                return eff
+            },
+            effectDisplay() {
+                return `${f(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：1.95${quickSUP('T-46')}`
+                return t
+            },
+        },
+        43: {
+            title: "炽炎核心 - 超越",
+            description() { return `炽炎核心倍增的效果基数再次+1，但到达${f(1000)}级后价格会加速提升` },
+            cost() { return new ExpantaNum(1e174) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        44: {
+            title: "经验ω",
+            description() { return `你到达的等级的最高阶数（即ω阶等级）加成强化下界岩获取` },
+            cost() { return new ExpantaNum(3e224) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = d(1.4).pow(player.omegaTier.max(0))
+                return eff
+            },
+            effectDisplay() {
+                return `${f(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：1.4${quickSUP('ω阶等级')}`
+                return t
+            },
+        },
+        45: {
+            title: "下界是个宝藏之地",
+            description() { return `再次解锁一个新世界4层级` },
+            cost() { return new ExpantaNum(1e230) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
     },
 
     doReset() {
@@ -28202,7 +29297,7 @@ addLayer("torridite", {
                 let d = "点击寻找"
                 return d
             },
-            canClick() { return !player.torridite.finding && !player.torridite.destroying && !player.torridite.found  && isAtLocation('nether') },
+            canClick() { return !player.torridite.finding && !player.torridite.destroying && !player.torridite.found && isAtLocation('nether') },
             onClick() {
                 if (!player.torridite.finding) player.torridite.finding = true
             },
@@ -28211,7 +29306,8 @@ addLayer("torridite", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -28233,7 +29329,8 @@ addLayer("torridite", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -28266,11 +29363,13 @@ addLayer("torridite", {
 
     chainChance() {
         let c = d(0.05)
+        if (hasUpgrade(torridite, 23)) c = c.add(upgradeEffect(torridite, 23))
         return c
     },
 
     chainMult() {
-        let m = d(1)
+        let m = d(100)
+        if (hasUpgrade(cobalt, 13)) m = m.times(upgradeEffect(cobalt, 13))
         m = m.floor()
         return m
     },
@@ -28282,6 +29381,171 @@ addLayer("torridite", {
         let c = tmp.torridite.chainChance.max(1e-10)
         e = m.times(cm).add(m.times(d(1).div(c).sub(1))).times(c)
         return e
+    },
+
+    buyables: {
+        11: {
+            title: "倍增",
+            cost(x) {
+                let c
+                if (x.lt(1000)) c = d(10).pow(x.add(1))
+                else c = d(10).pow(x.sub(999).pow(1.15)).times('1e1000')
+                return c
+            },
+            free() {
+                let f = d(0)
+                return f
+            },
+            effBase() {
+                let b = d(3)
+                if (hasUpgrade(torridite, 15)) b = b.add(1)
+                if (hasUpgrade(torridite, 24)) b = b.add(1)
+                if (hasUpgrade(torridite, 43)) b = b.add(1)
+                if (hasUpgrade(cobalt, 23)) b = b.add(1.5)
+                if (hasUpgrade(cobalt, 32)) b = b.add(upgradeEffect(cobalt, 32))
+                if (hasUpgrade(ardite, 25)) b = b.add(7)
+                return b
+            },
+            display() {
+                let freedis = ""
+                if (this.free().gte(1)) freedis = ` + ${formatWhole(this.free())}`
+                let epd = `${f(this.effBase())}${quickSUP('x')}`
+                let display = `倍增炽炎核心获取<br>
+                效果公式：${epd}<br>
+                等级：${fw(getBuyableAmount(this.layer, this.id))}${freedis}<br>
+                当前效果：${f(buyableEffect(this.layer, this.id))}x<br>
+                价格：${formatWhole(this.cost())} 炽炎核心`
+                return display
+            },
+            canAfford() { return player[this.layer].core.gte(this.cost()) },
+            canBuyMax() { return hasCraftingItem(702) },
+            buyMax() {
+                if (this.canAfford()) {
+                    if (player.torridite.core.lte('1e1000')) setBuyableAmount(this.layer, this.id, player.torridite.core.max(1).logBase(10).floor())
+                    else setBuyableAmount(this.layer, this.id, d(1000).add(player.torridite.core.div('1e1000').max(1).logBase(10).root(1.15).floor()))
+                }
+            },
+            buy() {
+                if (this.canAuto()) { this.buyMax(); return; }
+                if (this.canBuyMax()) { this.buyMax() }
+                else {
+                    let cst = this.cost()
+                    setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                }
+                player[this.layer].core = player[this.layer].core.sub(cst).max(0)
+            },
+            effect(x) {
+                let eff = this.effBase().pow(x.add(this.free()))
+                return eff
+            },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            canAuto() { return hasMilestone(torridite, 42) },
+            auto() {
+                if (this.canAuto())
+                    this.buyMax()
+            },
+            style() {
+                if (this.canAfford()) return {
+                    "background": "linear-gradient(45deg, #68031f 5%, #b91d1d 10%, #fcac83 15%, #f15221 30%, #b91d1d 45%, #f15221 60%, #b91d1d 75%, #f15221 90%, #900613 95%)",
+                    "border-color": '#b91d1d',
+                }
+            },
+        },
+        12: {
+            title: "晋升",
+            cost(x) {
+                let c = d(1)
+                if (player.torridite.coreTier.gte(10)) c = d(30000).pow(player.torridite.coreTier.sub(9).pow(1.44)).times(1e40)
+                else c = d(100).pow(player.torridite.coreTier.add(1).pow(1.25))
+                return c
+            },
+            free() {
+                let f = d(0)
+                return f
+            },
+            display() {
+                let freedis = ""
+                if (this.free().gte(1)) freedis = ` + ${formatWhole(this.free())}`
+                let display = `晋升你的炽炎核心<br>
+                晋升要求：${formatWhole(this.cost())} 炽炎核心`
+                return display
+            },
+            canAfford() { return player[this.layer].core.gte(this.cost()) },
+            canBuyMax() { return hasMilestone(torridite, 40) },
+            buyMax() {
+                if (this.canAfford()) {
+                    if (player.torridite.core.lt(1e40)) player.torridite.coreTier = player.torridite.core.max(1).logBase(100).root(1.25).floor()
+                    else player.torridite.coreTier = player.torridite.core.div(1e40).max(1).logBase(30000).root(1.44).add(9).floor().add(1)
+                }
+            },
+            buy() {
+                if (this.canAuto()) { this.buyMax(); return; }
+                if (this.canBuyMax()) { this.buyMax() }
+                else { player.torridite.coreTier = player.torridite.coreTier.add(1) }
+                setBuyableAmount(torridite, 11, d(0))
+                player[this.layer].core = d(0)
+            },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            canAuto() { return hasMilestone(torridite, 42) },
+            auto() {
+                if (this.canAuto())
+                    this.buyMax()
+            },
+            style() {
+                if (this.canAfford()) return {
+                    "background": "linear-gradient(45deg, #68031f 5%, #b91d1d 10%, #fcac83 15%, #f15221 30%, #b91d1d 45%, #f15221 60%, #b91d1d 75%, #f15221 90%, #900613 95%)",
+                    "border-color": '#b91d1d',
+                }
+            },
+        },
+        13: {
+            title: "飞升",
+            cost(x) {
+                let c = d(1)
+                c = d(100).add(player.torridite.coreAscend.pow(1.25).times(10))
+                if (hasUpgrade(ardite, 33)) c = c.times(0.95)
+                c = c.ceil()
+                return c
+            },
+            free() {
+                let f = d(0)
+                return f
+            },
+            display() {
+                let freedis = ""
+                if (this.free().gte(1)) freedis = ` + ${formatWhole(this.free())}`
+                let display = `令你的炽炎核心达成飞升<br>
+                飞升要求：T${fw(this.cost())} 炽炎核心`
+                return display
+            },
+            canAfford() { return player[this.layer].coreTier.gte(this.cost()) && player[this.layer].core.gte(1) },
+            canBuyMax() { return false },
+            buyMax() {
+                if (this.canAfford()) {
+                    if (hasUpgrade(ardite, 33)) player.torridite.coreAscend = player.torridite.coreTier.div(0.95).sub(100).div(10).pow(0.8).floor().add(1)
+                    else player.torridite.coreAscend = player.torridite.coreTier.sub(100).div(10).pow(0.8).floor().add(1)
+                }
+            },
+            buy() {
+                if (this.canBuyMax()) { this.buyMax(); return; }
+                player.torridite.coreAscend = player.torridite.coreAscend.add(1)
+                setBuyableAmount(torridite, 11, d(0))
+                player.torridite.coreTier = d(0)
+                player[this.layer].core = d(0)
+            },
+            unlocked() { return hasUpgrade(ardite, 23) },
+            canAuto() { return hasMilestone(torridite, 43) },
+            auto() {
+                if (this.canAuto())
+                    this.buyMax()
+            },
+            style() {
+                if (this.canAfford()) return {
+                    "background": "linear-gradient(45deg, #68031f 5%, #b91d1d 10%, #fcac83 15%, #f15221 30%, #b91d1d 45%, #f15221 60%, #b91d1d 75%, #f15221 90%, #900613 95%)",
+                    "border-color": '#b91d1d',
+                }
+            },
+        },
     },
 
     update(diff) {
@@ -28296,7 +29560,439 @@ addLayer("torridite", {
         if (player.torridite.progress.gte(hardness(torridite))) player.torridite.progress = d(0),
             player.torridite.found = false,
             player.torridite.destroying = false,
-            player.torridite.ore = player.torridite.ore.add(tmp.torridite.gainMult.times(d(Math.random()).lte(tmp.torridite.chainChance) && hasUpgrade(torridite, 13) ? tmp.torridite.chainMult : d(1)))
+            player.torridite.ore = player.torridite.ore.add(tmp.torridite.gainMult.times(d(Math.random()).lte(tmp.torridite.chainChance) && hasUpgrade(torridite, 21) ? tmp.torridite.chainMult : d(1)))
+
+        if (hasUpgrade(torridite, 12)) player.torridite.core = player.torridite.core.add(tmp.torridite.coreGain.times(diff))
+        if (hasCraftingItem(702)) player.torridite.refined = player.torridite.refined.add(tmp.torridite.refinedGain.times(diff))
+    },
+
+    torriditeXPGain() {
+        let base = d(0.5)
+        if (hasCraftingItem(741)) base = d(0.6)
+        if (hasUpgrade(enderium, 25)) base = base.add(0.2)
+        if (hasUpgrade(geild_enderium, 12) && firstTickCheck) base = base.add(tmp.geild_enderium.effect)
+        let c = player.torridite.core.max(0)
+        let t = player.torridite.coreTier.max(0).floor()
+        return d(1).add(c).layeradd(t.times(base))
+    },
+
+    coreGain() {
+        let g = player.torridite.best.add(1).max(1)
+        g = g.times(buyableEffect(torridite, 11))
+        if (hasUpgrade(torridite, 13)) g = g.times(upgradeEffect(torridite, 13))
+        if (hasUpgrade(torridite, 22)) g = g.times(upgradeEffect(torridite, 22))
+        if (hasCraftingItem(702)) g = g.times(tmp.torridite.refinedEff)
+        if (hasMilestone(torridite, 39)) g = g.times(milestoneEffect(torridite, 39))
+        if (hasUpgrade(ardite, 32)) g = g.times('1e2000')
+        return g
+    },
+
+    refinedGain() {
+        let g = d(1)
+        if (hasUpgrade(torridite, 31)) g = g.times(upgradeEffect(torridite, 31))
+        if (hasUpgrade(torridite, 32)) g = g.times(upgradeEffect(torridite, 32))
+        if (hasUpgrade(torridite, 33)) g = g.times(upgradeEffect(torridite, 33))
+        if (hasUpgrade(torridite, 34)) g = g.times(upgradeEffect(torridite, 34))
+        if (hasUpgrade(torridite, 44)) g = g.times(upgradeEffect(torridite, 44))
+        if (hasUpgrade(ardite, 13)) g = g.times(upgradeEffect(ardite, 13))
+        if (hasNormalAchievement(232)) g = g.times(tmp.manyullyn.effect)
+        return g
+    },
+
+    refinedEff() {
+        let eff = d(1)
+        let r = player.torridite.refined
+        eff = d(10).pow(r.add(1).max(1).log10().pow(0.85).times(5))
+        return eff
+    },
+
+    milestones: {
+        0: {
+            requirementDescription() { return `T1 炽炎核心` },
+            effectDescription() { return `木头获取等于经验获取，木头升级2、3、4、6、7无效化` },
+            done() { return player.torridite.coreTier.gte(1) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.wood.upgradesExpired = [12, 13, 14, 21, 22]
+            },
+        },
+        1: {
+            requirementDescription() { return `T2 炽炎核心` },
+            effectDescription() { return `石头获取等于经验获取，石头升级2、3、7、9、11、14无效化` },
+            done() { return player.torridite.coreTier.gte(2) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.stone.upgradesExpired = [12, 13, 22, 24, 31, 34]
+            },
+        },
+        2: {
+            requirementDescription() { return `T3 炽炎核心` },
+            effectDescription() { return `铜矿石、铜锭熔炼倍率、玻璃熔炼倍率等于经验获取，铜升级2、4、6、7、8、9无效化` },
+            done() { return player.torridite.coreTier.gte(3) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.copper.upgradesExpired = [12, 14, 21, 22, 23, 24]
+            },
+        },
+        3: {
+            requirementDescription() { return `T4 炽炎核心` },
+            effectDescription() { return `锡矿石和锡锭熔炼倍率等于经验获取，锡升级2、3、4无效化` },
+            done() { return player.torridite.coreTier.gte(4) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.tin.upgradesExpired = [12, 13, 14]
+            },
+        },
+        4: {
+            requirementDescription() { return `T5 炽炎核心` },
+            effectDescription() { return `青铜合金倍率、青铜力量和木炭熔炼倍率等于经验获取，青铜升级1、2、3、4、5、9无效化` },
+            done() { return player.torridite.coreTier.gte(5) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.bronze.upgradesExpired = [11, 12, 13, 14, 15, 24]
+            },
+        },
+        5: {
+            requirementDescription() { return `T6 炽炎核心` },
+            effectDescription() { return `铁矿石、铁锭熔炼倍率、水和熔岩获取等于经验获取，铁升级3、7、8、9无效化` },
+            done() { return player.torridite.coreTier.gte(6) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.iron.upgradesExpired = [13, 22, 23, 24]
+            },
+        },
+        6: {
+            requirementDescription() { return `T7 炽炎核心` },
+            effectDescription() { return `镍矿石和镍锭熔炼倍率等于经验获取，镍升级2、3、9无效化` },
+            done() { return player.torridite.coreTier.gte(7) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.nickel.upgradesExpired = [12, 13, 24]
+            },
+        },
+        7: {
+            requirementDescription() { return `T8 炽炎核心` },
+            effectDescription() { return `铝矿石和铝锭熔炼倍率等于经验获取，铝升级1、8、9无效化` },
+            done() { return player.torridite.coreTier.gte(8) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.aluminum.upgradesExpired = [11, 23, 24]
+            },
+        },
+        8: {
+            requirementDescription() { return `T9 炽炎核心` },
+            effectDescription() { return `铅矿石和铅锭熔炼倍率等于经验获取，铅升级3、4、6、7无效化` },
+            done() { return player.torridite.coreTier.gte(9) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.lead.upgradesExpired = [13, 14, 21, 22]
+            },
+        },
+        9: {
+            requirementDescription() { return `T10 炽炎核心` },
+            effectDescription() { return `康铜合金倍率和康铜精华等于经验获取，康铜升级2、6、7、8、9、11无效化` },
+            done() { return player.torridite.coreTier.gte(10) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.constantan.upgradesExpired = [12, 21, 22, 23, 24, 31]
+            },
+        },
+        10: {
+            requirementDescription() { return `T11 炽炎核心` },
+            effectDescription() { return `殷钢合金倍率、殷钢能量和1~7殷钢维度等于经验获取，殷钢升级7、9、12无效化` },
+            done() { return player.torridite.coreTier.gte(11) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.invar.upgradesExpired = [22, 24, 32]
+            },
+        },
+        11: {
+            requirementDescription() { return `T12 炽炎核心` },
+            effectDescription() { return `铝黄铜合金倍率等于经验获取，铝黄铜升级2、4、9无效化` },
+            done() { return player.torridite.coreTier.gte(12) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.alumbrass.upgradesExpired = [12, 14, 24]
+            },
+        },
+        12: {
+            requirementDescription() { return `T13 炽炎核心` },
+            effectDescription() { return `锌矿石、锌矿石连锁倍率和锌锭熔炼倍率等于经验获取，锌矿石连锁率为1，锌升级4、6、7、9、10无效化` },
+            done() { return player.torridite.coreTier.gte(13) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.zinc.upgradesExpired = [14, 21, 22, 24, 25]
+            },
+        },
+        13: {
+            requirementDescription() { return `T14 炽炎核心` },
+            effectDescription() { return `黄铜合金倍率和应力等于经验获取，黄铜升级2、3、5、6、main2无效化` },
+            done() { return player.torridite.coreTier.gte(14) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.brass.upgradesExpired = [12, 13, 15, 21, 'main2']
+            },
+        },
+        14: {
+            requirementDescription() { return `T15 炽炎核心` },
+            effectDescription() { return `熔融钢高炉合金倍率、钢锭浇铸倍率等于经验获取，钢升级4、6、7、8、9无效化` },
+            done() { return player.torridite.coreTier.gte(15) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.steel.upgradesExpired = [14, 21, 22, 23, 24]
+            },
+        },
+        15: {
+            requirementDescription() { return `T16 炽炎核心` },
+            effectDescription() { return `银矿石、银矿石连锁倍率、银矿脉获取和银锭熔炼倍率等于经验获取，银矿石连锁率为1，银升级2、3、6、9、11无效化` },
+            done() { return player.torridite.coreTier.gte(16) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.silver.upgradesExpired = [12, 13, 21, 24, 31]
+            },
+        },
+        16: {
+            requirementDescription() { return `T17 炽炎核心` },
+            effectDescription() { return `金矿石、金矿石连锁倍率、时钟储存的时间和金锭熔炼倍率等于经验获取，金矿石连锁率为1，金升级2、5、9、14、16无效化` },
+            done() { return player.torridite.coreTier.gte(17) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.gold.upgradesExpired = [12, 15, 24, 34, 42]
+            },
+        },
+        17: {
+            requirementDescription() { return `T18 炽炎核心` },
+            effectDescription() { return `琥珀金合金倍率等于经验获取，琥珀金升级4、7、8、11、12、13无效化` },
+            done() { return player.torridite.coreTier.gte(18) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.electrum.upgradesExpired = [14, 22, 23, 31, 32, 33]
+            },
+        },
+        18: {
+            requirementDescription() { return `T19 炽炎核心` },
+            effectDescription() { return `红石矿石等大部分此层级副资源等于经验获取，额外等级卡出现率为50%，红石升级1、2、4、6、8、12、13、16、19、21、25无效化` },
+            done() { return player.torridite.coreTier.gte(19) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.redstone.upgradesExpired = [11, 12, 14, 21, 23, 32, 33, 41, 44, 51, 55]
+            },
+        },
+        19: {
+            requirementDescription() { return `T20 炽炎核心` },
+            effectDescription() { return `红石琥珀金合金倍率等于经验获取，红石琥珀金升级1、2、5无效化` },
+            done() { return player.torridite.coreTier.gte(20) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.red_ele.upgradesExpired = [11, 12, 15]
+            },
+        },
+        20: {
+            requirementDescription() { return `T21 炽炎核心` },
+            effectDescription() { return `魔力、魔力钢转化倍率等于经验获取，魔力钢升级2、3、5、8、9、10、12无效化` },
+            done() { return player.torridite.coreTier.gte(21) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.manasteel.upgradesExpired = [12, 13, 15, 23, 24, 25, 32]
+            },
+        },
+        21: {
+            requirementDescription() { return `T22 炽炎核心` },
+            effectDescription() { return `铂矿石、铂矿石连锁倍率和铂锭熔炼倍率等于经验获取，铂矿石连锁率为1，铂升级1、3、4、8、9无效化` },
+            done() { return player.torridite.coreTier.gte(22) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.platinum.upgradesExpired = [11, 13, 14, 23, 24]
+            },
+        },
+        22: {
+            requirementDescription() { return `T23 炽炎核心` },
+            effectDescription() { return `钻石矿石和无暇钻石等于经验获取，钻石升级2、3、4、8、9、10、16、17、18无效化` },
+            done() { return player.torridite.coreTier.gte(23) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.diamond.upgradesExpired = [12, 13, 14, 23, 24, 25, 41, 42, 43]
+            },
+        },
+        23: {
+            requirementDescription() { return `T24 炽炎核心` },
+            effectDescription() { return `黑曜石等于经验获取，黑曜石升级3、4、6、7、8、9、11无效化` },
+            done() { return player.torridite.coreTier.gte(24) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.obsidian.upgradesExpired = [13, 14, 21, 22, 23, 24, 31]
+            },
+        },
+        24: {
+            requirementDescription() { return `T25 炽炎核心` },
+            effectDescription() { return `绿宝石矿石和对应2种村民交易倍率等于经验获取，绿宝石升级2、3、4、6、7、8、14无效化` },
+            done() { return player.torridite.coreTier.gte(25) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.emerald.upgradesExpired = [12, 13, 14, 21, 22, 23, 34]
+            },
+        },
+        25: {
+            requirementDescription() { return `T26 炽炎核心` },
+            effectDescription() { return `经验固化知识精华锭为1:1，知识精华升级3、5、11、14无效化` },
+            done() { return player.torridite.coreTier.gte(26) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.experience.upgradesExpired = [13, 15, 31, 34]
+            },
+        },
+        26: {
+            requirementDescription() { return `T28 炽炎核心` },
+            effectDescription() { return `泰拉钢的泰拉凝聚板凝聚倍率、魔力钻石、魔力尘的转化倍率和战斗LUCK值等于经验获取，泰拉钢升级1、2、5、8、12、13无效化` },
+            done() { return player.torridite.coreTier.gte(28) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.terrasteel.upgradesExpired = [11, 12, 15, 23, 32, 33]
+            },
+        },
+        27: {
+            requirementDescription() { return `T30 炽炎核心` },
+            effectDescription() { return `暮光宝石合成倍率和暮色森林征服点数等于经验获取` },
+            done() { return player.torridite.coreTier.gte(30) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+        },
+        28: {
+            requirementDescription() { return `T32 炽炎核心` },
+            effectDescription() { return `活根、生铁树原料合成倍率、铁树锭熔炼倍率等于经验获取，铁树升级6、7、8、9、12、13无效化` },
+            done() { return player.torridite.coreTier.gte(32) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.ironwood.upgradesExpired = [21, 22, 23, 24, 32, 33]
+            },
+        },
+        29: {
+            requirementDescription() { return `T34 炽炎核心` },
+            effectDescription() { return `娜迦鳞片升级1、3、6、7无效化` },
+            done() { return player.torridite.coreTier.gte(34) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.naga_scale.upgradesExpired = [11, 13, 21, 22]
+            },
+        },
+        30: {
+            requirementDescription() { return `T36 炽炎核心` },
+            effectDescription() { return `探索获得的钢叶奖励箱等于经验获取，钢叶升级1、4、9、10、11、12无效化` },
+            done() { return player.torridite.coreTier.gte(36) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.steeleaf.upgradesExpired = [11, 14, 24, 25, 31, 32]
+            },
+        },
+        31: {
+            requirementDescription() { return `T38 炽炎核心` },
+            effectDescription() { return `装甲碎片堆合成倍率和骑士金属锭熔炼倍率等于经验获取，骑士金属升级3、5无效化` },
+            done() { return player.torridite.coreTier.gte(38) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.knight_metal.upgradesExpired = [13, 15]
+            },
+        },
+        32: {
+            requirementDescription() { return `T40 炽炎核心` },
+            effectDescription() { return `炽铁锭合成倍率等于经验获取，炽铁升级2、9无效化` },
+            done() { return player.torridite.coreTier.gte(40) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.fiery.upgradesExpired = [12, 24]
+            },
+        },
+        33: {
+            requirementDescription() { return `T42 炽炎核心` },
+            effectDescription() { return `砷铅铁矿石升级3、4、7无效化` },
+            done() { return player.torridite.coreTier.gte(42) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.carminite.upgradesExpired = [13, 14, 22]
+            },
+        },
+        34: {
+            requirementDescription() { return `T44 炽炎核心` },
+            effectDescription() { return `魂金锭熔炼倍率和灵魂瓶提供的灵魂上限等于经验获取，魂金升级2、3、6、7、8、9、11、12无效化` },
+            done() { return player.torridite.coreTier.gte(44) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.soularium.upgradesExpired = [12, 13, 21, 22, 23, 24, 31, 32]
+            },
+        },
+        35: {
+            requirementDescription() { return `T46 炽炎核心` },
+            effectDescription() { return `下界石英矿石和焦黑石英矿石等于经验获取，下界石英升级2、3、4、7、8、9无效化` },
+            done() { return player.torridite.coreTier.gte(46) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.quartz.upgradesExpired = [12, 13, 24, 22, 23, 24]
+            },
+        },
+        36: {
+            requirementDescription() { return `T48 炽炎核心` },
+            effectDescription() { return `荧石块等于经验获取，荧石升级3、4无效化` },
+            done() { return player.torridite.coreTier.gte(48) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+            onComplete() {
+                player.glowstone.upgradesExpired = [13, 14]
+            },
+        },
+        37: {
+            requirementDescription() { return `T50 炽炎核心` },
+            effectDescription() { return `流明锭合金倍率和下界岩等于经验获取` },
+            done() { return player.torridite.coreTier.gte(50) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+        },
+        38: {
+            requirementDescription() { return `T70 炽炎核心` },
+            effectDescription() { return `暮色橡木等于经验获取，解锁层级暂停，在层级选择界面，拯救低TPS惨案（实验性内容）` },
+            done() { return player.torridite.coreTier.gte(70) },
+            unlocked() { return hasUpgrade(torridite, 12) },
+        },
+        39: {
+            requirementDescription() { return `Asc1 炽炎核心` },
+            effectDescription() {
+                let des = `炽炎核心每次飞升都使炽炎核心获取变为${f(this.effBase())}x<br>`
+                let eff = '当前：' + f(this.effect()) + 'x'
+                let formula = '公式：' + f(this.effBase()) + quickSUP('Asc')
+                return shiftDown ? des + formula : des + eff
+            },
+            effBase() {
+                let b = d(1e300)
+                if (hasUpgrade(ardite, 34)) b = d('1e350')
+                return b
+            },
+            effect() {
+                let eff = this.effBase().pow(player.torridite.coreAscend.max(0))
+                return eff
+            },
+            done() { return player.torridite.coreAscend.gte(1) },
+            unlocked() { return hasUpgrade(ardite, 23) },
+        },
+        40: {
+            requirementDescription() { return `Asc2 炽炎核心` },
+            effectDescription() { return `你可以晋升炽炎核心到最大` },
+            done() { return player.torridite.coreAscend.gte(2) },
+            unlocked() { return hasUpgrade(ardite, 23) },
+        },
+        41: {
+            requirementDescription() { return `Asc20 炽炎核心` },
+            effectDescription() { return `每游戏刻自动更新一次高能钴数量` },
+            done() { return player.torridite.coreAscend.gte(20) },
+            unlocked() { return hasUpgrade(ardite, 23) },
+        },
+        42: {
+            requirementDescription() { return `Asc50 炽炎核心` },
+            effectDescription() { return `自动倍增、晋升炽炎核心，它们不再重置任何东西` },
+            done() { return player.torridite.coreAscend.gte(50) },
+            unlocked() { return hasUpgrade(ardite, 23) },
+        },
+        43: {
+            requirementDescription() { return `Asc100 炽炎核心` },
+            effectDescription() { return `自动飞升炽炎核心，且不再重置任何东西` },
+            done() { return player.torridite.coreAscend.gte(100) },
+            unlocked() { return hasUpgrade(ardite, 23) },
+        },
     },
 
     tabFormat: [
@@ -28326,10 +30022,10 @@ addLayer("torridite", {
                     ["display-text", function () { return `找矿速度：${format(player.copper.speed)}/秒` }],
                     ["display-text", function () { return `挖掘速度：${format(player.stone.speed)}/秒` }],
                     ["display-text", function () { return `破坏一次的炽炎矿石获取数量：${textResourceStyle(formatWhole(tmp.torridite.gainMult), 'text-torridite')}` }],
-                    ["display-text", function () { if (hasUpgrade(torridite, 13)) return `连锁挖掘率：${textResourceStyle(formatPercent(tmp.torridite.chainChance), 'text-torridite')}` }],
-                    ["display-text", function () { if (hasUpgrade(torridite, 13)) return `连锁倍数：${textResourceStyle(f(tmp.torridite.chainMult) + "x", 'text-torridite')}` }],
+                    ["display-text", function () { if (hasUpgrade(torridite, 21)) return `连锁挖掘率：${textResourceStyle(formatPercent(tmp.torridite.chainChance), 'text-torridite')}` }],
+                    ["display-text", function () { if (hasUpgrade(torridite, 21)) return `连锁倍数：${textResourceStyle(f(tmp.torridite.chainMult) + "x", 'text-torridite')}` }],
                     ["display-text", function () {
-                        if (hasUpgrade(torridite, 13)) { //暂定
+                        if (hasUpgrade(torridite, 21)) { //暂定
                             if (!shiftDown)
                                 return `连锁成功后的炽炎矿石获取数量：${textResourceStyle(fw(tmp.torridite.gainMult.times(tmp.torridite.chainMult)), 'text-torridite')}（按shift查看期望值）`
                             if (shiftDown)
@@ -28349,6 +30045,3438 @@ addLayer("torridite", {
                 content: [
                     ["blank", "15px"],
                     "upgrades",
+                ]
+            },
+            "core": {
+                unlocked() { return hasUpgrade(torridite, 12) },
+                name() { return '核心' },
+                content: [
+                    ["blank", "15px"],
+                    ["display-text", function () {
+                        let asc = ''
+                        if (hasUpgrade(ardite, 23)) asc = ' Asc' + fw(player.torridite.coreAscend)
+                        return `你有 ${textResourceStyle(fw(player.torridite.core) + ' T' + fw(player.torridite.coreTier) + asc, 'text-torridite')} 炽炎核心`
+                    }],
+                    ["display-text", function () { return `(${textResourceStyle('+' + (tmpres['torridite core mag'] != 0 ? getOoMpsText(torridite, 'core') : f(tmp.torridite.coreGain)), 'text-torridite')}/sec)` }],
+                    ["display-text", function () { return `经验获取 ${textResourceStyle('+' + f(tmp.torridite.torriditeXPGain), 'text-torridite')}/sec` }],
+                    ["display-text", function () {
+                        let base = d(0.5)
+                        if (hasCraftingItem(741)) base = d(0.6)
+                        if (hasUpgrade(enderium, 25)) base = base.add(0.2)
+                        if (hasUpgrade(geild_enderium, 12)) base = base.add(tmp.geild_enderium.effect)
+                        if (shiftDown) return `公式：(10^)^(${f(base)}t) c`
+                    }],
+                    "blank",
+                    "buyables",
+                    "blank",
+                    ["display-text", function () { return `炽炎的强大力量能够突破知识精华的力量上限，且其力量毁灭了创世神罚I！` }],
+                ]
+            },
+            "milestones": {
+                unlocked() { return hasUpgrade(torridite, 12) },
+                name() { return '里程碑' },
+                content: [
+                    ["blank", "15px"],
+                    "blank",
+                    ["display-text", function () { return `此层级的里程碑很多，你可以前往设置项里隐藏已获得的里程碑` }],
+                    "blank",
+                    "milestones",
+                ]
+            },
+            "refined": {
+                unlocked() { return hasCraftingItem(702) },
+                name() { return '强化下界岩' },
+                content: [
+                    ["blank", "15px"],
+                    ["display-text", () => `你有 ${textStyle_h2(formatWhole(player.torridite.refined), 'b91d1d', '4f1a1a')} 强化下界岩`],
+                    ["display-text", function () { return `(${textStyle_h2('+' + (tmpres['torridite refined mag'] != 0 ? getOoMpsText(torridite, 'refined') : f(tmp.torridite.refinedGain)), 'b91d1d', '4f1a1a')}/sec)` }],
+                    ["display-text", () => `炽炎核心获取变为 ${textStyle_h2(formatWhole(tmp.torridite.refinedEff) + 'x', 'b91d1d', '4f1a1a')}`],
+                    ["display-text", function () { if (shiftDown) return `效果公式：10${quickSUP('lg(x+1)' + quickSUP('0.85') + '·5')}` }],
+                ]
+            },
+        },
+    },
+})
+
+//世界4层7：钴
+addLayer("cobalt", {
+    startData() {
+        return {                  // startData is a function that returns default data for a layer. 
+            unlocked: true,                     // You can add more variables here to add them to your layer.
+            points: d(0),             // "points" is the internal name for the main resource of the layer.
+            ore: d(0),
+            molten: d(0),
+            miningLevel: d(5),
+            rarity: d(3550),
+            progress: d(0),
+            findingProgress: d(0),
+            hardness: d(223344),
+            destroying: false,
+            finding: false,
+            found: false,
+            high_energy: d(0),
+            singularity: d(0),
+        }
+    },
+
+    color: "#2376dd",                       // The color for this layer, which affects many elements.
+    nodeStyle: {
+        "background": "linear-gradient(90deg, #03265f 5%, #59aaef 10%, #2376dd 15%, #1d6288 20%, #2376dd 30%, #2376dd 80%, #1d6288 90%, #03265f 95%)",
+    },
+    resource: "钴锭",            // The name of this layer's main prestige resource.
+    symbol: "钴",
+    row: 301,                                 // The row this layer is on (0 is the first row).
+    position: 3008,
+    baseResource: "points",                 // The name of the resource your prestige gain is based on.
+    baseAmount() { return player.points },  // A function to return the current amount of baseResource.
+
+    requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
+    // Also the amount required to unlock the layer.
+
+    type: "none",                         // Determines the formula used for calculating prestige currency.
+    exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
+    layerShown() { return hasNormalAchievement(226) && !layerHidden(this.layer) },
+
+    gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
+        let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
+        if (hasUpgrade(cobalt, 11)) m = m.times(4)
+        if (hasUpgrade(torridite, 41)) m = m.times(upgradeEffect(torridite, 41))
+        if (hasUpgrade(ardite, 14)) m = m.times(upgradeEffect(ardite, 14))
+        if (hasCraftingItem(711)) m = m.times(15)
+        if (hasUpgrade(cobalt, 31)) m = m.times(tmp.cobalt.HEeff)
+        if (hasMilestone(sing_fus, 15)) m = m.times(buyableEffect(sing_fus, 44))
+        m = m.floor()
+        return m
+    },
+    gainExp() {                             // Returns the exponent to your gain of the prestige resource.
+        return d(1)
+    },
+
+    doReset() {
+        return undefined
+    },
+
+    upgrades: {
+        11: {
+            title: "27号元素",
+            description() { return `4x钴矿石获取` },
+            currencyDisplayName: "钴矿石",
+            currencyInternalName: "ore",
+            currencyLayer: cobalt,
+            cost() { return new ExpantaNum(5) },
+            unlocked() { return tmp.cobalt.layerShown },
+        },
+        12: {
+            title: "玩家所熟知的匠魂2的一种来自下界的合金的原材料(1/2)",
+            description() { return `解锁钴锭的熔炼配方` },
+            currencyDisplayName: "钴矿石",
+            currencyInternalName: "ore",
+            currencyLayer: cobalt,
+            cost() { return new ExpantaNum(25) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        13: {
+            title: "钴蓝",
+            description() { return `最多的钴锭加成炽炎矿石连锁倍率` },
+            cost() { return new ExpantaNum(25) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = player.cobalt.best.max(1).pow(2.25)
+                return eff
+            },
+            effectDisplay() {
+                return `${format(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：钴锭${quickSUP('2.25')}`
+                return t
+            },
+        },
+        14: {
+            title: "高于黑曜石的挖掘等级",
+            description() { return `最多的钴锭加成炽炎锭熔炼倍率` },
+            cost() { return new ExpantaNum(40) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = player.cobalt.best.pow(2.22)
+                return eff
+            },
+            effectDisplay() {
+                return `${format(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：钴锭${quickSUP('2.22')}`
+                return t
+            },
+        },
+        15: {
+            title: "匠魂词条 - 轻便",
+            canAfford() { return (player.omegaTier.eq(31) && player.highestTierAmount.gte(1)) || player.omegaTier.gt(31) },
+            description() { return `需求：三十一阶等级1<br>解锁钴相关的合成图纸` },
+            cost() { return new ExpantaNum(125000) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        21: {
+            title: "连锁：钴矿石",
+            description() { return `解锁连锁挖掘钴矿石` },
+            cost() { return new ExpantaNum(3000000) },
+            unlocked() { return hasUpgrade(this.layer, 15) },
+        },
+        22: {
+            title: "互相加成",
+            description() { return `最多的钴锭加成阿迪特矿石和阿迪特锭熔炼倍率` },
+            cost() { return new ExpantaNum(50000000) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            currencyDisplayName: "钴矿石",
+            currencyInternalName: "ore",
+            currencyLayer: cobalt,
+            effect() {
+                let eff = player.cobalt.best.pow(0.2)
+                return eff
+            },
+            effectDisplay() {
+                return `${format(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：钴锭${quickSUP('0.2')}`
+                return t
+            },
+        },
+        23: {
+            title: "倍增++",
+            description() { return `炽炎核心倍增的基数+1.5` },
+            cost() { return new ExpantaNum(2000000) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        24: {
+            title: "钴连锁强化",
+            canAfford() { return (player.omegaTier.eq(35) && player.highestTierAmount.gte(1)) || player.omegaTier.gt(35) },
+            description() { return `需求：三十五阶等级1<br>炽炎核心在第60次晋升后每次晋升使钴矿石连锁倍率和钴锭熔炼倍率变为2x` },
+            cost() { return new ExpantaNum(1e9) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = d(2).pow(player.torridite.coreTier.sub(60).max(0))
+                return eff
+            },
+            effectDisplay() {
+                return `${format(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：2${quickSUP('T-60')}`
+                return t
+            },
+        },
+        25: {
+            title: "钴连锁率强化",
+            canAfford() { return (player.omegaTier.eq(35) && player.highestTierAmount.gte(1)) || player.omegaTier.gt(35) },
+            description() { return `需求：三十五阶等级1<br>炽炎核心在第60次晋升后每次晋升使钴矿石连锁概率增加1%（硬上限95%），591.6x钴锭熔炼倍率` },
+            cost() { return new ExpantaNum(1e11) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = d(0.01).times(player.torridite.coreTier.sub(60).max(0)).min(0.95)
+                return eff
+            },
+            effectDisplay() {
+                return `+${fp(upgradeEffect(this.layer, this.id))}`
+            },
+            tooltip() {
+                let t = `公式：0.01·(T-60)`
+                return t
+            },
+        },
+        31: {
+            title: "高能预警",
+            canAfford() { return (player.omegaTier.eq(35) && player.highestTierAmount.gte(320)) || player.omegaTier.gt(35) },
+            description() { return `需求：三十五阶等级320<br>解锁高能钴` },
+            cost() { return new ExpantaNum(1e14) },
+            unlocked() { return hasUpgrade(this.layer, 25) },
+        },
+        32: {
+            title: "晋升 - 动态底数",
+            description() { return `初始获得+1炽炎核心倍增底数，高能钴能进一步提升此升级效果` },
+            cost() { return new ExpantaNum(2e16) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = d(1).add(player.cobalt.high_energy.add(1).log10().times(1.25))
+                return eff
+            },
+            effectDisplay() {
+                return `+${f(upgradeEffect(this.layer, this.id))}`
+            },
+            tooltip() {
+                let t = `公式：lg(高能钴+1)·1.25+1`
+                return t
+            },
+        },
+        33: {
+            title: "高能激发",
+            canAfford() { return (player.omegaTier.eq(41) && player.highestTierAmount.gte(2)) || player.omegaTier.gt(41) },
+            description() { return `需求：四十一阶等级2<br>5x高能钴获取` },
+            cost() { return new ExpantaNum(5e25) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        34: {
+            title: "高能激发+",
+            canAfford() { return (player.omegaTier.eq(41) && player.highestTierAmount.gte(435)) || player.omegaTier.gt(41) },
+            description() { return `需求：四十一阶等级435<br>初始拥有3x高能钴获取，另外高能钴每有一个OoM就使高能钴自身获取额外获得2.5x倍数` },
+            cost() { return new ExpantaNum(5e25) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = d(2.5).pow(player.cobalt.high_energy.max(1).log10().floor()).times(3)
+                return eff
+            },
+            effectDisplay() {
+                return `${f(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：2.5${quickSUP('⌊lg(高能钴)⌋')}·3`
+                return t
+            },
+        },
+        35: {
+            title: "高能核心",
+            canAfford() { return (player.omegaTier.eq(46) && player.highestTierAmount.gte(2)) || player.omegaTier.gt(46) },
+            description() { return `需求：四十六阶等级2<br>炽炎核心在第85次晋升后每次晋升使高能钴获取的该升级独立倍数+1` },
+            cost() { return new ExpantaNum(5e25) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = player.torridite.coreTier.max(85).sub(85)
+                return eff
+            },
+            effectDisplay() {
+                return `${f(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：T-85`
+                return t
+            },
+        },
+    },
+
+    clickables: {
+        11: {
+            title() {
+                let t = ""
+                return t
+            },
+            display() {
+                let d = "点击寻找"
+                return d
+            },
+            canClick() { return !player.cobalt.finding && !player.cobalt.destroying && !player.cobalt.found && isAtLocation('nether') },
+            onClick() {
+                if (!player.cobalt.finding) player.cobalt.finding = true
+            },
+            unlocked() { return tmp.cobalt.layerShown },
+            style() {
+                return {
+                    'min-height': '50px',
+                    'width': '120px',
+                    'font-size': '20px',
+                    'border-radius': '5px',
+                }
+            },
+        },
+        12: {
+            title() {
+                let t = ""
+                return t
+            },
+            display() {
+                let d = "点击挖掘"
+                return d
+            },
+            canClick() { return !player.cobalt.destroying && player.cobalt.found },
+            onClick() {
+                if (!player.cobalt.destroying) player.cobalt.destroying = true
+            },
+            unlocked() { return tmp.cobalt.layerShown },
+            style() {
+                return {
+                    'min-height': '50px',
+                    'width': '120px',
+                    'font-size': '20px',
+                    'border-radius': '5px',
+                }
+            },
+        },
+    },
+
+    bars: {
+        cobaltFinding: {
+            direction: RIGHT,
+            width: 360,
+            height: 60,
+            display() { return `找矿进度: ${format(player.cobalt.findingProgress)}/${format(rarity(cobalt))}` },
+            progress() { let p = player.cobalt.findingProgress.div(rarity(cobalt)); if (player.cobalt.found) p = d(1); return p },
+            unlocked() { return tmp.cobalt.layerShown },
+            fillStyle() { return { "background-color": `${tmp[this.layer].color}` } },
+            baseStyle() { return { "background-color": "rgba(0,0,0,0)" } },
+            textStyle() { return { "color": "#59aaef" } },
+        },
+        cobaltDestroying: {
+            direction: RIGHT,
+            width: 360,
+            height: 60,
+            display() { return `进度: ${format(player.cobalt.progress)}/${format(hardness(cobalt))}` },
+            progress() { return player.cobalt.progress.div(hardness(cobalt)) },
+            unlocked() { return tmp.cobalt.layerShown },
+            fillStyle() { return { "background-color": `${tmp[this.layer].color}` } },
+            baseStyle() { return { "background-color": "rgba(0,0,0,0)" } },
+            textStyle() { return { "color": "#59aaef" } },
+        },
+    },
+
+    update(diff) {
+        let chainActivated = d(Math.random()).lte(tmp.cobalt.chainChance)
+
+        if (player.cobalt.finding) player.cobalt.findingProgress = player.cobalt.findingProgress.add(player.copper.speed.times(diff))
+        if (player.cobalt.findingProgress.gte(rarity(cobalt))) player.cobalt.findingProgress = d(0),
+            player.cobalt.finding = false,
+            player.cobalt.found = true
+
+        if (player.cobalt.destroying) player.cobalt.progress = player.cobalt.progress.add(player.stone.speed.times(diff))
+        if (player.cobalt.progress.gte(hardness(cobalt))) {
+            player.cobalt.progress = d(0)
+            player.cobalt.found = false
+            player.cobalt.destroying = false
+            player.cobalt.ore = player.cobalt.ore.add(tmp.cobalt.gainMult.times(chainActivated && hasUpgrade(cobalt, 21) ? tmp.cobalt.chainMult : d(1)))
+            if (hasUpgrade(cobalt, 31) && chainActivated) player.cobalt.high_energy = player.cobalt.high_energy.add(tmp.cobalt.HEgain).div(tmp.cobalt.HEDecay).floor()
+        }
+
+        if (hasMilestone(torridite, 41)) player.cobalt.high_energy = player.cobalt.high_energy.add(tmp.cobalt.HEgain).div(tmp.cobalt.HEDecay).floor()
+
+        if (player.cobalt.points.gt(player.cobalt.best)) player.cobalt.best = player.cobalt.points
+    },
+
+    chainChance() {
+        let c = d(0.05)
+        if (hasUpgrade(cobalt, 25)) c = c.add(upgradeEffect(cobalt, 25))
+        return c
+    },
+
+    chainMult() {
+        let m = d(200)
+        if (hasUpgrade(cobalt, 24)) m = m.times(upgradeEffect(cobalt, 24))
+        m = m.floor()
+        return m
+    },
+
+    chainExpectation() {
+        let e = d(0)
+        let m = tmp.cobalt.gainMult
+        let cm = tmp.cobalt.chainMult
+        let c = tmp.cobalt.chainChance.max(1e-10)
+        e = m.times(cm).add(m.times(d(1).div(c).sub(1))).times(c)
+        return e
+    },
+
+    HEgain() {
+        let g = d(1)
+        if (hasUpgrade(cobalt, 33)) g = g.times(5)
+        if (hasUpgrade(cobalt, 34)) g = g.times(upgradeEffect(cobalt, 34))
+        if (hasUpgrade(cobalt, 35)) g = g.times(upgradeEffect(cobalt, 35))
+        if (hasUpgrade(ardite, 31)) g = g.times(upgradeEffect(ardite, 31))
+        if (hasUpgrade(manyullyn, 13)) g = g.times(tmp.manyullyn.scoreEff[1])
+        g = g.floor()
+        return g
+    },
+
+    HEeff() {
+        let eff = d(10).pow(player.cobalt.high_energy.add(1).log10().pow(0.96).times(5))
+        return eff
+    },
+
+    HEDecay() {
+        let decay = player.cobalt.high_energy.div(100).pow(0.02).max(1)
+        return decay
+    },
+
+    tabFormat: [
+        ["display-text", function () { return getPointsDisplay() }],
+        ["display-text", () => `你有 ${textResourceStyle(formatWhole(player.cobalt.ore), 'text-cobalt')} 钴矿石`],
+        ["display-text", () => `你有 ${textResourceStyle(formatWhole(player.cobalt.points), 'text-cobalt')} 钴锭`],
+        "blank",
+        ["display-text", () => `你同时最多拥有 ${formatWhole(player.cobalt.best)} 钴锭`],
+        ["raw-html", () => `<h4 style="opacity:.5">资源层解锁顺位 #46`],
+        "blank",
+        ["microtabs", "stuff"],
+        ["blank", "65px"],
+    ],
+    microtabs: {
+        stuff: {
+            "dig": {
+                unlocked() { return tmp.cobalt.layerShown },
+                name() { return '挖掘' },
+                content: [
+                    ["blank", "15px"],
+                    ["row", [["bar", "cobaltFinding"], "blank", ["clickable", 11],]],
+                    "blank",
+                    ["row", [["bar", "cobaltDestroying"], "blank", ["clickable", 12],]],
+                    "blank",
+                    ["display-text", function () { return player.cobalt.found ? `你找到了一处钴矿石` : `你尚未找到钴矿石` }],
+                    "blank",
+                    ["display-text", function () { return `找矿速度：${format(player.copper.speed)}/秒` }],
+                    ["display-text", function () { return `挖掘速度：${format(player.stone.speed)}/秒` }],
+                    ["display-text", function () { return `破坏一次的钴矿石获取数量：${textResourceStyle(formatWhole(tmp.cobalt.gainMult), 'text-cobalt')}` }],
+                    ["display-text", function () { if (hasUpgrade(cobalt, 21)) return `连锁挖掘率：${textResourceStyle(formatPercent(tmp.cobalt.chainChance), 'text-cobalt')}` }],
+                    ["display-text", function () { if (hasUpgrade(cobalt, 21)) return `连锁倍数：${textResourceStyle(f(tmp.cobalt.chainMult) + "x", 'text-cobalt')}` }],
+                    ["display-text", function () {
+                        if (hasUpgrade(cobalt, 21)) {
+                            if (!shiftDown)
+                                return `连锁成功后的钴矿石获取数量：${textResourceStyle(fw(tmp.cobalt.gainMult.times(tmp.cobalt.chainMult)), 'text-cobalt')}（按shift查看期望值）`
+                            if (shiftDown)
+                                return `钴矿石获取期望：${textResourceStyle(f(tmp.cobalt.chainExpectation), 'text-cobalt')}`
+                        }
+                    }
+                    ],
+                    ["display-text", function () { return `稀有度：${formatWhole(rarity(cobalt))}` }],
+                    ["display-text", function () { return `硬度：${formatWhole(hardness(cobalt))}` }],
+                    ["display-text", function () { return `挖掘等级：5` }],
+                    ["display-text", function () { return `需要在下界寻找` }],
+                ]
+            },
+            "upgrades": {
+                unlocked() { return tmp.cobalt.layerShown },
+                name() { return '升级' },
+                content: [
+                    ["blank", "15px"],
+                    ["upgrades", [1, 2, 3, 4]],
+                ]
+            },
+            "high_energy": {
+                unlocked() { return hasUpgrade(cobalt, 31) },
+                name() { return '高能' },
+                content: [
+                    ["blank", "15px"],
+                    ["row", [["bar", "cobaltFinding"], "blank", ["clickable", 11],]],
+                    "blank",
+                    ["row", [["bar", "cobaltDestroying"], "blank", ["clickable", 12],]],
+                    "blank",
+                    ["display-text", function () { return player.cobalt.found ? `你找到了一处钴矿石` : `你尚未找到钴矿石` }],
+                    "blank",
+                    ["display-text", function () { if (hasUpgrade(cobalt, 21)) return `高能钴出现率：${textResourceStyle(formatPercent(tmp.cobalt.chainChance), 'text-cobalt')} （等同于钴矿石连锁概率）` }],
+                    ["display-text", () => `你有 ${textResourceStyle(formatWhole(player.cobalt.high_energy), 'text-cobalt')} 高能钴`],
+                    ["display-text", () => `钴矿石和钴锭熔炼倍率变为 ${textResourceStyle(formatWhole(tmp.cobalt.HEeff) + 'x', 'text-cobalt')}`],
+                    ["display-text", function () { if (shiftDown) return `效果公式：10${quickSUP(`lg(x+1)` + quickSUP('0.96') + '·5')}` }],
+                    ["display-text", () => `每次触发钴矿石连锁可以获得 ${textResourceStyle(formatWhole(tmp.cobalt.HEgain), 'text-cobalt')} 高能钴`],
+                    ["display-text", function () {
+                        if (player.cobalt.high_energy.gte(100)) {
+                            let text = ''
+                            if (tmp.cobalt.HEDecay.lt(1000)) text = `每次获得高能钴后保留 ${textResourceStyle(formatPercent(d(1).div(tmp.cobalt.HEDecay)), 'text-cobalt')} 的高能钴`
+                            else text = `每次获得高能钴后高能钴数量 ${textResourceStyle('/' + f(tmp.cobalt.HEDecay), 'text-cobalt')}`
+                            return text
+                        }
+                    }],
+                    "blank",
+                    ["display-text", () => `当你触发钴矿石连锁时，你可以获得高能钴`],
+                    ["display-text", () => `高能钴在超过100个后，每次触发钴矿石连锁还会使高能钴会使一定比例的高能钴发生能量流失（先获得，再流失）`],
+                ]
+            },
+        },
+    },
+})
+
+//世界4层8：阿迪特
+addLayer("ardite", {
+    startData() {
+        return {                  // startData is a function that returns default data for a layer. 
+            unlocked: true,                     // You can add more variables here to add them to your layer.
+            points: d(0),             // "points" is the internal name for the main resource of the layer.
+            ore: d(0),
+            molten: d(0),
+            miningLevel: d(5),
+            rarity: d(3550),
+            progress: d(0),
+            findingProgress: d(0),
+            hardness: d(188990),
+            destroying: false,
+            finding: false,
+            found: false,
+            singularity: d(0),
+        }
+    },
+
+    color: "#cd5117",                       // The color for this layer, which affects many elements.
+    nodeStyle: {
+        "background": "linear-gradient(90deg, #471717 5%, #ff8517 10%, #cd5117 15%, #702e17 20%, #d55917 30%, #c34c17 80%, #f97717 90%, #471717 95%)",
+    },
+    resource: "阿迪特锭",            // The name of this layer's main prestige resource.
+    symbol: "阿迪特",
+    row: 301,                                 // The row this layer is on (0 is the first row).
+    position: 3009,
+    baseResource: "points",                 // The name of the resource your prestige gain is based on.
+    baseAmount() { return player.points },  // A function to return the current amount of baseResource.
+
+    requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
+    // Also the amount required to unlock the layer.
+
+    type: "none",                         // Determines the formula used for calculating prestige currency.
+    exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
+    layerShown() { return hasNormalAchievement(227) && !layerHidden(this.layer) },
+
+    gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
+        let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
+        if (hasUpgrade(ardite, 11)) m = m.times(upgradeEffect(ardite, 11))
+        if (hasUpgrade(cobalt, 22)) m = m.times(upgradeEffect(cobalt, 22))
+        if (hasCraftingItem(721)) m = m.times(15)
+        if (hasUpgrade(ardite, 21)) m = m.times(upgradeEffect(ardite, 21))
+        if (hasMilestone(sing_fus, 16)) m = m.times(buyableEffect(sing_fus, 51))
+        m = m.floor()
+        return m
+    },
+    gainExp() {                             // Returns the exponent to your gain of the prestige resource.
+        return d(1)
+    },
+
+    doReset() {
+        return undefined
+    },
+
+    upgrades: {
+        11: {
+            title: "伴生",
+            description() { return `当你寻找到一处钴矿石，阿迪特矿石的获取变为3x` },
+            currencyDisplayName: "阿迪特矿石",
+            currencyInternalName: "ore",
+            currencyLayer: ardite,
+            cost() { return new ExpantaNum(5) },
+            unlocked() { return tmp.ardite.layerShown },
+            effect() {
+                return player.cobalt.found ? d(3) : d(1)
+            },
+            effectDisplay() {
+                return `${format(upgradeEffect(this.layer, this.id))}x`
+            },
+        },
+        12: {
+            title: "玩家所熟知的匠魂2的一种来自下界的合金的原材料(2/2)",
+            description() { return `解锁阿迪特锭的熔炼配方` },
+            currencyDisplayName: "阿迪特矿石",
+            currencyInternalName: "ore",
+            currencyLayer: ardite,
+            cost() { return new ExpantaNum(25) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        13: {
+            title: "虚构橙红金属",
+            description() { return `最多的阿迪特锭加成强化下界岩获取` },
+            cost() { return new ExpantaNum(25) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = player.ardite.best.max(1).pow(1.8)
+                return eff
+            },
+            effectDisplay() {
+                return `${format(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：阿迪特锭${quickSUP('1.8')}`
+                return t
+            },
+        },
+        14: {
+            title: "互相加成",
+            canAfford() { return (player.omegaTier.eq(31) && player.highestTierAmount.gte(1)) || player.omegaTier.gt(31) },
+            description() { return `需求：三十一阶等级1<br>最多的阿迪特锭加成钴矿石和钴锭熔炼倍率` },
+            cost() { return new ExpantaNum(30) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = player.ardite.best.pow(0.3)
+                return eff
+            },
+            effectDisplay() {
+                return `${format(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：阿迪特锭${quickSUP('0.3')}`
+                return t
+            },
+        },
+        15: {
+            title: "匠魂词条 - 爱石",
+            canAfford() { return (player.omegaTier.eq(49) && player.highestTierAmount.gte(2)) || player.omegaTier.gt(49) },
+            description() { return `需求：四十九阶等级2<br>解锁阿迪特相关的合成图纸` },
+            cost() { return new ExpantaNum(1e10) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        21: {
+            title: "黑石建筑物",
+            canAfford() { return (player.omegaTier.eq(51) && player.highestTierAmount.gte(2)) || player.omegaTier.gt(51) },
+            description() { return `需求：五十一阶等级2<br>黑石加成阿迪特矿石和阿迪特锭熔炼倍率` },
+            cost() { return new ExpantaNum(5e12) },
+            unlocked() { return hasUpgrade(this.layer, 15) },
+            effect() {
+                let eff = player.stone.blackStone.max(1).pow(0.8)
+                return eff
+            },
+            effectDisplay() {
+                return `${format(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：黑石${quickSUP('0.8')}`
+                return t
+            },
+        },
+        22: {
+            title: "连锁：阿迪特矿石",
+            canAfford() { return (player.omegaTier.eq(51) && player.highestTierAmount.gte(591)) || player.omegaTier.gt(51) },
+            description() { return `需求：五十一阶等级591<br>解锁连锁挖掘阿迪特矿石` },
+            cost() { return new ExpantaNum(1e15) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        23: {
+            title: "Ascension",
+            description() { return `解锁炽炎核心飞升` },
+            cost() { return new ExpantaNum(7e15) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        24: {
+            title: "飞升连锁率",
+            canAfford() { return (player.omegaTier.eq(94) && player.highestTierAmount.gte(1449)) || player.omegaTier.gt(94) },
+            description() { return `需求：九十四阶等级${f(1449)}<br>阿迪特锭熔炼倍率变为100x，且每次炽炎核心飞升次数增加1.5%到阿迪特矿石连锁概率（上限+95%）` },
+            cost() { return new ExpantaNum(1e34) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = d(0.015).times(player.torridite.coreAscend.max(0)).min(0.95)
+                return eff
+            },
+            effectDisplay() {
+                return `+${fp(upgradeEffect(this.layer, this.id))}`
+            },
+            tooltip() {
+                let t = `公式：0.015Asc`
+                return t
+            },
+        },
+        25: {
+            title: "飞升基数",
+            canAfford() { return (player.omegaTier.eq(95) && player.highestTierAmount.gte(1565)) || player.omegaTier.gt(95) },
+            description() { return `需求：九十五阶等级${f(1565)}<br>炽炎核心倍增基数+7` },
+            cost() { return new ExpantaNum(2e38) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        31: {
+            title: "高能飞升",
+            canAfford() { return (player.omegaTier.eq(117) && player.highestTierAmount.gte(3)) || player.omegaTier.gt(117) },
+            description() { return `需求：一百一十七阶等级3<br>炽炎飞升在5之后每次飞升使高能钴获取变为30x` },
+            cost() { return new ExpantaNum(1e48) },
+            unlocked() { return hasUpgrade(this.layer, 25) },
+            effect() {
+                let eff = d(30).pow(player.torridite.coreAscend.sub(5).max(0))
+                return eff
+            },
+            effectDisplay() {
+                return `${f(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：30${quickSUP('Asc-5')}`
+                return t
+            },
+        },
+        32: {
+            title: "分裂核心",
+            canAfford() { return (player.omegaTier.eq(173) && player.highestTierAmount.gte(3875)) || player.omegaTier.gt(173) },
+            description() { return `需求：一百七十三阶等级${f(3875)}<br>${f('1e2000')}x炽炎核心获取` },
+            cost() { return new ExpantaNum(1e97) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        33: {
+            title: "优化飞升",
+            canAfford() { return (player.omegaTier.eq(249) && player.highestTierAmount.gte(6625)) || player.omegaTier.gt(249) },
+            description() { return `需求：二百四十九阶等级${f(6625)}<br>使炽炎飞升需求变为原来的95%` },
+            cost() { return new ExpantaNum(1e151) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        34: {
+            title: "爆炎内核",
+            canAfford() { return (player.omegaTier.eq(270) && player.highestTierAmount.gte(7475)) || player.omegaTier.gt(270) },
+            description() { return `需求：二百七十阶等级${f(7475)}<br>第40个炽炎里程碑(Asc1 炽炎核心)的效果底数变为${f('1e350')}` },
+            cost() { return new ExpantaNum(1e167) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        35: {
+            title: "应该是本游戏内第一种紫色的金属",
+            canAfford() { return (player.omegaTier.eq(299) && player.highestTierAmount.gte(8680)) || player.omegaTier.gt(299) },
+            description() { return `需求：二百九十九阶等级${f(8680)}<br>解锁一个新层级：玛玉灵，及其合金配方` },
+            cost() { return new ExpantaNum(1e187) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+    },
+
+    clickables: {
+        11: {
+            title() {
+                let t = ""
+                return t
+            },
+            display() {
+                let d = "点击寻找"
+                return d
+            },
+            canClick() { return !player.ardite.finding && !player.ardite.destroying && !player.ardite.found && isAtLocation('nether') },
+            onClick() {
+                if (!player.ardite.finding) player.ardite.finding = true
+            },
+            unlocked() { return tmp.ardite.layerShown },
+            style() {
+                return {
+                    'min-height': '50px',
+                    'width': '120px',
+                    'font-size': '20px',
+                    'border-radius': '5px',
+                }
+            },
+        },
+        12: {
+            title() {
+                let t = ""
+                return t
+            },
+            display() {
+                let d = "点击挖掘"
+                return d
+            },
+            canClick() { return !player.ardite.destroying && player.ardite.found },
+            onClick() {
+                if (!player.ardite.destroying) player.ardite.destroying = true
+            },
+            unlocked() { return tmp.ardite.layerShown },
+            style() {
+                return {
+                    'min-height': '50px',
+                    'width': '120px',
+                    'font-size': '20px',
+                    'border-radius': '5px',
+                }
+            },
+        },
+    },
+
+    bars: {
+        arditeFinding: {
+            direction: RIGHT,
+            width: 360,
+            height: 60,
+            display() { return `找矿进度: ${format(player.ardite.findingProgress)}/${format(rarity(ardite))}` },
+            progress() { let p = player.ardite.findingProgress.div(rarity(ardite)); if (player.ardite.found) p = d(1); return p },
+            unlocked() { return tmp.ardite.layerShown },
+            fillStyle() { return { "background-color": `${tmp[this.layer].color}` } },
+            baseStyle() { return { "background-color": "rgba(0,0,0,0)" } },
+            textStyle() { return { "color": "#471717" } },
+        },
+        arditeDestroying: {
+            direction: RIGHT,
+            width: 360,
+            height: 60,
+            display() { return `进度: ${format(player.ardite.progress)}/${format(hardness(ardite))}` },
+            progress() { return player.ardite.progress.div(hardness(ardite)) },
+            unlocked() { return tmp.ardite.layerShown },
+            fillStyle() { return { "background-color": `${tmp[this.layer].color}` } },
+            baseStyle() { return { "background-color": "rgba(0,0,0,0)" } },
+            textStyle() { return { "color": "#471717" } },
+        },
+    },
+
+    update(diff) {
+        if (player.ardite.finding) player.ardite.findingProgress = player.ardite.findingProgress.add(player.copper.speed.times(diff))
+        if (player.ardite.findingProgress.gte(rarity(ardite))) player.ardite.findingProgress = d(0),
+            player.ardite.finding = false,
+            player.ardite.found = true
+
+        if (player.ardite.destroying) player.ardite.progress = player.ardite.progress.add(player.stone.speed.times(diff))
+        if (player.ardite.progress.gte(hardness(ardite))) player.ardite.progress = d(0),
+            player.ardite.found = false,
+            player.ardite.destroying = false,
+            player.ardite.ore = player.ardite.ore.add(tmp.ardite.gainMult.times(d(Math.random()).lte(tmp.ardite.chainChance) && hasUpgrade(ardite, 22) ? tmp.ardite.chainMult : d(1)))
+        if (player.ardite.points.gt(player.ardite.best)) player.ardite.best = player.ardite.points
+    },
+
+    chainChance() {
+        let c = d(0.05)
+        if (hasUpgrade(ardite, 24)) c = c.add(upgradeEffect(ardite, 24))
+        return c
+    },
+
+    chainMult() {
+        let m = d(5000)
+        if (hasUpgrade(manyullyn, 13)) m = m.times(tmp.manyullyn.scoreEff[2])
+        m = m.floor()
+        return m
+    },
+
+    chainExpectation() {
+        let e = d(0)
+        let m = tmp.ardite.gainMult
+        let cm = tmp.ardite.chainMult
+        let c = tmp.ardite.chainChance.max(1e-10)
+        e = m.times(cm).add(m.times(d(1).div(c).sub(1))).times(c)
+        return e
+    },
+
+    tabFormat: [
+        ["display-text", function () { return getPointsDisplay() }],
+        ["display-text", () => `你有 ${textResourceStyle(formatWhole(player.ardite.ore), 'text-ardite')} 阿迪特矿石`],
+        ["display-text", () => `你有 ${textResourceStyle(formatWhole(player.ardite.points), 'text-ardite')} 阿迪特锭`],
+        "blank",
+        ["display-text", () => `你同时最多拥有 ${formatWhole(player.ardite.best)} 阿迪特锭`],
+        ["raw-html", () => `<h4 style="opacity:.5">资源层解锁顺位 #47`],
+        "blank",
+        ["microtabs", "stuff"],
+        ["blank", "65px"],
+    ],
+    microtabs: {
+        stuff: {
+            "dig": {
+                unlocked() { return tmp.ardite.layerShown },
+                name() { return '挖掘' },
+                content: [
+                    ["blank", "15px"],
+                    ["row", [["bar", "arditeFinding"], "blank", ["clickable", 11],]],
+                    "blank",
+                    ["row", [["bar", "arditeDestroying"], "blank", ["clickable", 12],]],
+                    "blank",
+                    ["display-text", function () { return player.ardite.found ? `你找到了一处阿迪特矿石` : `你尚未找到阿迪特矿石` }],
+                    "blank",
+                    ["display-text", function () { return `找矿速度：${format(player.copper.speed)}/秒` }],
+                    ["display-text", function () { return `挖掘速度：${format(player.stone.speed)}/秒` }],
+                    ["display-text", function () { return `破坏一次的阿迪特矿石获取数量：${textResourceStyle(formatWhole(tmp.ardite.gainMult), 'text-ardite')}` }],
+                    ["display-text", function () { if (hasUpgrade(ardite, 22)) return `连锁挖掘率：${textResourceStyle(formatPercent(tmp.ardite.chainChance), 'text-ardite')}` }],
+                    ["display-text", function () { if (hasUpgrade(ardite, 22)) return `连锁倍数：${textResourceStyle(f(tmp.ardite.chainMult) + "x", 'text-ardite')}` }],
+                    ["display-text", function () {
+                        if (hasUpgrade(ardite, 22)) {
+                            if (!shiftDown)
+                                return `连锁成功后的阿迪特矿石获取数量：${textResourceStyle(fw(tmp.ardite.gainMult.times(tmp.ardite.chainMult)), 'text-ardite')}（按shift查看期望值）`
+                            if (shiftDown)
+                                return `阿迪特矿石获取期望：${textResourceStyle(f(tmp.ardite.chainExpectation), 'text-ardite')}`
+                        }
+                    }
+                    ],
+                    ["display-text", function () { return `稀有度：${formatWhole(rarity(ardite))}` }],
+                    ["display-text", function () { return `硬度：${formatWhole(hardness(ardite))}` }],
+                    ["display-text", function () { return `挖掘等级：5` }],
+                    ["display-text", function () { return `需要在下界寻找` }],
+                ]
+            },
+            "upgrades": {
+                unlocked() { return tmp.ardite.layerShown },
+                name() { return '升级' },
+                content: [
+                    ["blank", "15px"],
+                    ["upgrades", [1, 2, 3, 4]],
+                ]
+            },
+        },
+    },
+})
+
+function manyullynScoreModeActivated(id) {
+    id = id.toString()
+    return player.manyullyn.mode.includes(id)
+}
+
+function resetManyullynScore() {
+    player.manyullyn.score = {
+        m: d(1),
+        c: d(1),
+        a: d(1),
+        e: d(1),
+        mp: d(1),
+        en: d(1),
+    }
+    player.manyullyn.mode = []
+    player.manyullyn.time_in_mode_change = d(0)
+    player.manyullyn.mode_changing_tick = 1
+}
+
+//世界4层9：玛玉灵
+addLayer("manyullyn", {
+    startData() {
+        return {                  // startData is a function that returns default data for a layer. 
+            unlocked: true,                     // You can add more variables here to add them to your layer.
+            points: d(0),             // "points" is the internal name for the main resource of the layer.
+            molten: d(0),
+            score: {
+                m: d(1),
+                c: d(1),
+                a: d(1),
+                e: d(1),
+                mp: d(1),
+                en: d(1),
+            },
+            mode: [],
+            time_in_mode_change: d(0),
+            mode_changing_tick: 0,
+        }
+    },
+
+    color: "#a97de0",                       // The color for this layer, which affects many elements.
+    nodeStyle: {
+        "background": "linear-gradient(90deg, #481d6d 5%, #bd92f1 10%, #a97de0 15%, #926ae3 20%, #a97de0 30%, #a97de0 80%, #926ac3 90%, #481d6d 95%)",
+    },
+    resource: "玛玉灵锭",            // The name of this layer's main prestige resource.
+    symbol: "玛玉灵",
+    row: 301,                                 // The row this layer is on (0 is the first row).
+    position: 3010,
+    baseResource: "points",                 // The name of the resource your prestige gain is based on.
+    baseAmount() { return player.points },  // A function to return the current amount of baseResource.
+
+    requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
+    // Also the amount required to unlock the layer.
+
+    type: "none",                         // Determines the formula used for calculating prestige currency.
+    exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
+    layerShown() { return hasNormalAchievement(232) && !layerHidden(this.layer) },
+
+    gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
+        let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
+        return m
+    },
+    gainExp() {                             // Returns the exponent to your gain of the prestige resource.
+        return d(1)
+    },
+
+    effect() {
+        let eff = d(10).pow(player.manyullyn.best.max(0).add(1).log10().pow(0.95).times(375))
+        return eff
+    },
+
+    doReset() {
+        return undefined
+    },
+
+    upgrades: {
+        11: {
+            title: "下界紫金",
+            canAfford() { return (player.omegaTier.eq(325) && player.highestTierAmount.gte(5)) || player.omegaTier.gt(325) },
+            description() { return `需求：三百二十五阶等级5<br>3x玛玉灵锭合金倍率` },
+            cost() { return new ExpantaNum(30) },
+            unlocked() { return tmp.manyullyn.layerShown },
+        },
+        12: {
+            title: "超越 · 飞升",
+            canAfford() { return (player.omegaTier.eq(337) && player.highestTierAmount.gte(6)) || player.omegaTier.gt(337) },
+            description() { return `需求：三百三十七阶等级6<br>炽炎在第25次飞升后每次飞升使玛玉灵合金倍率变为2x` },
+            cost() { return new ExpantaNum(150) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = d(2).pow(player.torridite.coreAscend.sub(25).max(0))
+                return eff
+            },
+            effectDisplay() {
+                return `${f(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：2${quickSUP('Asc-25')}`
+                return t
+            },
+        },
+        13: {
+            title: "攀登、飞越指数塔",
+            description() { return `解锁玛玉灵得分` },
+            cost() { return new ExpantaNum(642) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        14: {
+            title: "知识得分",
+            canAfford() { return (player.omegaTier.eq(407) && player.highestTierAmount.gte(6)) || player.omegaTier.gt(407) },
+            description() { return `需求：四百零七阶等级6<br>知识精华得分获取变为^3` },
+            cost() { return new ExpantaNum(14400) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        15: {
+            title: "得分指数",
+            canAfford() { return (player.omegaTier.eq(423) && player.highestTierAmount.gte(6)) || player.omegaTier.gt(423) },
+            description() { return `需求：四百二十三阶等级6<br>开始积累更改模式后的时间，重置模式选择会归零，能够增加玛玉灵得分指数 效果到+1后积累会极其缓慢` },
+            cost() { return new ExpantaNum(80000) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let t = player.manyullyn.time_in_mode_change
+                if (t.gte(60)) t = t.sub(60).div(1000).add(60)
+                let eff = t.add(1).max(1).logBase(60)
+                return eff
+            },
+            effectDisplay() {
+                return `+${f(upgradeEffect(this.layer, this.id))}`
+            },
+        },
+        21: {
+            title: "匠魂词条 - 贪心",
+            canAfford() { return (player.omegaTier.eq(478) && player.highestTierAmount.gte(7)) || player.omegaTier.gt(478) },
+            description() { return `需求：四百七十八阶等级7<br>解锁玛玉灵相关的合成图纸` },
+            cost() { return new ExpantaNum(1250000) },
+            unlocked() { return hasUpgrade(this.layer, 15) },
+        },
+        22: {
+            title: "我全都要！ I",
+            canAfford() { return (player.omegaTier.eq(492) && player.highestTierAmount.gte(7)) || player.omegaTier.gt(492) },
+            description() { return `需求：四百九十二阶等级7<br>未激活的模式也能生产对应的积分，但是效率只有原来的^0.25` },
+            cost() { return new ExpantaNum(1400000) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        23: {
+            title: "真菌",
+            canAfford() { return (player.omegaTier.eq(540) && player.highestTierAmount.gte(7)) || player.omegaTier.gt(540) },
+            description() { return `需求：五百四十阶等级7<br>经验的OoM^^2数量加成绯红、诡异菌柄获取` },
+            cost() { return new ExpantaNum(7000000) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = player.points.max(10).slog(10)
+                return eff
+            },
+            effectDisplay() {
+                return `${f(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：slg(经验)`
+                return t
+            },
+        },
+        24: {
+            title: "得分增幅",
+            canAfford() { return (player.omegaTier.eq(583) && player.highestTierAmount.gte(7)) || player.omegaTier.gt(583) },
+            description() { return `需求：五百八十三阶等级7<br>玛玉灵得分指数+0.5` },
+            cost() { return new ExpantaNum(90000000) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        25: {
+            title: "我全都要！ II",
+            canAfford() { return (player.omegaTier.eq(614) && player.highestTierAmount.gte(7)) || player.omegaTier.gt(614) },
+            description() { return `需求：六百一十四阶等级7<br>你现在可以同时激活2个模式` },
+            cost() { return new ExpantaNum(300000000) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        31: {
+            title: "菌光体",
+            canAfford() { return (player.omegaTier.eq(675) && player.highestTierAmount.gte(7)) || player.omegaTier.gt(675) },
+            description() { return `需求：六百七十五阶等级7<br>玛玉灵得分指数以削弱的比率以指数加成绯红、诡异菌柄获取` },
+            cost() { return new ExpantaNum(3e9) },
+            unlocked() { return hasUpgrade(this.layer, 25) },
+            effect() {
+                let eff = player.manyullyn.score.mp.pow(0.9)
+                return eff
+            },
+            effectDisplay() {
+                return `^${f(upgradeEffect(this.layer, this.id))}`
+            },
+            tooltip() {
+                let t = `公式：玛玉灵得分指数${quickSUP('0.9')}`
+                return t
+            },
+        },
+        32: {
+            title: "超越得分指数",
+            canAfford() { return (player.omegaTier.eq(734) && player.highestTierAmount.gte(8)) || player.omegaTier.gt(734) },
+            description() { return `需求：七百三十四阶等级8<br>解锁一个购买项` },
+            cost() { return new ExpantaNum(3e10) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        33: {
+            title: "玛玉灵得分指数 - 知识",
+            canAfford() { return (player.omegaTier.gte(1440)) },
+            description() { return `需求：ω阶等级${fw(1440)}<br>玛玉灵得分指数以削弱的比率以指数加成知识精华得分` },
+            cost() { return new ExpantaNum(1e23) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = player.manyullyn.score.mp.times(0.6).max(1)
+                return eff
+            },
+            effectDisplay() {
+                return `^${f(upgradeEffect(this.layer, this.id))}`
+            },
+            tooltip() {
+                let t = `公式：玛玉灵得分指数·0.6`
+                return t
+            },
+        },
+        34: {
+            title: "我全都要！ III",
+            canAfford() { return (player.omegaTier.gte(1505)) },
+            description() { return `需求：ω阶等级${fw(1505)}<br>你可以同时激活3种模式` },
+            cost() { return new ExpantaNum(7e23) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        35: {
+            title: "末影的气息",
+            canAfford() { return (player.omegaTier.gte(1737)) },
+            description() { return `需求：ω阶等级${fw(1737)}<br>解锁新区域：世界5，和一个新层级` },
+            cost() { return new ExpantaNum(4e27) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+    },
+
+    buyables: {
+        11: {
+            title: "玛玉灵得分指数+",
+            cost(x) { return d(1e150).times(d(1e10).pow(d(1.2).pow(x))) },
+            free() {
+                let f = d(0)
+                if (hasUpgrade(enderium, 31)) f = f.add(getBuyableAmount(manyullyn, 12))
+                return f
+            },
+            display() {
+                let freedis = ""
+                if (this.free().gte(1)) freedis = ` + ${formatWhole(this.free())}`
+                let display = `提升玛玉灵得分指数<br>
+                效果公式：${f(this.effBase())}x<br>
+                等级：${formatWhole(player[this.layer].buyables[this.id])}${freedis}<br>
+                当前效果：+${f(this.effect())}<br>
+                需求：${f(this.cost())} 玛玉灵得分`
+                return display
+            },
+            canAfford() { return player[this.layer].score.m.gte(this.cost()) },
+            canBuyMax() { return false },
+            buyMax() { if (this.canAfford()) setBuyableAmount(manyullyn, 11, player[this.layer].score.m.div(1e150).max(1e10).logBase(1e10).logBase(1.2).floor().add(1).max(0)) },
+            buy() {
+                if (this.canBuyMax()) this.buyMax()
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+            },
+            effBase() {
+                let b = d(0.25)
+                if (hasUpgrade(geild_enderium, 14)) b = b.add(0.05)
+                if (hasMilestone(geild_enderium, 3) && firstTickCheck) b = b.add(tmp.geild_enderium.GCeffect[4])
+                return b
+            },
+            effect(x) {
+                return x.add(this.free()).times(this.effBase())
+            },
+            unlocked() { return hasUpgrade(manyullyn, 32) },
+            canAuto() { return hasMilestone(geild_enderium, 2) },
+            auto() {
+                if (this.canAuto())
+                    this.buyMax()
+            },
+            style() {
+                let s = { right: '300px' }
+                if (this.canAfford()) s.background = "linear-gradient(45deg, #481d6d 5%, #bd92f1 10%, #a97de0 15%, #926ae3 20%, #a97de0 30%, #a97de0 80%, #926ac3 90%, #481d6d 95%)"
+                return s
+            },
+        },
+        12: {
+            title: "末影得分+",
+            cost(x) {
+                let c = d(1e8).times(d(10).pow(d(2).pow(x)))
+                if (hasUpgrade(geild_enderium, 24)) c = d(1e8).times(d(10).pow(x.pow(1.8)))
+                return c
+            },
+            free() {
+                let f = d(0)
+                return f
+            },
+            display() {
+                let freedis = ""
+                if (this.free().gte(1)) freedis = ` + ${formatWhole(this.free())}`
+                let display = `提升末影得分<br>
+                效果公式：${f(this.effBase())}x<br>
+                等级：${formatWhole(player[this.layer].buyables[this.id])}${freedis}<br>
+                当前效果：+${f(this.effect())}<br>
+                需求：${f(this.cost())} 末影锭`
+                return display
+            },
+            canAfford() { return player.enderium.points.gte(this.cost()) },
+            canBuyMax() { return false },
+            buyMax() { if (this.canAfford()) setBuyableAmount(manyullyn, 12, player.enderium.points.div(1e8).max(1).logBase(10).root(1.8).floor().add(1).max(0)) },
+            buy() {
+                if (this.canBuyMax()) this.buyMax()
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+            },
+            effBase() {
+                let b = d(0.25)
+                if (hasUpgrade(geild_enderium, 34) && firstTickCheck) b = b.add(tmp.geild_enderium.GCeffect[5])
+                return b
+            },
+            effect(x) {
+                return x.add(this.free()).times(this.effBase())
+            },
+            unlocked() { return hasUpgrade(enderium, 23) },
+            canAuto() { return hasMilestone(geild_enderium, 2) },
+            auto() {
+                if (this.canAuto())
+                    this.buyMax()
+            },
+            style() {
+                let s = { right: '300px' }
+                if (this.canAfford()) s.background = "linear-gradient(45deg, #083839 5%, #106565 15%, #0b4748 25%, #0f5c5c 30%, #127575 60%, #0d6161 90%, #093f40 95%)"
+                return s
+            },
+        },
+    },
+
+    clickables: {
+        11: {
+            title() {
+                let t = ""
+                return t
+            },
+            display() {
+                let d = '<span style = "position: relative; left: 75px; bottom: 40px">钴</span>'
+                return d
+            },
+            canClick() { return !player.manyullyn.mode.includes(this.id) && player.manyullyn.mode.length < tmp.manyullyn.maxMode },
+            onClick() {
+                player.manyullyn.mode.push(this.id),
+                    player.manyullyn.mode_changing_tick = 2
+            },
+            unlocked() { return hasUpgrade(manyullyn, 13) },
+            style() {
+                let s = {
+                    width: '300px',
+                    height: '300px',
+                    'border-radius': '50%',
+                    'clip-path': 'polygon(50% 50%, 50% 0%, 100% 0%, 100% 78.86%, 50% 50%)',
+                    left: '314px',
+                    'font-size': '20px',
+                    'background-color': '#2376dd',
+                }
+                if (player.manyullyn.mode.includes(this.id)) s['border-color'] = '#ffad00'
+                return s
+            },
+        },
+        12: {
+            title() {
+                let t = ""
+                return t
+            },
+            display() {
+                let d = '<span style = "position: relative; top: 75px">阿迪特</span>'
+                return d
+            },
+            canClick() { return !player.manyullyn.mode.includes(this.id) && player.manyullyn.mode.length < tmp.manyullyn.maxMode },
+            onClick() {
+                player.manyullyn.mode.push(this.id),
+                    player.manyullyn.mode_changing_tick = 2
+            },
+            unlocked() { return hasUpgrade(manyullyn, 13) },
+            style() {
+                let s = {
+                    width: '300px',
+                    height: '300px',
+                    'border-radius': '50%',
+                    'clip-path': 'polygon(50% 50%, 100% 78.86%, 100% 100%, 0% 100%, 0% 78.86%, 50% 50%)',
+                    'font-size': '20px',
+                    'background-color': '#cd5117',
+                }
+                if (player.manyullyn.mode.includes(this.id)) s['border-color'] = '#ffad00'
+                return s
+            },
+        },
+        13: {
+            title() {
+                let t = ""
+                return t
+            },
+            display() {
+                let d = '<span style = "position: relative; right: 75px; bottom: 40px">知识精华</span>'
+                return d
+            },
+            canClick() { return !player.manyullyn.mode.includes(this.id) && player.manyullyn.mode.length < tmp.manyullyn.maxMode },
+            onClick() {
+                player.manyullyn.mode.push(this.id),
+                    player.manyullyn.mode_changing_tick = 2
+            },
+            unlocked() { return hasUpgrade(manyullyn, 13) },
+            style() {
+                let s = {
+                    width: '300px',
+                    height: '300px',
+                    'border-radius': '50%',
+                    'clip-path': 'polygon(50% 50%, 50% 0%, 0% 0%, 0% 78.86%, 50% 50%)',
+                    right: '314px',
+                    'font-size': '20px',
+                    'background-color': '#b1fe59',
+                }
+                if (player.manyullyn.mode.includes(this.id)) s['border-color'] = '#ffad00'
+                return s
+            },
+        },
+        21: {
+            title() {
+                let t = "重置模式选择"
+                return t
+            },
+            display() {
+                let d = ""
+                return d
+            },
+            canClick() { return true },
+            onClick() {
+                resetManyullynScore()
+            },
+            unlocked() { return hasUpgrade(manyullyn, 13) },
+            style() {
+                return {
+                    'min-height': '50px',
+                    'width': '200px',
+                    'border-radius': '5px',
+                }
+            },
+        },
+    },
+
+    scoreGain: {
+        c() {
+            let gain = d(0)
+            if (manyullynScoreModeActivated(11) || hasUpgrade(manyullyn, 22)) gain = d(1)
+            gain = gain.times(player.cobalt.points.max(1).log10().sub(690).max(0).pow(2))
+            if (hasCraftingItem(731)) gain = gain.times(tmp.wood.logEffects.warpedStem)
+            if (!manyullynScoreModeActivated(11) && hasUpgrade(manyullyn, 22)) gain = gain.pow(0.25)
+            return gain
+        },
+        a() {
+            let gain = d(0)
+            if (manyullynScoreModeActivated(12) || hasUpgrade(manyullyn, 22)) gain = d(1)
+            gain = gain.times(player.ardite.points.max(1).log10().sub(211).max(0).pow(2.25))
+            if (hasCraftingItem(731)) gain = gain.times(tmp.wood.logEffects.crimsonStem)
+            if (!manyullynScoreModeActivated(12) && hasUpgrade(manyullyn, 22)) gain = gain.pow(0.25)
+            return gain
+        },
+        e() {
+            let gain = d(0)
+            if (manyullynScoreModeActivated(13) || hasUpgrade(manyullyn, 22)) gain = d(1)
+            gain = gain.times(player.experience.points.max(1).slog(10).sub(330).max(0).pow(1.35))
+            if (hasUpgrade(manyullyn, 14)) gain = gain.pow(3)
+            if (hasUpgrade(manyullyn, 33)) gain = gain.pow(upgradeEffect(manyullyn, 33))
+            if (!manyullynScoreModeActivated(13) && hasUpgrade(manyullyn, 22)) gain = gain.pow(0.25)
+            return gain
+        },
+        en() {
+            let gain = d(1)
+            if (hasUpgrade(enderium, 13)) gain = gain.times(upgradeEffect(enderium, 13))
+            if (hasUpgrade(enderium, 14)) gain = gain.add(upgradeEffect(enderium, 14))
+            if (hasCraftingItem(741)) gain = gain.times(1.2)
+            if (hasUpgrade(enderium, 23) && firstTickCheck) gain = gain.add(buyableEffect(manyullyn, 12))
+            return gain
+        },
+    },
+
+    scoreEff: {
+        1() {
+            let eff = d(10).pow(player.manyullyn.score.m.max(1).log10().pow(0.8).times(3))
+            return eff
+        },
+        2() {
+            let eff = d(10).pow(player.manyullyn.score.m.max(1).log10().pow(0.8).times(10))
+            return eff
+        },
+    },
+
+    maxMode() {
+        let m = 1
+        if (hasUpgrade(manyullyn, 25)) m = 2
+        if (hasUpgrade(manyullyn, 34)) m = 3
+        return m
+    },
+
+    update(diff) {
+        if (player.manyullyn.points.gt(player.manyullyn.best)) player.manyullyn.best = player.manyullyn.points
+
+        if (manyullynScoreModeActivated(11) || hasUpgrade(manyullyn, 22)) player.manyullyn.score.c = player.manyullyn.score.c.add(tmp.manyullyn.scoreGain.c.times(diff))
+        if (manyullynScoreModeActivated(12) || hasUpgrade(manyullyn, 22)) player.manyullyn.score.a = player.manyullyn.score.a.add(tmp.manyullyn.scoreGain.a.times(diff))
+        if (manyullynScoreModeActivated(13) || hasUpgrade(manyullyn, 22)) player.manyullyn.score.e = player.manyullyn.score.e.add(tmp.manyullyn.scoreGain.e.times(diff))
+        if (hasUpgrade(enderium, 13)) player.manyullyn.score.en = tmp.manyullyn.scoreGain.en
+
+        if (hasUpgrade(manyullyn, 15)) player.manyullyn.time_in_mode_change = player.manyullyn.time_in_mode_change.add(diff)
+
+        let mp = d(1)
+        if (hasUpgrade(manyullyn, 15) && firstTickCheck) mp = mp.add(upgradeEffect(manyullyn, 15))
+        if (hasUpgrade(manyullyn, 24)) mp = mp.add(0.5)
+        if (hasUpgrade(manyullyn, 32) && firstTickCheck) mp = mp.add(buyableEffect(manyullyn, 11))
+        player.manyullyn.score.mp = mp
+
+        let sc = player.manyullyn.score
+        if (hasUpgrade(manyullyn, 13) && player.manyullyn.mode_changing_tick <= 0) player.manyullyn.score.m = sc.c.times(sc.a).times(sc.e).pow(sc.mp.times(sc.en))
+        else player.manyullyn.score.m = d(1)
+
+        if (player.manyullyn.mode_changing_tick > 0) player.manyullyn.mode_changing_tick = player.manyullyn.mode_changing_tick - 1
+        //console.log(f(player.manyullyn.score.m))
+    },
+
+    tabFormat: [
+        ["display-text", function () { return getPointsDisplay() }],
+        ["display-text", () => `你有 ${textResourceStyle(formatWhole(player.manyullyn.points), 'text-manyullyn')} 玛玉灵锭`],
+        ["display-text", function () { return `强化下界岩获取变为 ${textResourceStyle(f(tmp.manyullyn.effect) + 'x', 'text-manyullyn')}` }],
+        ["display-text", function () { if (shiftDown) return `效果公式：10${quickSUP('lg(x+1)' + quickSUP('0.95') + '·375')}` }],
+        "blank",
+        ["display-text", () => `你同时最多拥有 ${formatWhole(player.manyullyn.best)} 玛玉灵锭`],
+        ["raw-html", () => `<h4 style="opacity:.5">资源层解锁顺位 #48`],
+        "blank",
+        ["microtabs", "stuff"],
+        ["blank", "65px"],
+    ],
+    microtabs: {
+        stuff: {
+            "upgrades": {
+                unlocked() { return tmp.manyullyn.layerShown },
+                name() { return '升级' },
+                content: [
+                    ["blank", "15px"],
+                    ["upgrades", [1, 2, 3, 4]],
+                ]
+            },
+            "score": {
+                unlocked() { return hasUpgrade(manyullyn, 13) },
+                name() { return '得分' },
+                content: [
+                    ["blank", "15px"],
+                    ["display-text", function () { return `${textStyle_h2('(')}${textResourceStyle(f(player.manyullyn.score.c), 'text-cobalt')}${textStyle_h2('×')}${textResourceStyle(f(player.manyullyn.score.a), 'text-ardite')}${textStyle_h2('×')}${textStyle_h2(f(player.manyullyn.score.e), 'b1fe59')}${textStyle_h2(')')}${quickSUP(textResourceStyle(f(player.manyullyn.score.mp), 'text-manyullyn') + (hasUpgrade(enderium, 13) ? (textStyle_h2('×') + textResourceStyle(f(player.manyullyn.score.en), 'text-enderium')) : ''))}${textStyle_h2('=')}${textResourceStyle(f(player.manyullyn.score.m), 'text-manyullyn')}` }],
+                    "blank",
+                    ["row", [
+                        ["clickables", [1]],
+                        "buyables",
+                    ]],
+                    "blank",
+                    ["clickables", [2]],
+                    "blank",
+                    ["display-text", function () { return `模式已选择：${player.manyullyn.mode.length + ' / ' + tmp.manyullyn.maxMode}` }],
+                    "blank",
+                    ["display-text", function () { return `高能钴获取变为 ${textResourceStyle(f(tmp.manyullyn.scoreEff[1]) + 'x', 'text-cobalt')}` }],
+                    ["display-text", function () { if (shiftDown) return `效果公式：10${quickSUP('lg(x)' + quickSUP('0.8') + '·3')}` }],
+                    ["display-text", function () { return `阿迪特连锁倍率和阿迪特熔炼倍率变为 ${textResourceStyle(f(tmp.manyullyn.scoreEff[2]) + 'x', 'text-ardite')}` }],
+                    ["display-text", function () { if (shiftDown) return `效果公式：10${quickSUP('lg(x)' + quickSUP('0.8') + '·10')}` }],
+                    "blank",
+                    ["display-text", function () { if (shiftDown) return `钴得分初始获取基于钴锭数量 当前：${f(tmp.manyullyn.scoreGain.c)}/sec<br>阿迪特得分初始获取基于阿迪特锭数量 当前：${f(tmp.manyullyn.scoreGain.a)}/sec<br>知识精华得分初始获取基于知识精华数量 当前：${f(tmp.manyullyn.scoreGain.e)}/sec` }],
+                    "blank",
+                    ["display-text", function () { return `你有三种模式获得玛玉灵得分，激活对应模式可获得对应得分，并且获得经计算后的玛玉灵得分` }],
+                    ["display-text", function () { return `激活的模式的对应扇形按钮会带有金色边框` }],
+                    ["display-text", function () { return `按住shift能够查看玛玉灵得分效果公式，也能查看钴、阿迪特、知识精华得分的获取` }],
+                    "blank",
+                ]
+            },
+        },
+    },
+})
+
+addLayer("w5", {
+    name: "w5",
+    position: 4001,
+    row: 401,
+    symbol() { return '↓ 世界 5 ↓' },
+    small: true,// Set true to generate a slightly different layer
+    nodeStyle: { "font-size": "15px", "height": "30px" },// Change layer button' style
+    startData() {
+        return {
+            unlocked: true,
+            points: new ExpantaNum(0),// This actually does nothing, but you have to write this. (Unless you want add something in this layer. #Todo, might change that later.)
+        }
+    },
+    color: "#fefefe",
+    type: "none",
+    tooltip() { return false },
+    layerShown() { return hasNormalAchievement(234) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    tabFormat: [
+        ["display-text", function () { return getPointsDisplay() }]
+    ],
+})
+
+//世界5层1：末影
+addLayer("enderium", {
+    startData() {
+        return {                  // startData is a function that returns default data for a layer. 
+            unlocked: true,                     // You can add more variables here to add them to your layer.
+            points: d(0),             // "points" is the internal name for the main resource of the layer.
+            molten: d(0),
+        }
+    },
+
+    color: "#0f5c5c",                       // The color for this layer, which affects many elements.
+    nodeStyle: {
+        "background": "linear-gradient(90deg, #083839 5%, #106565 15%, #0b4748 25%, #0f5c5c 30%, #127575 60%, #0d6161 90%, #093f40 95%)",
+    },
+    resource: "末影锭",            // The name of this layer's main prestige resource.
+    symbol: "末影",
+    row: 401,                                 // The row this layer is on (0 is the first row).
+    position: 4011,
+    baseResource: "points",                 // The name of the resource your prestige gain is based on.
+    baseAmount() { return player.points },  // A function to return the current amount of baseResource.
+
+    requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
+    // Also the amount required to unlock the layer.
+
+    type: "none",                         // Determines the formula used for calculating prestige currency.
+    exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
+    layerShown() { return hasNormalAchievement(234) && !layerHidden(this.layer) },
+
+    gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
+        let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
+        return m
+    },
+    gainExp() {                             // Returns the exponent to your gain of the prestige resource.
+        return d(1)
+    },
+
+    doReset() {
+        return undefined
+    },
+
+    upgrades: {
+        11: {
+            title: "传送涌流",
+            description() { return `你现在可以解锁末影锭的合金配方` },
+            cost() { return new ExpantaNum(0) },
+            unlocked() { return tmp.enderium.layerShown },
+        },
+        12: {
+            title: "更多末影锭",
+            description() { return `3x末影锭合金倍率` },
+            cost() { return new ExpantaNum(60) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        13: {
+            title: "末影指数",
+            description() { return `向玛玉灵得分公式添加一项末影得分，初始为1，最多的末影锭影响其值` },
+            cost() { return new ExpantaNum(150) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = player.enderium.best.add(10).log10().div(10).add(1)
+                return eff
+            },
+            effectDisplay() {
+                return `${f(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：lg(末影锭+10)/10+1`
+                return t
+            },
+        },
+        14: {
+            title: "单独作战",
+            canAfford() { return (player.omegaTier.gte(1985)) },
+            description() { return `需求：ω阶等级${fw(1985)}<br>玛玉灵 - 得分界面激活的模式越少，额外增加末影得分获取越多（模式发生变动时不会立刻生效）` },
+            cost() { return new ExpantaNum(500) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                if (hasUpgrade(geild_enderium, 13)) return d(2.6)
+                let a = player.manyullyn.mode_changing_tick > 0 ? 0 : 3 - player.manyullyn.mode.length
+                let eff = d(a).times(0.8).add(0.2)
+                return eff
+            },
+            effectDisplay() {
+                return `+${f(upgradeEffect(this.layer, this.id))}`
+            },
+            tooltip() {
+                let t = `公式：(3-激活模式数)·0.8+0.2`
+                return t
+            },
+        },
+        15: {
+            title: "末影涌流的工具",
+            canAfford() { return (player.omegaTier.gte(2355)) },
+            description() { return `需求：ω阶等级${fw(2355)}<br>解锁末影相关的合成图纸` },
+            cost() { return new ExpantaNum(500) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        21: {
+            title: "第四阶的套件",
+            canAfford() { return (player.omegaTier.gte(3260)) },
+            description() { return `需求：ω阶等级${fw(3260)}<br>初始获得10x末影锭合金倍率，此后每个谐振升级套件额外倍增末影锭合金倍率1.05x，直到200个谐振升级套件` },
+            cost() { return new ExpantaNum(500) },
+            unlocked() { return hasUpgrade(this.layer, 15) },
+            effect() {
+                let amt = player[ct].items[742].max(0).min(200)
+                let eff = d(10).times(d(1.05).pow(amt))
+                return eff
+            },
+            effectDisplay() {
+                return `${f(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：1.05${quickSUP('min(谐振升级套件, 200)')}·10`
+                return t
+            },
+        },
+        22: {
+            title: "末影合成器",
+            canAfford() { return (player.omegaTier.gte(3333)) },
+            description() { return `需求：ω阶等级${fw(3333)}<br>每个谐振升级套件使合成速度额外+0.2x，上限31x` },
+            cost() { return new ExpantaNum(10000) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let amt = player[ct].items[742].max(0)
+                let eff = d(1).add(amt.times(0.2)).min(31)
+                return eff
+            },
+            effectDisplay() {
+                return `${f(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：0.2·谐振升级套件+1`
+                return t
+            },
+        },
+        23: {
+            title: "末影得分+",
+            canAfford() { return (player.omegaTier.gte(3800)) },
+            description() { return `需求：ω阶等级${fw(3800)}<br>在玛玉灵层级解锁一个购买项，以提升末影得分` },
+            cost() { return new ExpantaNum(1e9) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        24: {
+            title: "末影得分互增",
+            canAfford() { return (player.omegaTier.gte(4010)) },
+            description() { return `需求：ω阶等级${fw(4010)}<br>末影得分加成末影锭合金倍率` },
+            cost() { return new ExpantaNum(2e9) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = d(12).pow(player.manyullyn.score.en.max(1).sub(1))
+                return eff
+            },
+            effectDisplay() {
+                return `${f(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：12${quickSUP('末影得分-1')}`
+                return t
+            },
+        },
+        25: {
+            title: "末影得分互增",
+            canAfford() { return (player.omegaTier.gte(4760)) },
+            description() { return `需求：ω阶等级${fw(4760)}<br>每个炽炎核心晋升额外提供经验的0.2层指数塔` },
+            cost() { return new ExpantaNum(1e12) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        31: {
+            title: "辅助加成：指数上的得分",
+            canAfford() { return (player.omegaTier.gte(6520)) },
+            description() { return `需求：ω阶等级${fw(6520)}<br>每个“末影得分指数+”提供“玛玉灵得分指数+”的免费等级` },
+            cost() { return new ExpantaNum(1.5e12) },
+            unlocked() { return hasUpgrade(this.layer, 25) },
+        },
+        32: {
+            title: "纯粹的加成 - 末影锭",
+            canAfford() { return (player.omegaTier.gte(7024)) },
+            description() { return `需求：ω阶等级${fw(7024)}<br>${f(17976)}x末影锭合金倍率` },
+            cost() { return new ExpantaNum(2e12) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        33: {
+            title: "经验的加成 - 末影锭",
+            canAfford() { return (player.omegaTier.gte(7920)) },
+            description() { return `需求：ω阶等级${fw(7920)}<br>ω阶等级加成末影锭合金倍率` },
+            cost() { return new ExpantaNum(1e17) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = player.omegaTier.max(0).add(1).pow(2)
+                return eff
+            },
+            effectDisplay() {
+                return `${f(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：(ω阶等级+1)${quickSUP('2')}`
+                return t
+            },
+        },
+        34: {
+            title: "液态极寒",
+            canAfford() { return (player.omegaTier.gte(9355)) },
+            description() { return `需求：ω阶等级${fw(9355)}<br>100x末影锭合金倍率，且解锁新的高炉熔炼配方：极寒之凛冰` },
+            cost() { return new ExpantaNum(3e26) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        35: {
+            title: "极寒的碰撞",
+            canAfford() { return (player.omegaTier.gte(9730)) },
+            description() { return `需求：ω阶等级${fw(9730)}<br>解锁新的世界5层级：极寒末影` },
+            currencyInternalName: "geild_cryotheum",
+            currencyDisplayName: "mB 极寒之凛冰",
+            currencyLayer: blast_furnace,
+            cost() { return new ExpantaNum(50) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+    },
+
+    milestones: {
+        0: {
+            requirementDescription() { return `获得1谐振升级套件` },
+            effectDescription() { return `谐振升级套件数量加成烈焰之炽焱高炉熔炼倍率<br>当前效果：${f(this.effect())}x` + (shiftDown ? `公式：(谐振升级套件+1)${quickSUP('3')}` : '') },
+            done() { return player[ct].items[742].gte(1) },
+            unlocked() { return player[ct].items[742].gte(1) },
+            effect() {
+                let eff = player[ct].items[742].max(0).add(1).pow(3)
+                return eff
+            },
+        },
+        1: {
+            requirementDescription() { return `获得30谐振升级套件` },
+            effectDescription() { return `10x末影锭合金倍率` },
+            done() { return player[ct].items[742].gte(30) },
+            unlocked() { return player[ct].items[742].gte(1) },
+        },
+    },
+
+    update(diff) {
+        if (player.enderium.points.gt(player.enderium.best)) player.enderium.best = player.enderium.points
+    },
+
+    tabFormat: [
+        ["display-text", function () { return getPointsDisplay() }],
+        ["display-text", () => `你有 ${textResourceStyle(formatWhole(player.enderium.points), 'text-enderium')} 末影锭`],
+        "blank",
+        ["display-text", () => `你同时最多拥有 ${formatWhole(player.enderium.best)} 末影锭`],
+        ["raw-html", () => `<h4 style="opacity:.5">资源层解锁顺位 #49`],
+        "blank",
+        ["microtabs", "stuff"],
+        ["blank", "65px"],
+    ],
+    microtabs: {
+        stuff: {
+            "upgrades": {
+                unlocked() { return tmp.enderium.layerShown },
+                name() { return '升级' },
+                content: [
+                    ["blank", "15px"],
+                    ["upgrades", [1, 2, 3, 4]],
+                ]
+            },
+            "milestones": {
+                unlocked() { return player[ct].items[742].gte(1) },
+                name() { return '里程碑' },
+                content: [
+                    ["blank", "15px"],
+                    "milestones",
+                ]
+            },
+        },
+    },
+})
+
+//世界5层2：极寒末影
+addLayer("geild_enderium", {
+    startData() {
+        return {                  // startData is a function that returns default data for a layer. 
+            unlocked: true,                     // You can add more variables here to add them to your layer.
+            points: d(0),             // "points" is the internal name for the main resource of the layer.
+            molten: d(0),
+            geild_gem: d(0),
+            geild_charge: [d(0), d(0), d(0), d(0), d(0), d(0)],
+            charging: [],
+        }
+    },
+
+    color: "#0f5c5c",                       // The color for this layer, which affects many elements.
+    nodeStyle: {
+        "background": "linear-gradient(90deg, #083839 5%, #106565 15%, #0b4748 25%, #0f5c5c 30%, #127575 60%, #0d6161 90%, #093f40 95%)",
+        "border-color": "#40b8fb",
+    },
+    resource: "极寒末影锭",            // The name of this layer's main prestige resource.
+    symbol: "极寒末影",
+    row: 401,                                 // The row this layer is on (0 is the first row).
+    position: 4012,
+    baseResource: "points",                 // The name of the resource your prestige gain is based on.
+    baseAmount() { return player.points },  // A function to return the current amount of baseResource.
+
+    requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
+    // Also the amount required to unlock the layer.
+
+    type: "none",                         // Determines the formula used for calculating prestige currency.
+    exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
+    layerShown() { return hasNormalAchievement(236) && !layerHidden(this.layer) },
+
+    gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
+        let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
+        return m
+    },
+    gainExp() {                             // Returns the exponent to your gain of the prestige resource.
+        return d(1)
+    },
+
+    doReset() {
+        return undefined
+    },
+
+    upgrades: {
+        11: {
+            title: "极寒传送涌流",
+            description() { return `你现在可以解锁极寒末影锭的合金配方` },
+            cost() { return new ExpantaNum(0) },
+            unlocked() { return tmp.geild_enderium.layerShown },
+        },
+        12: {
+            title: "末影超导材料？",
+            description() { return `解锁极寒末影锭的效果（基于最多）` },
+            cost() { return new ExpantaNum(2) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        13: {
+            title: "冻结最强的效果",
+            canAfford() { return (player.omegaTier.gte(14640)) },
+            description() { return `需求：ω阶等级${f(14640)}<br>2x极寒之凛冰高炉熔炼倍率，第4末影升级的效果总是最大值` },
+            cost() { return new ExpantaNum(14) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        14: {
+            title: "极寒得分辅助",
+            canAfford() { return (player.omegaTier.gte(24000)) },
+            description() { return `需求：ω阶等级${f(24000)}<br>2x极寒之凛冰高炉熔炼倍率，“末影得分+”的基数提升+0.05` },
+            cost() { return new ExpantaNum(30) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        15: {
+            title: "极寒之造物",
+            canAfford() { return (player.omegaTier.gte(31750)) },
+            description() { return `需求：ω阶等级${f(31750)}<br>解锁极寒末影相关的合成图纸` },
+            cost() { return new ExpantaNum(40) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        21: {
+            title: "批量极寒",
+            description() { return `极寒之凛冰高炉熔炼倍率锁定为暴雪棒的30%，但不会小于1` },
+            cost() { return new ExpantaNum(60) },
+            unlocked() { return hasUpgrade(this.layer, 15) },
+        },
+        22: {
+            title: "#49→#50",
+            description() { return `末影锭加成极寒末影锭合金倍率` },
+            cost() { return new ExpantaNum(70) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = player.enderium.points.max(10).log10().div(10).add(1).pow(2)
+                return eff
+            },
+            effectDisplay() {
+                return `${f(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：(lg(末影锭)/10+1)${quickSUP('2')}`
+                return t
+            },
+        },
+        23: {
+            title: "极寒水晶",
+            description() { return `解锁极寒水晶和极寒末影里程碑` },
+            cost() { return new ExpantaNum(300) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        24: {
+            title: "末影得分+价格曲线",
+            description() { return `显著降低“末影得分+”的价格增长` },
+            cost() { return new ExpantaNum(500) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        25: {
+            title: "#48→#49",
+            description() { return `玛玉灵锭加成末影锭合金倍率` },
+            cost() { return new ExpantaNum(10000) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = player.manyullyn.points.div(1e30).max(1).pow(0.07)
+                return eff
+            },
+            effectDisplay() {
+                return `${f(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：(玛玉灵锭/${f(1e30)})${quickSUP('0.07')}`
+                return t
+            },
+        },
+        31: {
+            title: "极寒经验",
+            description() { return `经验加成极寒末影锭合金倍率` },
+            cost() { return new ExpantaNum(100000) },
+            unlocked() { return hasUpgrade(this.layer, 25) },
+            effect() {
+                let eff = player.points.max(1).slog(10).div(100000).add(1).pow(0.9)
+                return eff
+            },
+            effectDisplay() {
+                return `${f(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：(slg(经验)/${f(100000)}+1)${quickSUP('0.9')}`
+                return t
+            },
+        },
+        32: {
+            title: "极寒基数",
+            description() { return `极寒充能获取公式基数+2` },
+            cost() { return new ExpantaNum(1e12) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        33: {
+            title: "过于膨胀",
+            description() { return `极寒充能获取公式基数+3` },
+            cost() { return new ExpantaNum(1e105) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        34: {
+            title: "统统开启自动化吧！",
+            description() { return `解锁更多自动化升级和极寒能力VI` },
+            cost() { return new ExpantaNum(1e116) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        35: {
+            title: "来自 <i>Ender IO</i>",
+            description() { return `解锁一个新的世界5层级` },
+            cost() { return new ExpantaNum(1e120) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+    },
+
+    buyables: {
+        11: {
+            title: "聚合极寒水晶",
+            cost(x) {
+                let g = player.geild_enderium.geild_gem
+                return d('1e400000').pow(d(1.05).pow(g)).div('1e285000')
+            },
+            free() {
+                let f = d(0)
+                return f
+            },
+            display() {
+                let freedis = ""
+                if (this.free().gte(1)) freedis = ` + ${formatWhole(this.free())}`
+                let display = `需求：${f(this.cost())} 玛玉灵得分 + 1绿宝石 + ${f(1000)}mB 极寒之凛冰`
+                return display
+            },
+            canAfford() { return player.manyullyn.score.m.gte(this.cost()) && player.emerald.points.gte(1) && player.blast_furnace.geild_cryotheum.gte(1000) },
+            canBuyMax() { return false },
+            buyMax() { if (this.canAfford()) player.geild_enderium.geild_gem = player.manyullyn.score.m.times('1e285000').logBase('1e400000').max(1).logBase(1.05).floor().add(1) },
+            buy() {
+                if (this.canBuyMax()) this.buyMax()
+                player.geild_enderium.geild_gem = player.geild_enderium.geild_gem.add(1)
+            },
+            unlocked() { return hasUpgrade(geild_enderium, 23) },
+            canAuto() { return hasMilestone(geild_enderium, 5) },
+            auto() {
+                if (this.canAuto())
+                    this.buyMax()
+            },
+            style() {
+                let s = {
+                    'height': '80px',
+                    'width': '400px',
+                    'border-radius': '5px'
+                }
+                if (this.canAfford()) s.background = "linear-gradient(45deg, #083839 5%, #106565 15%, #0b4748 25%, #0f5c5c 30%, #127575 60%, #0d6161 90%, #093f40 95%)",
+                    s['border-color'] = "#40b8fb"
+                return s
+            },
+        },
+    },
+
+    clickables: {
+        11: {
+            title() {
+                let t = "极寒能力I"
+                return t
+            },
+            display() {
+                let d = `倍增玛玉灵锭合金倍率<br>
+                已充能：${f(player.geild_enderium.geild_charge[0])}<br>
+                当前效果：${f(tmp.geild_enderium.GCeffect[0])}x`
+                return d
+            },
+            canClick() { return true },
+            onClick() {
+                if (player.geild_enderium.charging.includes(0)) player.geild_enderium.charging.splice(player.geild_enderium.charging.indexOf(0), 1)
+                else if (player.geild_enderium.charging.length < tmp.geild_enderium.maxCharging) player.geild_enderium.charging.push(0)
+                else return;
+            },
+            unlocked() { return hasUpgrade(geild_enderium, 23) },
+            style() {
+                return {
+                    'min-height': '120px',
+                    'width': '240px',
+                    'border-radius': '5px',
+                    'background': 'linear-gradient(45deg, #083839 5%, #106565 15%, #0b4748 25%, #0f5c5c 30%, #127575 60%, #0d6161 90%, #093f40 95%)',
+                    'border-color': (player.geild_enderium.charging.includes(0) ? '#40b8fb' : 'white'),
+                    'margin-top': '7px',
+                    'margin-bottom': '7px',
+                }
+            },
+        },
+        12: {
+            title() {
+                let t = "极寒能力II"
+                return t
+            },
+            display() {
+                let d = `倍增末影锭合金倍率<br>
+                已充能：${f(player.geild_enderium.geild_charge[1])}<br>
+                当前效果：${f(tmp.geild_enderium.GCeffect[1])}x`
+                return d
+            },
+            canClick() { return true },
+            onClick() {
+                if (player.geild_enderium.charging.includes(1)) player.geild_enderium.charging.splice(player.geild_enderium.charging.indexOf(1), 1)
+                else if (player.geild_enderium.charging.length < tmp.geild_enderium.maxCharging) player.geild_enderium.charging.push(1)
+                else return;
+            },
+            unlocked() { return hasUpgrade(geild_enderium, 23) },
+            style() {
+                return {
+                    'min-height': '120px',
+                    'width': '240px',
+                    'border-radius': '5px',
+                    'background': 'linear-gradient(45deg, #083839 5%, #106565 15%, #0b4748 25%, #0f5c5c 30%, #127575 60%, #0d6161 90%, #093f40 95%)',
+                    'border-color': (player.geild_enderium.charging.includes(1) ? '#40b8fb' : 'white')
+                }
+            },
+        },
+        13: {
+            title() {
+                let t = "极寒能力III"
+                return t
+            },
+            display() {
+                let d = `倍增暴雪棒掉落<br>
+                已充能：${f(player.geild_enderium.geild_charge[2])}<br>
+                当前效果：${f(tmp.geild_enderium.GCeffect[2])}x`
+                return d
+            },
+            canClick() { return true },
+            onClick() {
+                if (player.geild_enderium.charging.includes(2)) player.geild_enderium.charging.splice(player.geild_enderium.charging.indexOf(2), 1)
+                else if (player.geild_enderium.charging.length < tmp.geild_enderium.maxCharging) player.geild_enderium.charging.push(2)
+                else return;
+            },
+            unlocked() { return hasMilestone(geild_enderium, 0) },
+            style() {
+                return {
+                    'min-height': '120px',
+                    'width': '240px',
+                    'border-radius': '5px',
+                    'background': 'linear-gradient(45deg, #083839 5%, #106565 15%, #0b4748 25%, #0f5c5c 30%, #127575 60%, #0d6161 90%, #093f40 95%)',
+                    'border-color': (player.geild_enderium.charging.includes(2) ? '#40b8fb' : 'white')
+                }
+            },
+        },
+        21: {
+            title() {
+                let t = "极寒能力IV"
+                return t
+            },
+            display() {
+                let d = `倍增极寒末影锭合金倍率<br>
+                已充能：${f(player.geild_enderium.geild_charge[3])}<br>
+                当前效果：${f(tmp.geild_enderium.GCeffect[3])}x`
+                return d
+            },
+            canClick() { return true },
+            onClick() {
+                if (player.geild_enderium.charging.includes(3)) player.geild_enderium.charging.splice(player.geild_enderium.charging.indexOf(3), 1)
+                else if (player.geild_enderium.charging.length < tmp.geild_enderium.maxCharging) player.geild_enderium.charging.push(3)
+                else return;
+            },
+            unlocked() { return hasMilestone(geild_enderium, 1) },
+            style() {
+                return {
+                    'min-height': '120px',
+                    'width': '240px',
+                    'border-radius': '5px',
+                    'background': 'linear-gradient(45deg, #083839 5%, #106565 15%, #0b4748 25%, #0f5c5c 30%, #127575 60%, #0d6161 90%, #093f40 95%)',
+                    'border-color': (player.geild_enderium.charging.includes(3) ? '#40b8fb' : 'white')
+                }
+            },
+        },
+        22: {
+            title() {
+                let t = "极寒能力V"
+                return t
+            },
+            display() {
+                let d = `提升“玛玉灵得分指数+”的效果基数<br>
+                已充能：${f(player.geild_enderium.geild_charge[4])}<br>
+                当前效果：+${f(tmp.geild_enderium.GCeffect[4])}`
+                return d
+            },
+            canClick() { return true },
+            onClick() {
+                if (player.geild_enderium.charging.includes(4)) player.geild_enderium.charging.splice(player.geild_enderium.charging.indexOf(4), 1)
+                else if (player.geild_enderium.charging.length < tmp.geild_enderium.maxCharging) player.geild_enderium.charging.push(4)
+                else return;
+            },
+            unlocked() { return hasMilestone(geild_enderium, 3) },
+            style() {
+                return {
+                    'min-height': '120px',
+                    'width': '240px',
+                    'border-radius': '5px',
+                    'background': 'linear-gradient(45deg, #083839 5%, #106565 15%, #0b4748 25%, #0f5c5c 30%, #127575 60%, #0d6161 90%, #093f40 95%)',
+                    'border-color': (player.geild_enderium.charging.includes(4) ? '#40b8fb' : 'white')
+                }
+            },
+        },
+        23: {
+            title() {
+                let t = "极寒能力VI"
+                return t
+            },
+            display() {
+                let d = `提升“末影得分+”的效果基数<br>
+                已充能：${f(player.geild_enderium.geild_charge[5])}<br>
+                当前效果：+${f(tmp.geild_enderium.GCeffect[5])}`
+                return d
+            },
+            canClick() { return true },
+            onClick() {
+                if (player.geild_enderium.charging.includes(5)) player.geild_enderium.charging.splice(player.geild_enderium.charging.indexOf(5), 1)
+                else if (player.geild_enderium.charging.length < tmp.geild_enderium.maxCharging) player.geild_enderium.charging.push(5)
+                else return;
+            },
+            unlocked() { return hasUpgrade(geild_enderium, 34) },
+            style() {
+                return {
+                    'min-height': '120px',
+                    'width': '240px',
+                    'border-radius': '5px',
+                    'background': 'linear-gradient(45deg, #083839 5%, #106565 15%, #0b4748 25%, #0f5c5c 30%, #127575 60%, #0d6161 90%, #093f40 95%)',
+                    'border-color': (player.geild_enderium.charging.includes(5) ? '#40b8fb' : 'white')
+                }
+            },
+        },
+    },
+
+    milestones: {
+        0: {
+            requirementDescription() { return `获得4极寒水晶` },
+            effectDescription() { return `解锁极寒能力III` },
+            done() { return player.geild_enderium.geild_gem.gte(4) },
+            unlocked() { return hasUpgrade(geild_enderium, 23) },
+        },
+        1: {
+            requirementDescription() { return `获得15极寒水晶` },
+            effectDescription() { return `解锁极寒能力IV` },
+            done() { return player.geild_enderium.geild_gem.gte(15) },
+            unlocked() { return hasUpgrade(geild_enderium, 23) },
+        },
+        2: {
+            requirementDescription() { return `获得27极寒水晶` },
+            effectDescription() { return `自动购买最大玛玉灵层级的2个购买项` },
+            done() { return player.geild_enderium.geild_gem.gte(27) },
+            unlocked() { return hasUpgrade(geild_enderium, 23) },
+        },
+        3: {
+            requirementDescription() { return `获得30极寒水晶` },
+            effectDescription() { return `充能并行上限为2，解锁极寒能力V` },
+            done() { return player.geild_enderium.geild_gem.gte(30) },
+            unlocked() { return hasUpgrade(geild_enderium, 23) },
+        },
+        4: {
+            requirementDescription() { return `获得235极寒水晶` },
+            effectDescription() { return `充能并行上限为6` },
+            done() { return player.geild_enderium.geild_gem.gte(235) },
+            unlocked() { return hasUpgrade(geild_enderium, 23) },
+        },
+        5: {
+            requirementDescription() { return `获得306极寒水晶` },
+            effectDescription() {
+                let d = `解锁资源层#51后显示`
+                if (hasUpgrade(geild_enderium, 35)) d = `3x玄钢锭合金倍率，自动购买最大极寒水晶`
+                return d
+            },
+            done() { return player.geild_enderium.geild_gem.gte(306) },
+            unlocked() { return hasUpgrade(geild_enderium, 23) },
+        },
+    },
+
+    maxCharging() {
+        if (hasMilestone(geild_enderium, 4)) return 6
+        let m = 1
+        if (hasMilestone(geild_enderium, 3)) m += 1
+        return m
+    },
+
+    effect() {
+        let ge = player.geild_enderium.best.max(0)
+        let eff = ge.max(0).add(20).logBase(20).pow(2).sub(1)
+        return eff
+    },
+
+    GCbase() {
+        let b = d(15)
+        if (hasUpgrade(geild_enderium, 32)) b = b.add(2)
+        if (hasUpgrade(geild_enderium, 33)) b = b.add(3)
+        if (hasUpgrade(dark_steel, 13)) b = b.times(tmp.dark_steel.effect)
+        return b
+    },
+
+    GCgain() {
+        let g = player.geild_enderium.geild_gem.max(0)
+        let b = tmp.geild_enderium.GCbase
+        return b.pow(g).sub(1)
+    },
+
+    GCeffect: {
+        0() {
+            let c = player.geild_enderium.geild_charge[0]
+            let eff = d(10).pow(c.add(1).log10().times(15).pow(0.98))
+            return eff
+        },
+        1() {
+            let c = player.geild_enderium.geild_charge[1]
+            let eff = d(10).pow(c.add(1).log10().times(3.5).pow(0.98))
+            return eff
+        },
+        2() {
+            let c = player.geild_enderium.geild_charge[2].div(10000)
+            let eff = d(10).pow(c.add(1).log10().times(0.5).pow(0.98))
+            return eff
+        },
+        3() {
+            let c = player.geild_enderium.geild_charge[3].div(1e17)
+            let eff = d(10).pow(c.add(1).log10().times(0.4).pow(0.98))
+            return eff
+        },
+        4() {
+            let c = player.geild_enderium.geild_charge[4].div(1e38).max(1)
+            let eff = c.log10().div(10).add(1).root(2).sub(1)
+            return eff
+        },
+        5() {
+            let c = player.geild_enderium.geild_charge[5].div(1e299).max(1)
+            let eff = c.log10().div(10).add(1).root(2).sub(1)
+            return eff
+        },
+    },
+
+    update(diff) {
+        if (player.geild_enderium.points.gt(player.geild_enderium.best)) player.geild_enderium.best = player.geild_enderium.points
+
+        for (let i = 0; i < 6; i++) {
+            if (player.geild_enderium.charging.includes(i)) player.geild_enderium.geild_charge[i] = player.geild_enderium.geild_charge[i].add(tmp.geild_enderium.GCgain.times(diff))
+        }
+    },
+
+    tabFormat: [
+        ["display-text", function () { return getPointsDisplay() }],
+        ["display-text", () => `你有 ${textResourceStyle(formatWhole(player.geild_enderium.points), 'text-geild_enderium')} 极寒末影锭`],
+        ["display-text", function () { if (hasUpgrade(geild_enderium, 12)) return `使每个炽炎核心晋升额外提供 ${textResourceStyle('+' + f(tmp.geild_enderium.effect), 'text-geild_enderium')} 经验数量的指数塔` }],
+        ["display-text", function () { if (hasUpgrade(geild_enderium, 12) && shiftDown) return `效果公式：${'(log' + quickSUB('20') + '(x+20))' + quickSUP('2') + '-1'}` }],
+        "blank",
+        ["display-text", () => `你同时最多拥有 ${formatWhole(player.geild_enderium.best)} 极寒末影锭`],
+        ["raw-html", () => `<h4 style="opacity:.5">资源层解锁顺位 #50`],
+        "blank",
+        ["microtabs", "stuff"],
+        ["blank", "65px"],
+    ],
+    microtabs: {
+        stuff: {
+            "upgrades": {
+                unlocked() { return tmp.geild_enderium.layerShown },
+                name() { return '升级' },
+                content: [
+                    ["blank", "15px"],
+                    ["upgrades", [1, 2, 3, 4]],
+                ]
+            },
+            "geild_gem": {
+                unlocked() { return hasUpgrade(geild_enderium, 23) },
+                name() { return '极寒水晶' },
+                content: [
+                    ["blank", "15px"],
+                    ["display-text", () => `你有 ${textResourceStyle(formatWhole(player.geild_enderium.geild_gem), 'text-geild_enderium')} 极寒水晶`],
+                    ["display-text", () => `每秒能够对极寒能力输入 ${textResourceStyle(f(tmp.geild_enderium.GCgain), 'text-geild_enderium')} 极寒充能`],
+                    ["display-text", function () {
+                        let base = tmp.geild_enderium.GCbase
+                        if (shiftDown) return `公式：${f(base) + quickSUP('x')}-1`
+                    }],
+                    "blank",
+                    "buyables",
+                    "blank",
+                    ["column",
+                        [
+                            ["clickables", [1]],
+                            ["clickables", [2]],
+                        ],
+                        {
+                            height: '304px',
+                            width: '802px',
+                            'background-color': '#0f5c5c',
+                            'border-color': '#40b8fb',
+                            'border-radius': '20px',
+                            'border-style': 'solid',
+                            'border-width': '2px',
+                        }
+                    ],
+                    "blank",
+                    ["display-text", function () { return `充能并行：${player.geild_enderium.charging.length} / ${tmp.geild_enderium.maxCharging}` }],
+                    "blank",
+                    ["display-text", function () { return `点击按钮充能，充能中的按钮边框会有极寒之凛冰的青色，反之为白色` }],
+                ]
+            },
+            "milestones": {
+                unlocked() { return hasUpgrade(geild_enderium, 23) },
+                name() { return '里程碑' },
+                content: [
+                    ["blank", "15px"],
+                    "milestones",
+                ]
+            },
+        },
+    },
+})
+
+//世界5层3：玄钢
+addLayer("dark_steel", {
+    startData() {
+        return {                  // startData is a function that returns default data for a layer. 
+            unlocked: true,                     // You can add more variables here to add them to your layer.
+            points: d(0),             // "points" is the internal name for the main resource of the layer.
+            molten: d(0),
+            absorbXP: d(0),
+        }
+    },
+
+    color: "#535353",                       // The color for this layer, which affects many elements.
+    nodeStyle: {
+        "background": "linear-gradient(90deg, #1a1a1a 5%, #696969 10%, #535353 15%, #2a2a2a 20%, #636363 30%, #4c4c4c 85%, #1a1a1a 95%)",
+    },
+    resource: "玄钢锭",            // The name of this layer's main prestige resource.
+    symbol: "玄钢",
+    row: 401,                                 // The row this layer is on (0 is the first row).
+    position: 4013,
+    baseResource: "points",                 // The name of the resource your prestige gain is based on.
+    baseAmount() { return player.points },  // A function to return the current amount of baseResource.
+
+    requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
+    // Also the amount required to unlock the layer.
+
+    type: "none",                         // Determines the formula used for calculating prestige currency.
+    exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
+    layerShown() { return hasNormalAchievement(241) && !layerHidden(this.layer) },
+
+    gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
+        let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
+        return m
+    },
+    gainExp() {                             // Returns the exponent to your gain of the prestige resource.
+        return d(1)
+    },
+
+    doReset() {
+        return undefined
+    },
+
+    upgrades: {
+        11: {
+            title: "第2种EIO合金",
+            description() { return `你现在可以解锁玄钢的合金配方` },
+            cost() { return new ExpantaNum(0) },
+            unlocked() { return tmp.dark_steel.layerShown },
+        },
+        12: {
+            title: "复杂数量级",
+            description() { return `你的经验的OoM^(OoM+1)数量从9开始使玄钢锭合金倍率变为2x` },
+            cost() { return new ExpantaNum(15) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = d(2).pow(player.points.max(10).slog(10).log10().sub(9).max(0))
+                return eff
+            },
+            effectDisplay() {
+                return `${f(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：2${quickSUP('slg(lg(经验))-9')}`
+                return t
+            },
+        },
+        13: {
+            title: "玄钢效果",
+            description() { return `解锁玄钢锭的效果（基于最多）` },
+            cost() { return new ExpantaNum(80) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        14: {
+            title: "玄钢自增",
+            description() { return `玄钢锭加成自身合金倍率` },
+            cost() { return new ExpantaNum(120) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = player.dark_steel.points.max(0).add(1).pow(0.4)
+                return eff
+            },
+            effectDisplay() {
+                return `${f(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：(玄钢锭+1)${quickSUP('0.4')}`
+                return t
+            },
+        },
+        15: {
+            title: "有限，但更强",
+            description() { return `你的经验的OoM^(OoM+1)数量从11开始使玄钢锭合金倍率变为20x，经验在${f(this.hardcap())}后此效果到达硬上限` },
+            cost() { return new ExpantaNum(10000) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            hardcap() {
+                let hc = d('10^^1e20')
+                if (hasUpgrade(dark_steel, 33)) hc = d('10^^1e30')
+                return hc
+            },
+            effect() {
+                let eff = d(20).pow(player.points.min(this.hardcap()).max(10).slog(10).log10().sub(11).max(0))
+                return eff
+            },
+            effectDisplay() {
+                return `${f(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：20${quickSUP('slg(lg(经验))-9')}`
+                return t
+            },
+        },
+        21: {
+            title: "玄钢造物",
+            description() { return `解锁最后的极寒末影相关的合成图纸和玄钢相关的合成图纸，以及此层级的里程碑` },
+            cost() { return new ExpantaNum(3333333) },
+            unlocked() { return hasUpgrade(this.layer, 15) },
+        },
+        22: {
+            title: "玄钢效果增强I",
+            description() { return `玄钢的效果获得一个指数加成，当前为1.25` },
+            cost() { return new ExpantaNum(5e11) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        23: {
+            title: "吸收增强",
+            description() { return `解锁此层级的前2个购买项（释放的重置会临时使对应购买项失效，直到重新购买此升级）` },
+            cost() { return new ExpantaNum(2e19) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        24: {
+            title: "玄钢效果增强II",
+            description() { return `玄钢的效果的指数加成提升至2` },
+            cost() { return new ExpantaNum(1e35) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        25: {
+            title: "超越等级",
+            description() { return `每个ω+1阶等级使“玄钢锭合金倍率+”的效果基数+1，直到你获得第一个ω+2阶等级时到达硬上限` },
+            cost() { return new ExpantaNum(2e38) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = player.points.max(1).slog(10).max(1).logBase(100000).floor()
+                return eff
+            },
+            effectDisplay() {
+                return `+${f(upgradeEffect(this.layer, this.id))}`
+            },
+            tooltip() {
+                let t = `公式：ω+1阶等级`
+                return t
+            },
+        },
+        31: {
+            title: "玄钢飞升",
+            description() { return `解锁此层级的第3个购买项（释放的重置会临时使对应购买项失效，直到重新购买此升级）` },
+            cost() { return new ExpantaNum(6.767e41) },
+            unlocked() { return hasUpgrade(this.layer, 25) },
+        },
+        32: {
+            title: "玄钢再增强",
+            description() { return `${f(12500)}x玄钢锭合金倍率` },
+            cost() { return new ExpantaNum(2e59) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        33: {
+            title: "延后的有限",
+            description() { return `将第5玄钢升级的效果硬上限延后到${f('10^^1e30')}经验` },
+            cost() { return new ExpantaNum(1e73) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        34: {
+            title: "基数……还是基数",
+            description() { return `将“玄钢效果指数加成+”的效果基数提高0.15` },
+            cost() { return new ExpantaNum(1e118) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        35: {
+            title: "黑曜石能合金……挺奇怪吧？还有！",
+            description() { return `解锁一个新的世界5层级` },
+            cost() { return new ExpantaNum(4.5678e123) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+    },
+
+    milestones: {
+        0: {
+            requirementDescription() { return `释放获得${f('10^^1.44e14')}经验` },
+            effectDescription() { return `10x玄钢锭合金倍率，玄钢经验吸收器的力量+0.05` },
+            done() { return player.points.gte('10^^1.44e14') },
+            unlocked() { return hasUpgrade(dark_steel, 21) },
+        },
+        1: {
+            requirementDescription() { return `释放获得${f('10^^1e20')}经验` },
+            effectDescription() { return `自动购买最大钴奇点和阿迪特奇点` },
+            done() { return player.points.gte('10^^1e20') },
+            unlocked() { return hasUpgrade(dark_steel, 21) },
+        },
+        2: {
+            requirementDescription() { return `释放获得${f('10^^3e23')}经验` },
+            effectDescription() { return `10x玄钢锭合金倍率` },
+            done() { return player.points.gte('10^^3e23') },
+            unlocked() { return hasUpgrade(dark_steel, 21) },
+        },
+        3: {
+            requirementDescription() { return `释放获得${f('10^^1e50')}经验` },
+            effectDescription() { return `释放经验不再重置玄钢升级` },
+            done() { return player.points.gte('10^^1e50') },
+            unlocked() { return hasUpgrade(dark_steel, 21) },
+        },
+        4: {
+            requirementDescription() { return `释放获得${f('10^^1e156')}经验` },
+            effectDescription() { return `释放经验不再重置玄钢锭` },
+            done() { return player.points.gte('10^^1e156') },
+            unlocked() { return hasUpgrade(dark_steel, 21) },
+        },
+    },
+
+    buyables: {
+        11: {
+            title: "玄钢经验吸收器力量+",
+            cost(x) {
+                let c
+                if (x.gte(25)) c = d(10).tetrate(d(1e110).pow(d(1.2).pow(x.sub(25))))
+                else c = d(10).tetrate(d(1.1e16).times(d(5).pow(x.pow(1.5))))
+                return c
+            },
+            free() {
+                let f = d(0)
+                return f
+            },
+            display() {
+                let freedis = ""
+                if (this.free().gte(1)) freedis = ` + ${formatWhole(this.free())}`
+                let formula = `${f(this.effBase())}x`
+                if (getBuyableAmount(dark_steel, 11).gt(10)) formula = `${f(d(10).times(this.effBase()).sub(1))}+((x-10)·${f(this.effBase())}+1)${quickSUP(f(this.softcapPow()))}（已达软上限）`
+                let display = `提升玄钢经验吸收器力量<br>
+                效果公式：${formula}<br>
+                等级：${formatWhole(player[this.layer].buyables[this.id])}${freedis}<br>
+                当前效果：+${f(this.effect(), 3)}<br>
+                需求：${f(this.cost())} 经验`
+                return display
+            },
+            canAfford() { return player.points.gte(this.cost()) },
+            canBuyMax() { return false },
+            buyMax() {
+                if (this.canAfford()) {
+                    if (player.points.lte('10^^1e110')) setBuyableAmount(dark_steel, 11, player.points.max(1).slog(10).div(1.1e16).max(1).logBase(5).root(1.5).floor().add(1).max(0).min(25))
+                    else setBuyableAmount(dark_steel, 11, player.points.max(1).slog(10).logBase(1e110).max(1).logBase(1.2).floor().add(26).max(25))
+                }
+            },
+            buy() {
+                if (this.canBuyMax()) this.buyMax()
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+            },
+            effBase() {
+                let b = d(0.02)
+                return b
+            },
+            softcapPow() {
+                let p = d(0.5)
+                if (hasUpgrade(alumite, 25)) p = d(0.6)
+                return p
+            },
+            effect(x) {
+                let amt = x.add(this.free())
+                if (amt.lte(10)) return amt.times(this.effBase())
+                else return d(10).times(this.effBase()).add(amt.sub(10).times(this.effBase()).add(1).pow(this.softcapPow()).sub(1))
+            },
+            unlocked() { return hasUpgrade(dark_steel, 23) },
+            canAuto() { return false },
+            auto() {
+                if (this.canAuto())
+                    this.buyMax()
+            },
+            style() {
+                let s = {}
+                if (this.canAfford()) s.background = "linear-gradient(45deg, #1a1a1a 5%, #696969 10%, #535353 15%, #2a2a2a 20%, #636363 30%, #4c4c4c 85%, #1a1a1a 95%)"
+                return s
+            },
+        },
+        12: {
+            title: "玄钢锭合金倍率+",
+            cost(x) { return d(1e30).times(d(100).pow(x.pow(1.35))) },
+            free() {
+                let f = d(0)
+                return f
+            },
+            display() {
+                let freedis = ""
+                if (this.free().gte(1)) freedis = ` + ${formatWhole(this.free())}`
+                let display = `提升玄钢锭合金倍率<br>
+                效果公式：${f(this.effBase())}${quickSUP('x')}<br>
+                等级：${formatWhole(player[this.layer].buyables[this.id])}${freedis}<br>
+                当前效果：${f(this.effect())}x<br>
+                价格：${f(this.cost())} 玄钢锭`
+                return display
+            },
+            canAfford() { return player.dark_steel.points.gte(this.cost()) },
+            canBuyMax() { return false },
+            buyMax() { if (this.canAfford()) setBuyableAmount(dark_steel, 12, player.dark_steel.points.div(1e30).max(1).logBase(100).root(1.35).floor().add(1).max(0)) },
+            buy() {
+                if (this.canBuyMax()) this.buyMax()
+                let cst = this.cost()
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+
+                player[this.layer].points = player[this.layer].points.sub(cst).max(0)
+            },
+            effBase() {
+                let b = d(3)
+                if (hasUpgrade(dark_steel, 25)) b = b.add(upgradeEffect(dark_steel, 25))
+                return b
+            },
+            effect(x) {
+                return this.effBase().pow(x.add(this.free()))
+            },
+            unlocked() { return hasUpgrade(dark_steel, 23) },
+            canAuto() { return false },
+            auto() {
+                if (this.canAuto())
+                    this.buyMax()
+            },
+            style() {
+                let s = {}
+                if (this.canAfford()) s.background = "linear-gradient(45deg, #1a1a1a 5%, #696969 10%, #535353 15%, #2a2a2a 20%, #636363 30%, #4c4c4c 85%, #1a1a1a 95%)"
+                return s
+            },
+        },
+        13: {
+            title: "玄钢效果指数加成+",
+            cost(x) { return d(7e41).times(d(100).pow(x.pow(1.35))) },
+            free() {
+                let f = d(0)
+                return f
+            },
+            display() {
+                let freedis = ""
+                if (this.free().gte(1)) freedis = ` + ${formatWhole(this.free())}`
+                let p = this.effPow().gt(1) ? quickSUP(f(this.effPow())) : ''
+                let display = `提升玄钢效果指数加成<br>
+                效果公式：${f(this.effBase())}x${p}<br>
+                等级：${formatWhole(player[this.layer].buyables[this.id])}${freedis}<br>
+                当前效果：+${f(this.effect())}<br>
+                价格：${f(this.cost())} 玄钢锭`
+                return display
+            },
+            canAfford() { return player.dark_steel.points.gte(this.cost()) },
+            canBuyMax() { return false },
+            buyMax() { if (this.canAfford()) setBuyableAmount(dark_steel, 13, player.dark_steel.points.div(7e41).max(1).logBase(100).root(1.35).floor().add(1).max(0)) },
+            buy() {
+                if (this.canBuyMax()) this.buyMax()
+                let cst = this.cost()
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+
+                player[this.layer].points = player[this.layer].points.sub(cst).max(0)
+            },
+            effBase() {
+                let b = d(0.5)
+                if (hasUpgrade(dark_steel, 34)) b = b.add(0.15)
+                return b
+            },
+            effPow() {
+                let p = d(1)
+                if (hasUpgrade(alumite, 33)) p = d(1.8)
+                return p
+            },
+            effect(x) {
+                return this.effBase().times(x.add(this.free()).pow(this.effPow()))
+            },
+            unlocked() { return hasUpgrade(dark_steel, 31) },
+            canAuto() { return false },
+            auto() {
+                if (this.canAuto())
+                    this.buyMax()
+            },
+            style() {
+                let s = {}
+                if (this.canAfford()) s.background = "linear-gradient(45deg, #1a1a1a 5%, #696969 10%, #535353 15%, #2a2a2a 20%, #636363 30%, #4c4c4c 85%, #1a1a1a 95%)"
+                return s
+            },
+        },
+    },
+
+    clickables: {
+        11: {
+            title() {
+                let t = "吸收"
+                return t
+            },
+            display() {
+                let d = `长按吸收当前秒产的经验`
+                return d
+            },
+            canClick() { return true },
+            onHold() {
+                if (getPointGen().gte(player.dark_steel.absorbXP)) player.dark_steel.absorbXP = getPointGen()
+            },
+            unlocked() { return hasCraftingItem(771) },
+            style() {
+                return {
+                    'min-height': '80px',
+                    'width': '180px',
+                    'border-radius': '5px',
+                    'background': 'linear-gradient(45deg, #1a1a1a 5%, #696969 10%, #535353 15%, #2a2a2a 20%, #636363 30%, #4c4c4c 85%, #1a1a1a 95%)',
+                }
+            },
+        },
+        12: {
+            title() {
+                let t = "释放"
+                return t
+            },
+            display() {
+                let r = '玄钢升级和'
+                if (hasMilestone(dark_steel, 3)) r = ''
+                let d = `点击重置${r}玄钢锭，并释放经验`
+                return d
+            },
+            canClick() { return player.dark_steel.absorbXP.gte(1) },
+            onClick() {
+                if (!hasMilestone(dark_steel, 3)) player.dark_steel.upgrades = [11, 21]
+                if (!hasMilestone(dark_steel, 4)) player.dark_steel.points = d(0)
+                player.points = player.points.add(tmp.dark_steel.releaseXP.min('10^^1.7976e308'))
+                player.dark_steel.absorbXP = d(0)
+            },
+            unlocked() { return hasCraftingItem(771) },
+            style() {
+                return {
+                    'min-height': '80px',
+                    'width': '180px',
+                    'border-radius': '5px',
+                    'background': 'linear-gradient(45deg, #1a1a1a 5%, #696969 10%, #535353 15%, #2a2a2a 20%, #636363 30%, #4c4c4c 85%, #1a1a1a 95%)',
+                }
+            },
+        },
+    },
+
+    effPow() {
+        let p = d(1)
+        if (hasUpgrade(dark_steel, 22)) p = p.add(0.25)
+        if (hasUpgrade(dark_steel, 24)) p = p.add(0.75)
+        if (hasUpgrade(dark_steel, 31)) p = p.add(buyableEffect(dark_steel, 13))
+        return p
+    },
+
+    effect() {
+        let ds = player.dark_steel.best.max(0)
+        let eff = ds.add(1).log10().div(10).add(1)
+        if (hasUpgrade(dark_steel, 22)) eff = eff.pow(tmp.dark_steel.effPow)
+        return eff
+    },
+
+    update(diff) {
+        if (player.dark_steel.points.gt(player.dark_steel.best)) player.dark_steel.best = player.dark_steel.points
+    },
+
+    absorbPower() {
+        let p = d(1.1)
+        if (hasMilestone(dark_steel, 0)) p = p.add(0.05)
+        if (hasUpgrade(dark_steel, 23)) p = p.add(buyableEffect(dark_steel, 11))
+        return p
+    },
+
+    releaseXP() {
+        let xp = player.dark_steel.absorbXP
+        let p = tmp.dark_steel.absorbPower
+        return d(10).tetrate(xp.max(1).slog(10).pow(p))
+    },
+
+    tabFormat: [
+        ["display-text", function () { return getPointsDisplay() }],
+        ["display-text", () => `你有 ${textResourceStyle(formatWhole(player.dark_steel.points), 'text-dark_steel')} 玄钢锭`],
+        ["display-text", function () { if (hasUpgrade(dark_steel, 13)) return `使极寒充能获取公式底数变为 ${textResourceStyle(f(tmp.dark_steel.effect) + 'x', 'text-dark_steel')}` }],
+        ["display-text", function () {
+            if (hasUpgrade(dark_steel, 13) && shiftDown) {
+                let t = `lg(x+1)/10+1`
+                if (hasUpgrade(dark_steel, 22)) t = '(' + t + ')' + quickSUP(f(tmp.dark_steel.effPow))
+                t = '效果公式：' + t
+                return t
+            }
+        }],
+        "blank",
+        ["display-text", () => `你同时最多拥有 ${formatWhole(player.dark_steel.best)} 玄钢锭`],
+        ["raw-html", () => `<h4 style="opacity:.5">资源层解锁顺位 #51`],
+        "blank",
+        ["microtabs", "stuff"],
+        ["blank", "65px"],
+    ],
+    microtabs: {
+        stuff: {
+            "upgrades": {
+                unlocked() { return tmp.dark_steel.layerShown },
+                name() { return '升级' },
+                content: [
+                    ["blank", "15px"],
+                    ["upgrades", [1, 2, 3, 4]],
+                ]
+            },
+            "milestones": {
+                unlocked() { return hasUpgrade(dark_steel, 21) },
+                name() { return '里程碑' },
+                content: [
+                    ["blank", "15px"],
+                    "milestones",
+                ]
+            },
+            "absorb": {
+                unlocked() { return hasCraftingItem(771) },
+                name() { return '吸收' },
+                content: [
+                    ["blank", "15px"],
+                    ["display-text", function () { if (hasCraftingItem(771)) return `你吸收了 ${textStyle_h2(f(player.dark_steel.absorbXP), 'ffffff')} 经验` }],
+                    ["display-text", function () { if (hasCraftingItem(771)) return `玄钢经验吸收器的力量：${textResourceStyle('10^^(slg(XP+1))' + quickSUP(f(tmp.dark_steel.absorbPower)), 'text-dark_steel')} ` }],
+                    ["display-text", function () { if (hasCraftingItem(771)) return `释放可获得 ${textStyle_h2(f(tmp.dark_steel.releaseXP), 'ffffff')} 经验` }],
+                    "blank",
+                    "clickables",
+                    "blank",
+                    "buyables",
+                ]
+            },
+        },
+    },
+})
+
+//世界5层4：耐酸铝
+addLayer("alumite", {
+    startData() {
+        return {                  // startData is a function that returns default data for a layer. 
+            unlocked: true,                     // You can add more variables here to add them to your layer.
+            points: d(0),             // "points" is the internal name for the main resource of the layer.
+            score: d(0),
+            lastGainScore: d(0),
+            pull_cooldown: 0,
+        }
+    },
+
+    color: "#f4ceec",                       // The color for this layer, which affects many elements.
+    nodeStyle: {
+        "background": "linear-gradient(90deg, #dc7ec4 5%, #f4ceec 10%, #fcfefc 20%, #fcfefc 80%, #f4ceec 85%, #dc7ec4 95%)",
+    },
+    resource: "耐酸铝锭",            // The name of this layer's main prestige resource.
+    symbol: "耐酸铝",
+    row: 401,                                 // The row this layer is on (0 is the first row).
+    position: 4014,
+    baseResource: "points",                 // The name of the resource your prestige gain is based on.
+    baseAmount() { return player.points },  // A function to return the current amount of baseResource.
+
+    requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
+    // Also the amount required to unlock the layer.
+
+    type: "none",                         // Determines the formula used for calculating prestige currency.
+    exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
+    layerShown() { return hasNormalAchievement(243) && !layerHidden(this.layer) },
+
+    gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
+        let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
+        return m
+    },
+    gainExp() {                             // Returns the exponent to your gain of the prestige resource.
+        return d(1)
+    },
+
+    doReset() {
+        return undefined
+    },
+
+    upgrades: {
+        11: {
+            title: "5:2:1:3",
+            description() { return `你现在可以解锁耐酸铝的合金配方` },
+            cost() { return new ExpantaNum(0) },
+            unlocked() { return tmp.alumite.layerShown },
+        },
+        12: {
+            title: "#52→#51",
+            description() { return `初始获得2x耐酸铝锭合金倍率，玄钢锭在${f(1e123)}之后加成耐酸铝锭合金倍率` },
+            cost() { return new ExpantaNum(24) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+            effect() {
+                let eff = d(10).pow(player.dark_steel.points.div(1e123).max(1).log10().div(10).pow(0.95)).times(2)
+                return eff
+            },
+            effectDisplay() {
+                return `${f(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：10${quickSUP('(lg(玄钢锭/' + f(1e123) + ')/10)' + quickSUP('0.95'))}·2`
+                return t
+            },
+        },
+        13: {
+            title: "就像一个正常的重置层级，不过没有重置",
+            description() { return `解锁耐酸铝锭的效果（基于最多）` },
+            cost() { return new ExpantaNum(100) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        14: {
+            title: "五倍耐酸铝",
+            description() { return `耐酸铝合金倍率变为原来的5x` },
+            cost() { return new ExpantaNum(1770) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        15: {
+            title: "耐酸铝造物",
+            description() { return `解锁耐酸铝相关的合成图纸` },
+            cost() { return new ExpantaNum(10000) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        21: {
+            title: "10倍倍增耐酸铝",
+            description() { return `耐酸铝合金倍率变为原来的10x` },
+            cost() { return new ExpantaNum(500000) },
+            unlocked() { return hasUpgrade(this.layer, 15) },
+        },
+        22: {
+            title: "抽卡增强",
+            description() { return `解锁此层级的购买项` },
+            cost() { return new ExpantaNum(7000000) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        23: {
+            title: "基础值增强",
+            description() { return `将计算获取耐酸铝得分的基础值变为100x` },
+            cost() { return new ExpantaNum(1.667e13) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        24: {
+            title: "抽牌之强运",
+            description() { return `将“额外抽牌运气”的效果公式上增加一个指数系数，当前为1.1` },
+            cost() { return new ExpantaNum(2e15) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        25: {
+            title: "软上限……",
+            description() { return `将“玄钢经验吸收器力量+”的效果软上限弱化` },
+            cost() { return new ExpantaNum(3e23) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        31: {
+            title: "抽牌之神运",
+            description() { return `耐酸铝锭少量提升“额外抽牌运气”效果的倍数系数` },
+            cost() { return new ExpantaNum(2e28) },
+            unlocked() { return hasUpgrade(this.layer, 25) },
+            effect() {
+                let eff = player.alumite.points.max(1).log10().root(2).div(10).add(1)
+                return eff
+            },
+            effectDisplay() {
+                return `${f(upgradeEffect(this.layer, this.id))}x`
+            },
+            tooltip() {
+                let t = `公式：lg(耐酸铝锭)${quickSUP('0.5')}/10+1`
+                return t
+            },
+        },
+        32: {
+            title: "稳定性",
+            description() { return `抽到卡牌的价值范围下限当前固定为上限的90%` },
+            cost() { return new ExpantaNum(3e32) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        33: {
+            title: "指数^2加成",
+            description() { return `“玄钢效果指数加成+”效果公式上增加一个指数系数，当前为1.8` },
+            cost() { return new ExpantaNum(3e44) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        34: {
+            title: "再一次……被阻止",
+            description() { return `308x耐酸铝锭合金倍率` },
+            cost() { return new ExpantaNum(5.5555e55) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+        35: {
+            title: "你会找到突破它的答案……",
+            description() { return `解锁一个新的世界5层级` },
+            cost() { return new ExpantaNum(1.5959e59) },
+            unlocked() { return hasUpgrade(this.layer, this.id - 1) },
+        },
+    },
+
+    clickables: {
+        11: {
+            title() {
+                let t = "抽牌！"
+                return t
+            },
+            display() {
+                let d = `上次抽牌：+${f(player.alumite.lastGainScore)}<br>
+                冷却：${f(player.alumite.pull_cooldown)}s/3.00s`
+                return d
+            },
+            canClick() { return player.alumite.pull_cooldown >= 3 },
+            onClick() {
+                let e = tmp.alumite.cardRankExpectation
+                let mi = tmp.alumite.cardMinimumValue
+                let ma = tmp.alumite.cardMaximumValue
+                for (let i = 0; i < tmp.alumite.grid.cols; i++) {
+                    let r1 = Math.random()
+                    let r2 = Math.random()
+                    let v = ma.sub(mi).times(r1).add(mi)
+                    let rank = 1
+                    if (e % 1 == 0) rank = e
+                    else {
+                        let base = Math.floor(e)
+                        let chance = e - base
+                        rank = chance > r2 ? base + 1 : base
+                    }
+                    v = v.pow(d(2).pow(rank - 1))
+                    player.alumite.grid[101 + i].value = v
+                    player.alumite.grid[101 + i].rank = rank
+                }
+                let gain = tmp.alumite.baseValue
+                for (let i = 0; i < tmp.alumite.grid.cols; i++) {
+                    gain = gain.times(player.alumite.grid[101 + i].value)
+                }
+                player.alumite.lastGainScore = gain
+                player.alumite.score = player.alumite.score.add(gain)
+                player.alumite.pull_cooldown = 0
+            },
+            unlocked() { return hasCraftingItem(772) },
+            style() {
+                return {
+                    'min-height': '100px',
+                    'width': '200px',
+                    'border-radius': '5px',
+                    'background': 'linear-gradient(45deg, #dc7ec4 5%, #f4ceec 10%, #fcfefc 20%, #fcfefc 80%, #f4ceec 85%, #dc7ec4 95%)',
+                }
+            },
+        },
+    },
+
+    buyables: {
+        11: {
+            title: "额外抽牌运气",
+            cost(x) { return d(100).times(d(3).pow(x.pow(1.01))) },
+            free() {
+                let f = d(0)
+                return f
+            },
+            display() {
+                let freedis = ""
+                if (this.free().gte(1)) freedis = ` + ${formatWhole(this.free())}`
+                let p = this.effPow().gt(1) ? quickSUP(f(this.effPow())) : ''
+                let display = `提升抽牌运气<br>
+                效果公式：${f(this.effBase())}x${p}<br>
+                等级：${formatWhole(player[this.layer].buyables[this.id])}${freedis}<br>
+                当前效果：+${f(this.effect())}<br>
+                价格：${f(this.cost())} 耐酸铝得分`
+                return display
+            },
+            canAfford() { return player.alumite.score.gte(this.cost()) },
+            canBuyMax() { return false },
+            buyMax() { if (this.canAfford()) setBuyableAmount(alumite, 11, player.alumite.score.div(100).max(1).logBase(3).root(1.01).floor().add(1).max(0)) },
+            buy() {
+                if (this.canBuyMax()) this.buyMax()
+                let cst = this.cost()
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+
+                player[this.layer].score = player[this.layer].score.sub(cst).max(0)
+            },
+            effBase() {
+                let b = d(1)
+                if (hasUpgrade(alumite, 31)) b = b.times(upgradeEffect(alumite, 31))
+                return b
+            },
+            effPow() {
+                let p = d(1)
+                if (hasUpgrade(alumite, 24)) p = d(1.1)
+                return p
+            },
+            effect(x) {
+                return this.effBase().times(x.add(this.free()).pow(this.effPow()))
+            },
+            unlocked() { return hasUpgrade(alumite, 22) },
+            canAuto() { return false },
+            auto() {
+                if (this.canAuto())
+                    this.buyMax()
+            },
+            style() {
+                let s = {}
+                if (this.canAfford()) s.background = "linear-gradient(45deg, #dc7ec4 5%, #f4ceec 10%, #fcfefc 20%, #fcfefc 80%, #f4ceec 85%, #dc7ec4 95%)"
+                return s
+            },
+        },
+        12: {
+            title: "扩充卡槽",
+            cost(x) {
+                let arr = [d(10000), d(1e20), d(3.402823669209385e38)]
+                if (x.gte(d(arr.length))) return d(Infinity)
+                return arr[x.toNumber()]
+            },
+            purchaseLimit: d(7), //可能有更多
+            display() {
+                let display = `增加一个卡牌槽位<br>
+                数量：${fw(getBuyableAmount(this.layer, this.id))} / 7<br>
+                价格：${formatWhole(this.cost())} 耐酸铝得分`
+                return display
+            },
+            canAfford() { return player.alumite.score.gte(this.cost()) },
+            canBuyMax() { return false },
+            buy() {
+                let cst = this.cost()
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+
+                player[this.layer].score = player[this.layer].score.sub(cst).max(0)
+            },
+            unlocked() { return hasUpgrade(alumite, 22) },
+            style() {
+                let s = {}
+                if (this.canAfford()) s.background = "linear-gradient(45deg, #dc7ec4 5%, #f4ceec 10%, #fcfefc 20%, #fcfefc 80%, #f4ceec 85%, #dc7ec4 95%)"
+                return s
+            }
+        },
+    },
+
+    milestones: {
+        0: {
+            requirementDescription() { return `抽牌运气到达140` },
+            effectDescription() { return `将计算获取耐酸铝得分的基础值变为140x` },
+            done() { return tmp.alumite.luck.gte(140) },
+            unlocked() { return hasCraftingItem(772) },
+        },
+    },
+
+    grid: {
+        rows() {
+            return 1
+        },
+        maxRows: 1,
+        cols() {
+            let c = 3
+            if (hasUpgrade(alumite, 22)) c += getBuyableAmount(alumite, 12).toNumber()
+            return c
+        },
+        maxCols: 10,
+        getStartData(id) {
+            return {
+                value: d(1),
+                rank: 1,
+            }
+        },
+        getUnlocked(id) { // Default
+            return hasCraftingItem(772)
+        },
+        getCanClick(data, id) {
+            return false
+        },
+        onClick(data, id) {
+            return
+        },
+        getTitle(data, id) {
+            let t = f(data.value)
+            t = t + '<br>^' + fw(d(2).pow(data.rank - 1))
+            return t
+        },
+        getStyle(data, id) {
+            let s = {
+                background: 'linear-gradient(45deg, #dc7ec4 5%, #f4ceec 10%, #fcfefc 20%, #fcfefc 80%, #f4ceec 85%, #dc7ec4 95%)'
+            }
+            s['word-wrap'] = 'break-word'
+            return s
+        },
+        getMarked(data, id) {
+            if (!data) return false
+            let r = data.rank
+            let c = 'upgTable star4_'
+            c = c + r
+            return c
+        },
+    },
+
+    effect() {
+        let x = player.alumite.best
+        return x.max(1).pow(0.7)
+    },
+
+    scoreEff() {
+        let x = player.alumite.score
+        let eff = x.pow(0.5).add(1)
+        return eff
+    },
+
+    luck() {
+        let l = d(0)
+        if (hasUpgrade(alumite, 22)) l = l.add(buyableEffect(alumite, 11))
+        return l
+    },
+
+    baseValue() {
+        let b = d(1)
+        if (hasUpgrade(alumite, 23)) b = b.times(100)
+        if (hasMilestone(alumite, 0)) b = b.times(140)
+        return b
+    },
+
+    cardMaximumValue() {
+        let v = d(3).add(tmp.alumite.luck.pow(1.5))
+        return v
+    },
+
+    cardMinimumValue() {
+        if (hasUpgrade(alumite, 32)) return tmp.alumite.cardMaximumValue.times(0.9)
+        let v = d(1).add(tmp.alumite.luck)
+        return v
+    },
+
+    cardRankExpectation() {
+        let e = 1
+        let l = tmp.alumite.luck
+        let l_n = l.toNumber()
+        if (l.lt(100)) e += l_n / 100
+        else if (l.lt(10000)) e = 2 + (l_n - 100) / 9900
+        return e
+    },
+
+    update(diff) {
+        if (player.alumite.points.gt(player.alumite.best)) player.alumite.best = player.alumite.points
+
+        if (player.alumite.pull_cooldown < 3) player.alumite.pull_cooldown = Math.min(player.alumite.pull_cooldown + diff, 3)
+    },
+
+    tabFormat: [
+        ["display-text", function () { return getPointsDisplay() }],
+        ["display-text", () => `你有 ${textResourceStyle(formatWhole(player.alumite.points), 'text-alumite')} 耐酸铝锭`],
+        ["display-text", function () { if (hasUpgrade(alumite, 13)) return `使玄钢锭合金倍率变为 ${textResourceStyle(f(tmp.alumite.effect) + 'x', 'text-alumite')}` }],
+        ["display-text", function () {
+            if (hasUpgrade(alumite, 13) && shiftDown) return `效果公式：x${quickSUP('0.7')}`
+        }],
+        "blank",
+        ["display-text", () => `你同时最多拥有 ${formatWhole(player.alumite.best)} 耐酸铝锭`],
+        ["raw-html", () => `<h4 style="opacity:.5">资源层解锁顺位 #52`],
+        "blank",
+        ["microtabs", "stuff"],
+        ["blank", "65px"],
+    ],
+    microtabs: {
+        stuff: {
+            "upgrades": {
+                unlocked() { return tmp.alumite.layerShown },
+                name() { return '升级' },
+                content: [
+                    ["blank", "15px"],
+                    ["upgrades", [1, 2, 3, 4]],
+                ]
+            },
+            "milestones": {
+                unlocked() { return hasCraftingItem(772) },
+                name() { return '里程碑' },
+                content: [
+                    ["blank", "15px"],
+                    "milestones",
+                ]
+            },
+            "pull": {
+                unlocked() { return hasCraftingItem(772) },
+                name() { return '抽牌' },
+                content: [
+                    ["blank", "15px"],
+                    ["display-text", function () { return `你有 ${textResourceStyle(f(player.alumite.score), 'text-alumite')} 耐酸铝得分` }],
+                    ["display-text", function () { return `耐酸铝锭合金倍率变为 ${textResourceStyle(f(tmp.alumite.scoreEff) + 'x', 'text-alumite')}` }],
+                    ["display-text", function () {
+                        if (shiftDown) return `效果公式：x${quickSUP('0.5')}+1`
+                    }],
+                    "grid",
+                    "blank",
+                    "clickables",
+                    "blank",
+                    ["display-text", function () { return `你当前的抽牌运气为 ${textResourceStyle(f(tmp.alumite.luck), 'text-alumite')}` }],
+                    ["display-text", function () { return `使抽到卡牌的价值范围为 ${textResourceStyle(f(tmp.alumite.cardMinimumValue) + '~' + f(tmp.alumite.cardMaximumValue), 'text-alumite')}` }],
+                    "blank",
+                    "buyables",
+                ]
+            },
+            "information": {
+                unlocked() { return hasCraftingItem(772) },
+                name() { return '信息' },
+                content: [
+                    ["blank", "15px"],
+                    ["display-text", function () { return `你当前的抽牌等阶期望为 ${textResourceStyle(f(tmp.alumite.cardRankExpectation), 'text-alumite')}` }],
+                    ["display-text", function () { return `期望下限为1，上限为5` }],
+                    ["display-text", function () { return `如果期望为小数则会依据小数部分加权随机决定抽牌的等阶` }],
+                    ["display-text", function () { return `例：期望为3.79，则有21%概率抽到等阶3，79%概率抽到等阶4` }],
+                    "blank",
+                    "blank",
+                    ["display-text", function () { return `你当前的基础值为 ${textResourceStyle(f(tmp.alumite.baseValue), 'text-alumite')}` }],
+                    ["display-text", function () { return `抽牌后会自动计算获得的耐酸铝得分` }],
+                    ["display-text", function () { return `从基础值开始，每张卡牌从左往右都会将此值乘自身的数值` }],
+                    ["display-text", function () { return `牌的等阶能够在抽牌时提升自身数值，等阶在1、2、3、4、5时，自身数值变为^1、^2、^4、^8、^16` }],
+                    ["display-text", function () { return `最终结果即为此次抽牌获得的耐酸铝得分` }],
+                    "blank",
+                    "blank",
+                ]
+            },
+        },
+    },
+})
+
+//世界5层5：末影钢
+addLayer("end_steel", {
+    startData() {
+        return {                  // startData is a function that returns default data for a layer. 
+            unlocked: true,                     // You can add more variables here to add them to your layer.
+            points: d(0),             // "points" is the internal name for the main resource of the layer.
+        }
+    },
+
+    color: "#f7f1bd",                       // The color for this layer, which affects many elements.
+    nodeStyle: {
+        "background": "linear-gradient(90deg, #6b6531 5%, #f2ecb8 10%, #9d9765 20%, #f7f1bd 40%, #dbd3a7 48%, #dbd3a7 52%, #f9f7c8 90%, #6b6531 95%)",
+    },
+    resource: "末影钢锭",            // The name of this layer's main prestige resource.
+    symbol: "末影钢",
+    row: 401,                                 // The row this layer is on (0 is the first row).
+    position: 4015,
+    baseResource: "points",                 // The name of the resource your prestige gain is based on.
+    baseAmount() { return player.points },  // A function to return the current amount of baseResource.
+
+    requires: d(10),              // The amount of the base needed to  gain 1 of the prestige currency.
+    // Also the amount required to unlock the layer.
+
+    type: "none",                         // Determines the formula used for calculating prestige currency.
+    exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
+    layerShown() { return hasNormalAchievement(245) && !layerHidden(this.layer) },
+
+    gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
+        let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
+        return m
+    },
+    gainExp() {                             // Returns the exponent to your gain of the prestige resource.
+        return d(1)
+    },
+
+    doReset() {
+        return undefined
+    },
+
+    upgrades: {
+        11: {
+            title: "WIP",
+            description() { return `敬请期待挖矿增量页v0.11` },
+            cost() { return new ExpantaNum('10^^1e400') },
+            unlocked() { return tmp.end_steel.layerShown },
+        },
+    },
+
+    update(diff) {
+        if (player.end_steel.points.gt(player.end_steel.best)) player.end_steel.best = player.end_steel.points
+    },
+
+    tabFormat: [
+        ["display-text", function () { return getPointsDisplay() }],
+        ["display-text", () => `你有 ${textResourceStyle(formatWhole(player.end_steel.points), 'text-end_steel')} 末影钢锭`],
+        "blank",
+        ["display-text", () => `你同时最多拥有 ${formatWhole(player.end_steel.best)} 末影钢锭`],
+        ["raw-html", () => `<h4 style="opacity:.5">资源层解锁顺位 #53`],
+        "blank",
+        ["microtabs", "stuff"],
+        ["blank", "65px"],
+    ],
+    microtabs: {
+        stuff: {
+            "upgrades": {
+                unlocked() { return tmp.end_steel.layerShown },
+                name() { return '升级' },
+                content: [
+                    ["blank", "15px"],
+                    ["upgrades", [1, 2, 3, 4]],
                 ]
             },
         },
@@ -28406,22 +33534,33 @@ function craftingItemID() {
 }
 
 function getCraftingItem(id) {
+    let amount = ' '
     if (id == 531) player.twilight_gem.points = player.twilight_gem.points.add(1)
     else if (id == 591) player.twilight_gem.points = player.twilight_gem.points.add(player[ct].effectiveItemMult[591]),
         player[ct].effectiveItemMult[591] = d(1)
     else if (canCraftMultiple(id)) {
         player.crafting_table.items[id] = player.crafting_table.items[id].add(tmp[ct].clickables[id].effectiveMult ? tmp[ct].clickables[id].mult : 1)
+        amount = tmp[ct].clickables[id].effectiveMult ? (' ' + fw(tmp[ct].clickables[id].effectiveMult) + 'x ') : ' '
     }
     else if (!canCraftMultiple(id)) player.crafting_table.items[id] = true
+    doPopup("default", "获得" + amount + craftingItemName(craftingItemID()), "合成完成", 3, craftingItemColorBg(craftingItemID()) || craftingItemColor(craftingItemID()), craftingItemTextcolor(craftingItemID()) || "black")
 }
 
 function craftingItemColor(id) {
     return tmp.crafting_table.clickables[id].style['background-color']
 }
 
+function craftingItemColorBg(id) {
+    return tmp.crafting_table.clickables[id].style['background']
+}
+
+function craftingItemTextcolor(id) {
+    return tmp.crafting_table.clickables[id].style['color']
+}
+
 function canCraftMultiple(id) {
     id = Number(id)
-    let CCMID = [91, 122, 141, 182, 191, 231, 242, 281, 282, 362, 381, 392, 442, 452, 471, 531, 591, 631, 652, 661, 691, 692]
+    let CCMID = [91, 122, 141, 182, 191, 231, 242, 281, 282, 362, 381, 392, 442, 452, 471, 531, 591, 631, 652, 661, 691, 692, 732, 742]
     return CCMID.includes(id)
 }
 
@@ -28464,7 +33603,9 @@ addLayer("crafting_table", {
                 511: false, 512: false, 521: false, 522: false, 531: d(0), 532: false, 541: false, 542: false, 551: false, 552: false,
                 561: false, 562: false, 571: false, 572: false, 581: false, 582: false, 591: d(0), 592: false, 601: false, 602: false,
                 611: false, 612: false, 621: false, 622: false, 631: d(0), 632: false, 641: false, 642: false, 651: false, 652: d(0),
-                661: d(0), 662: false, 671: false, 672: false, 681: false, 682: false, 691: d(0), 692: d(0),
+                661: d(0), 662: false, 671: false, 672: false, 681: false, 682: false, 691: d(0), 692: d(0), 701: false, 702: false,
+                711: false, 712: false, 721: false, 722: false, 731: false, 732: d(0), 741: false, 742: d(0), 751: false, 752: false,
+                761: false, 762: false, 771: false, 772: false,// 781: false,
             },
             effectiveItemMult: {
                 591: d(1)
@@ -28495,7 +33636,7 @@ addLayer("crafting_table", {
         return e
     },
     resetDescription: "重置以合成 ",
-    layerShown() { return hasNormalAchievement(12) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return hasNormalAchievement(12) && !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
 
     onPrestige() {
         if (options.notation == 'Emoji') player.crafting_table.emojiNotationResets = player.crafting_table.emojiNotationResets.add(1)
@@ -29782,6 +34923,159 @@ addLayer("crafting_table", {
             currencyLayer: signalum,
             cost() { return new ExpantaNum(150000) },
             unlocked() { return hasUpgrade(signalum, 15) },
+        },
+        281: {
+            title: "炽炎镐",
+            description() { return `解锁${this.title}的合成` },
+            currencyInternalName: "points",
+            currencyDisplayName: "炽炎锭",
+            currencyLayer: torridite,
+            cost() { return new ExpantaNum(3e26) },
+            unlocked() { return hasUpgrade(torridite, 25) },
+        },
+        282: {
+            title: "炽炎提取机",
+            description() { return `解锁${this.title}的合成` },
+            currencyInternalName: "points",
+            currencyDisplayName: "炽炎锭",
+            currencyLayer: torridite,
+            cost() { return new ExpantaNum(1e44) },
+            unlocked() { return hasUpgrade(torridite, 25) },
+        },
+        283: {
+            title: "钴镐",
+            description() { return `解锁${this.title}的合成` },
+            currencyInternalName: "points",
+            currencyDisplayName: "钴锭",
+            currencyLayer: cobalt,
+            cost() { return new ExpantaNum(90000) },
+            unlocked() { return hasUpgrade(cobalt, 15) },
+        },
+        284: {
+            title: "钴战斗牌子",
+            description() { return `解锁${this.title}的合成` },
+            currencyInternalName: "points",
+            currencyDisplayName: "钴锭",
+            currencyLayer: cobalt,
+            cost() { return new ExpantaNum(200000) },
+            unlocked() { return hasUpgrade(cobalt, 15) },
+        },
+        285: {
+            title: "阿迪特镐",
+            description() { return `解锁${this.title}的合成` },
+            currencyInternalName: "points",
+            currencyDisplayName: "阿迪特锭",
+            currencyLayer: ardite,
+            cost() { return new ExpantaNum(8e9) },
+            unlocked() { return hasUpgrade(ardite, 15) },
+        },
+        291: {
+            title: "13阶太阳能板",
+            description() { return `解锁${this.title}的合成` },
+            currencyInternalName: "points",
+            currencyDisplayName: "阿迪特锭",
+            currencyLayer: ardite,
+            cost() { return new ExpantaNum(1e48) },
+            unlocked() { return hasUpgrade(ardite, 15) },
+        },
+        292: {
+            title: "玛玉灵全能工具",
+            description() { return `解锁${this.title}的合成` },
+            currencyInternalName: "points",
+            currencyDisplayName: "玛玉灵锭",
+            currencyLayer: manyullyn,
+            cost() { return new ExpantaNum(800000) },
+            unlocked() { return hasUpgrade(manyullyn, 21) },
+        },
+        293: {
+            title: "末影齿轮",
+            description() { return `解锁${this.title}的合成` },
+            currencyInternalName: "points",
+            currencyDisplayName: "末影锭",
+            currencyLayer: enderium,
+            cost() { return new ExpantaNum(300) },
+            unlocked() { return hasUpgrade(enderium, 15) },
+        },
+        294: {
+            title: "谐振末影钻头",
+            description() { return `解锁${this.title}的合成` },
+            currencyInternalName: "points",
+            currencyDisplayName: "末影锭",
+            currencyLayer: enderium,
+            cost() { return new ExpantaNum(300) },
+            unlocked() { return hasUpgrade(enderium, 15) },
+        },
+        295: {
+            title: "谐振升级套件",
+            description() { return `解锁${this.title}的合成` },
+            currencyInternalName: "points",
+            currencyDisplayName: "末影锭",
+            currencyLayer: enderium,
+            cost() { return new ExpantaNum(3000) },
+            unlocked() { return hasUpgrade(enderium, 15) },
+        },
+        301: {
+            title: "14阶太阳能板",
+            description() { return `解锁${this.title}的合成` },
+            currencyInternalName: "points",
+            currencyDisplayName: "末影锭",
+            currencyLayer: enderium,
+            cost() { return new ExpantaNum(2e12) },
+            unlocked() { return hasUpgrade(enderium, 15) },
+        },
+        302: {
+            title: "极寒末影护甲",
+            description() { return `解锁${this.title}的合成` },
+            currencyInternalName: "points",
+            currencyDisplayName: "极寒末影锭",
+            currencyLayer: geild_enderium,
+            cost() { return new ExpantaNum(42) },
+            unlocked() { return hasUpgrade(geild_enderium, 15) },
+        },
+        303: {
+            title: "极寒末影蓄电魔杖",
+            description() { return `解锁${this.title}的合成` },
+            currencyInternalName: "points",
+            currencyDisplayName: "极寒末影锭",
+            currencyLayer: geild_enderium,
+            cost() { return new ExpantaNum(42) },
+            unlocked() { return hasUpgrade(geild_enderium, 15) },
+        },
+        304: {
+            title: "极寒末影熔炼记忆器",
+            description() { return `<br>解锁${this.title}的合成` },
+            currencyInternalName: "points",
+            currencyDisplayName: "极寒末影锭",
+            currencyLayer: geild_enderium,
+            cost() { return new ExpantaNum(1e158) },
+            unlocked() { return hasUpgrade(dark_steel, 21) },
+        },
+        305: {
+            title: "玄钢经验吸收器",
+            description() { return `解锁${this.title}的合成` },
+            currencyInternalName: "points",
+            currencyDisplayName: "玄钢锭",
+            currencyLayer: dark_steel,
+            cost() { return new ExpantaNum(3000000) },
+            unlocked() { return hasUpgrade(dark_steel, 21) },
+        },
+        305: {
+            title: "玄钢经验吸收器",
+            description() { return `解锁${this.title}的合成` },
+            currencyInternalName: "points",
+            currencyDisplayName: "玄钢锭",
+            currencyLayer: dark_steel,
+            cost() { return new ExpantaNum(3000000) },
+            unlocked() { return hasUpgrade(dark_steel, 21) },
+        },
+        311: {
+            title: "耐酸铝抽牌器",
+            description() { return `解锁${this.title}的合成` },
+            currencyInternalName: "points",
+            currencyDisplayName: "耐酸铝锭",
+            currencyLayer: alumite,
+            cost() { return new ExpantaNum(1000) },
+            unlocked() { return hasUpgrade(alumite, 15) },
         },
     },
 
@@ -32797,12 +38091,12 @@ addLayer("crafting_table", {
                 需要工具：钻石合成台 + 铅锤<br>
                 需要材料：10银锭 + 10琥珀金锭 + 10硬化玻璃<br>
                 复杂度：${formatWhole(this.complexity)}<br>
-                数量：${fw(player[ct].items[452])}<br>
+                数量：${fw(player[ct].items[452])}/20<br>
                 效果：1个使蓄水器效率变为${f(2000)}x，5个使熔岩炉效率变为${f(2000)}x，20个使磨粉机效率变为3x`
                 return d
             },
             complexity: d(5e17),
-            canClick() { return player.crafting_table.points.gte(1) && player.silver.points.gte(10) && player.electrum.points.gte(10) && player.alloy_s.hardenedGlass.gte(10) && !player.crafting_table.crafting && hasCraftingItem(422) && hasCraftingItem(181) },
+            canClick() { return player.crafting_table.points.gte(1) && player.silver.points.gte(10) && player.electrum.points.gte(10) && player.alloy_s.hardenedGlass.gte(10) && player[ct].items[452].lt(20) && !player.crafting_table.crafting && hasCraftingItem(422) && hasCraftingItem(181) },
             onClick() {
                 player.crafting_table.crafting = true,
                     player.crafting_table.craftingItem = this.id,
@@ -33695,6 +38989,7 @@ addLayer("crafting_table", {
             },
             complexity: d(2.468e23),
             mult() {
+                if (hasMilestone(torridite, 27)) return getPointGen()
                 let m = d(1)
                 if (hasUpgrade(twilight_gem, 12)) m = m.times(10)
                 if (hasUpgrade(carminite, 14)) m = m.times(upgradeEffect(carminite, 14))
@@ -33874,7 +39169,7 @@ addLayer("crafting_table", {
                 需要工具：工厂环 + 铅锤<br>
                 需要材料：${f(6.6686e33)}炽铁锭 + 2钻石奇点（不消耗）<br>
                 复杂度：${formatWhole(this.complexity)}<br>
-                效果：你对九头蛇和暮初恶魂带有4x特攻；对冰雪女王带有1.667x特攻，冰雪女王的冻结将不影响你的DEF<br>`
+                效果：你对九头蛇和暮初恶魂带有4x特攻；对冰雪女王带有1.667x的特攻，冰雪女王的冻结将不影响你的DEF<br>`
                 return d
             },
             complexity: d(1.796e25),
@@ -34408,7 +39703,7 @@ addLayer("crafting_table", {
                 return d
             },
             complexity: d(4e26),
-            canClick() { return player.crafting_table.points.gte(1) && player.signalum.points.gte(50000) && player.map.battle.drops.blizz_rod.gte(1) && player[ct].items[691].gte(1) && !player.crafting_table.crafting && hasCraftingItem(422) && hasCraftingItem(641) },
+            canClick() { return player.crafting_table.points.gte(1) && player.signalum.points.gte(50000) && player.map.battle.drops.blizz_rod.gte(1) && player[ct].items[691].gte(1) && player[ct].items[692].lt(10) && !player.crafting_table.crafting && hasCraftingItem(422) && hasCraftingItem(641) },
             onClick() {
                 player.crafting_table.crafting = true,
                     player.crafting_table.craftingItem = this.id,
@@ -34423,6 +39718,523 @@ addLayer("crafting_table", {
                     'width': '210px',
                     'background': 'linear-gradient(45deg, #671500 5%, #ff891c 15%, #e13f00 30%, #ffa71a 60%, #f25200 80%, #671500 95%)',
                     'background-color': '#e13f00'
+                }
+            },
+            marked() { return hasCraftingItem(this.id) },
+        },
+        701: {
+            title() {
+                let t = "炽炎镐"
+                return t
+            },
+            display() {
+                let d = `
+                需要工具：工厂环 + 灵魂锻锤<br>
+                需要材料：${f(3e26)}炽炎锭 + ${f('(10^)^10 6.9')}下界岩<br>
+                复杂度：${formatWhole(this.complexity)}<br>
+                效果：${f(1000000)}x炽炎矿石获取和炽炎锭熔炼倍率`
+                return d
+            },
+            complexity: d(4.5e26),
+            canClick() { return player.crafting_table.points.gte(1) && player.torridite.points.gte(3e26) && player.stone.netherrack.gte('(10^)^10 6.9') && !hasCraftingItem(this.id) && !player.crafting_table.crafting && hasCraftingItem(422) && hasCraftingItem(641) },
+            onClick() {
+                player.crafting_table.crafting = true,
+                    player.crafting_table.craftingItem = this.id,
+                    player.torridite.points = player.torridite.points.sub(3e26),
+                    player.stone.netherrack = player.stone.netherrack.sub('(10^)^10 6.9')
+            },
+            unlocked() { return hasUpgrade(ct, 281) },
+            style() {
+                return {
+                    'min-height': '210px',
+                    'width': '210px',
+                    "background": "linear-gradient(45deg, #68031f 5%, #b91d1d 10%, #fcac83 15%, #f15221 30%, #b91d1d 45%, #f15221 60%, #b91d1d 75%, #f15221 90%, #900613 95%)",
+                    "border-color": '#b91d1d',
+                    'background-color': '#b91d1d'
+                }
+            },
+            marked() { return hasCraftingItem(this.id) },
+        },
+        702: {
+            title() {
+                let t = "炽炎提取机"
+                return t
+            },
+            display() {
+                let d = `
+                需要工具：工厂环 + 灵魂锻锤<br>
+                需要材料：${f(1e44)}炽炎锭 + ${f('(10^)^12 2.335')}下界岩<br>
+                复杂度：${formatWhole(this.complexity)}<br>
+                效果：炽炎核心倍增可以购买最大，解锁强化下界岩`
+                return d
+            },
+            complexity: d(5e26),
+            canClick() { return player.crafting_table.points.gte(1) && player.torridite.points.gte(1e44) && player.stone.netherrack.gte('(10^)^12 2.335') && !hasCraftingItem(this.id) && !player.crafting_table.crafting && hasCraftingItem(422) && hasCraftingItem(641) },
+            onClick() {
+                player.crafting_table.crafting = true,
+                    player.crafting_table.craftingItem = this.id,
+                    player.torridite.points = player.torridite.points.sub(1e44),
+                    player.stone.netherrack = player.stone.netherrack.sub('(10^)^12 2.335')
+            },
+            unlocked() { return hasUpgrade(ct, 282) },
+            style() {
+                return {
+                    'min-height': '210px',
+                    'width': '210px',
+                    "background": "linear-gradient(45deg, #68031f 5%, #b91d1d 10%, #fcac83 15%, #f15221 30%, #b91d1d 45%, #f15221 60%, #b91d1d 75%, #f15221 90%, #900613 95%)",
+                    "border-color": '#b91d1d',
+                    'background-color': '#b91d1d'
+                }
+            },
+            marked() { return hasCraftingItem(this.id) },
+        },
+        711: {
+            title() {
+                let t = "钴镐"
+                return t
+            },
+            display() {
+                let d = `
+                需要工具：工厂环 + 灵魂锻锤<br>
+                需要材料：${f(150000)}钴锭 + ${f('(10^)^31 9.822')}下界岩<br>
+                复杂度：${formatWhole(this.complexity)}<br>
+                效果：挖掘速度变为1.5x，15x钴矿石获取`
+                return d
+            },
+            complexity: d(6e26),
+            canClick() { return player.crafting_table.points.gte(1) && player.cobalt.points.gte(150000) && player.stone.netherrack.gte('(10^)^31 9.822') && !hasCraftingItem(this.id) && !player.crafting_table.crafting && hasCraftingItem(422) && hasCraftingItem(641) },
+            onClick() {
+                player.crafting_table.crafting = true,
+                    player.crafting_table.craftingItem = this.id,
+                    player.cobalt.points = player.cobalt.points.sub(150000),
+                    player.stone.netherrack = player.stone.netherrack.sub('(10^)^31 9.822')
+            },
+            unlocked() { return hasUpgrade(ct, 283) },
+            style() {
+                return {
+                    'min-height': '210px',
+                    'width': '210px',
+                    "background": "linear-gradient(45deg, #03265f 5%, #59aaef 10%, #2376dd 15%, #1d6288 20%, #2376dd 30%, #2376dd 80%, #1d6288 90%, #03265f 95%)",
+                    'background-color': '#2376dd'
+                }
+            },
+            marked() { return hasCraftingItem(this.id) },
+        },
+        712: {
+            title() {
+                let t = "钴战斗牌子"
+                return t
+            },
+            display() {
+                let d = `
+                需要工具：工厂环 + 灵魂锻锤<br>
+                需要材料：${f(200000)}钴锭 + ${f('(10^)^31 9.8222')}下界岩<br>
+                复杂度：${formatWhole(this.complexity)}<br>
+                效果：战斗ATK值+1，15x钴锭熔炼倍率`
+                return d
+            },
+            complexity: d(6e26),
+            canClick() { return player.crafting_table.points.gte(1) && player.cobalt.points.gte(200000) && player.stone.netherrack.gte('(10^)^31 9.8222') && !hasCraftingItem(this.id) && !player.crafting_table.crafting && hasCraftingItem(422) && hasCraftingItem(641) },
+            onClick() {
+                player.crafting_table.crafting = true,
+                    player.crafting_table.craftingItem = this.id,
+                    player.cobalt.points = player.cobalt.points.sub(200000),
+                    player.stone.netherrack = player.stone.netherrack.sub('(10^)^31 9.8222')
+            },
+            unlocked() { return hasUpgrade(ct, 284) },
+            style() {
+                return {
+                    'min-height': '210px',
+                    'width': '210px',
+                    "background": "linear-gradient(45deg, #03265f 5%, #59aaef 10%, #2376dd 15%, #1d6288 20%, #2376dd 30%, #2376dd 80%, #1d6288 90%, #03265f 95%)",
+                    'background-color': '#2376dd'
+                }
+            },
+            marked() { return hasCraftingItem(this.id) },
+        },
+        721: {
+            title() {
+                let t = "阿迪特镐"
+                return t
+            },
+            display() {
+                let d = `
+                需要工具：工厂环 + 灵魂锻锤<br>
+                需要材料：${f(1e10)}阿迪特锭 + ${f('(10^)^50 1.08')}下界岩<br>
+                复杂度：${formatWhole(this.complexity)}<br>
+                效果：允许在挖掘石头时获得黑石，15x阿迪特矿石获取和阿迪特锭熔炼倍率`
+                return d
+            },
+            complexity: d(7e26),
+            canClick() { return player.crafting_table.points.gte(1) && player.ardite.points.gte(1e10) && player.stone.netherrack.gte('(10^)^50 1.08') && !hasCraftingItem(this.id) && !player.crafting_table.crafting && hasCraftingItem(422) && hasCraftingItem(641) },
+            onClick() {
+                player.crafting_table.crafting = true,
+                    player.crafting_table.craftingItem = this.id,
+                    player.ardite.points = player.ardite.points.sub(1e10),
+                    player.stone.netherrack = player.stone.netherrack.sub('(10^)^50 1.08')
+            },
+            unlocked() { return hasUpgrade(ct, 285) },
+            style() {
+                return {
+                    'min-height': '210px',
+                    'width': '210px',
+                    "background": "linear-gradient(45deg, #471717 5%, #ff8517 10%, #cd5117 15%, #702e17 20%, #d55917 30%, #c34c17 80%, #f97717 90%, #471717 95%)",
+                    'background-color': '#cd5117'
+                }
+            },
+            marked() { return hasCraftingItem(this.id) },
+        },
+        722: {
+            title() {
+                let t = "13阶太阳能板"
+                return t
+            },
+            display() {
+                let d = `
+                需要工具：工厂环 + 灵魂锻锤<br>
+                需要材料：${f(1e48)}阿迪特锭 + ${f('(10^)^118 1.2')}下界岩<br>
+                复杂度：${formatWhole(this.complexity)}<br>
+                效果：2xRF发电速度，解锁更多的自动化升级`
+                return d
+            },
+            complexity: d(8e26),
+            canClick() { return player.crafting_table.points.gte(1) && player.ardite.points.gte(1e48) && player.stone.netherrack.gte('(10^)^118 1.2') && !hasCraftingItem(this.id) && !player.crafting_table.crafting && hasCraftingItem(422) && hasCraftingItem(641) },
+            onClick() {
+                player.crafting_table.crafting = true,
+                    player.crafting_table.craftingItem = this.id,
+                    player.ardite.points = player.ardite.points.sub(1e48),
+                    player.stone.netherrack = player.stone.netherrack.sub('(10^)^118 1.2')
+            },
+            unlocked() { return hasUpgrade(ct, 291) },
+            style() {
+                return {
+                    'min-height': '210px',
+                    'width': '210px',
+                    "background": "linear-gradient(45deg, #471717 5%, #ff8517 10%, #cd5117 15%, #702e17 20%, #d55917 30%, #c34c17 80%, #f97717 90%, #471717 95%)",
+                    'background-color': '#cd5117'
+                }
+            },
+            marked() { return hasCraftingItem(this.id) },
+        },
+        731: {
+            title() {
+                let t = "玛玉灵全能工具"
+                return t
+            },
+            display() {
+                let d = `
+                需要工具：工厂环 + 灵魂锻锤<br>
+                需要材料：${f(1000000)}玛玉灵锭 + ${f('(10^)^479 1.56')}下界岩<br>
+                复杂度：${formatWhole(this.complexity)}<br>
+                效果：允许你在撸树时获得绯红、诡异菌柄，解锁更多原木的下界子界面`
+                return d
+            },
+            complexity: d(9e26),
+            canClick() { return player.crafting_table.points.gte(1) && player.manyullyn.points.gte(1000000) && player.stone.netherrack.gte('(10^)^479 1.56') && !hasCraftingItem(this.id) && !player.crafting_table.crafting && hasCraftingItem(422) && hasCraftingItem(641) },
+            onClick() {
+                player.crafting_table.crafting = true,
+                    player.crafting_table.craftingItem = this.id,
+                    player.manyullyn.points = player.manyullyn.points.sub(1000000),
+                    player.stone.netherrack = player.stone.netherrack.sub('(10^)^479 1.56')
+            },
+            unlocked() { return hasUpgrade(ct, 292) },
+            style() {
+                return {
+                    'min-height': '210px',
+                    'width': '210px',
+                    "background": "linear-gradient(45deg, #481d6d 5%, #bd92f1 10%, #a97de0 15%, #926ae3 20%, #a97de0 30%, #a97de0 80%, #926ac3 90%, #481d6d 95%)",
+                    'background-color': '#a97de0'
+                }
+            },
+            marked() { return hasCraftingItem(this.id) },
+        },
+        732: {
+            title() {
+                let t = "末影齿轮"
+                return t
+            },
+            display() {
+                let d = `
+                需要工具：工厂环 + 灵魂锻锤<br>
+                需要材料：4末影锭<br>
+                复杂度：${formatWhole(this.complexity)}<br>
+                数量：${fw(player[ct].items[732])}<br>`
+                return d
+            },
+            complexity: d(3e26),
+            canClick() { return player.crafting_table.points.gte(1) && player.enderium.points.gte(4) && !player.crafting_table.crafting && hasCraftingItem(422) && hasCraftingItem(641) },
+            onClick() {
+                player.crafting_table.crafting = true,
+                    player.crafting_table.craftingItem = this.id,
+                    player.enderium.points = player.enderium.points.sub(4)
+            },
+            unlocked() { return hasUpgrade(ct, 293) },
+            style() {
+                return {
+                    'min-height': '210px',
+                    'width': '210px',
+                    "background": "linear-gradient(45deg, #083839 5%, #106565 15%, #0b4748 25%, #0f5c5c 30%, #127575 60%, #0d6161 90%, #093f40 95%)",
+                    'background-color': '#0f5c5c'
+                }
+            },
+            marked() { return hasCraftingItem(this.id) },
+        },
+        741: {
+            title() {
+                let t = "谐振末影钻头"
+                return t
+            },
+            display() {
+                let d = `
+                需要工具：工厂环 + 灵魂锻锤<br>
+                需要材料：4末影齿轮 + ${f('10^^2370')}流明锭<br>
+                复杂度：${formatWhole(this.complexity)}<br>
+                效果：末影得分变为原来的1.2x，且每个炽炎核心晋升使经验获取从0.5个指数塔到0.6`
+                return d
+            },
+            complexity: d(1e27),
+            canClick() { return player.crafting_table.points.gte(1) && player[ct].items[732].gte(4) && player.lumium.points.gte('10^^2370') && !hasCraftingItem(this.id) && !player.crafting_table.crafting && hasCraftingItem(422) && hasCraftingItem(641) },
+            onClick() {
+                player.crafting_table.crafting = true,
+                    player.crafting_table.craftingItem = this.id,
+                    player[ct].items[732] = player[ct].items[732].sub(4),
+                    player.lumium.points = player.lumium.points.sub('10^^2370')
+            },
+            unlocked() { return hasUpgrade(ct, 294) },
+            style() {
+                return {
+                    'min-height': '210px',
+                    'width': '210px',
+                    "background": "linear-gradient(45deg, #083839 5%, #106565 15%, #0b4748 25%, #0f5c5c 30%, #127575 60%, #0d6161 90%, #093f40 95%)",
+                    'background-color': '#0f5c5c'
+                }
+            },
+            marked() { return hasCraftingItem(this.id) },
+        },
+        742: {
+            title() {
+                let t = "谐振升级套件"
+                return t
+            },
+            display() {
+                let d = `
+                需要工具：工厂环 + 灵魂锻锤<br>
+                需要材料：600末影锭 + ${f('10^^3260')}流明锭 + 500 mB烈焰之炽焱<br>
+                复杂度：${formatWhole(this.complexity)}<br>
+                数量：${fw(player[ct].items[742])}<br>
+                效果：第1个谐振升级套件解锁末影里程碑，更多效果见末影里程碑`
+                return d
+            },
+            complexity: d(1e27),
+            canClick() { return player.crafting_table.points.gte(1) && player.enderium.points.gte(600) && player.lumium.points.gte('10^^3260') && player.blast_furnace.blazing_pyrotheum.gte(500) && !player.crafting_table.crafting && hasCraftingItem(422) && hasCraftingItem(641) },
+            onClick() {
+                player.crafting_table.crafting = true,
+                    player.crafting_table.craftingItem = this.id,
+                    player.enderium.points = player.enderium.points.sub(600),
+                    player.lumium.points = player.lumium.points.sub('10^^3260'),
+                    player.blast_furnace.blazing_pyrotheum = player.blast_furnace.blazing_pyrotheum.sub(500)
+            },
+            unlocked() { return hasUpgrade(ct, 295) },
+            style() {
+                return {
+                    'min-height': '210px',
+                    'width': '210px',
+                    "background": "linear-gradient(45deg, #083839 5%, #106565 15%, #0b4748 25%, #0f5c5c 30%, #127575 60%, #0d6161 90%, #093f40 95%)",
+                    'background-color': '#0f5c5c'
+                }
+            },
+            marked() { return hasCraftingItem(this.id) },
+        },
+        751: {
+            title() {
+                let t = "14阶太阳能板"
+                return t
+            },
+            display() {
+                let d = `
+                需要工具：工厂环 + 灵魂锻锤<br>
+                需要材料：${f(2e12)}末影锭 + ${f('10^^6540')}流明锭<br>
+                复杂度：${formatWhole(this.complexity)}<br>
+                效果：2xRF发电速度，解锁更多的自动化升级`
+                return d
+            },
+            complexity: d(1.56e27),
+            canClick() { return player.crafting_table.points.gte(1) && player.enderium.points.gte(2e12) && player.lumium.points.gte('10^^6540') && !hasCraftingItem(this.id) && !player.crafting_table.crafting && hasCraftingItem(422) && hasCraftingItem(641) },
+            onClick() {
+                player.crafting_table.crafting = true,
+                    player.crafting_table.craftingItem = this.id,
+                    player.enderium.points = player.enderium.points.sub(2e12),
+                    player.lumium.points = player.lumium.points.sub('10^^6540')
+            },
+            unlocked() { return hasUpgrade(ct, 301) },
+            style() {
+                return {
+                    'min-height': '210px',
+                    'width': '210px',
+                    "background": "linear-gradient(45deg, #083839 5%, #106565 15%, #0b4748 25%, #0f5c5c 30%, #127575 60%, #0d6161 90%, #093f40 95%)",
+                    'background-color': '#0f5c5c'
+                }
+            },
+            marked() { return hasCraftingItem(this.id) },
+        },
+        752: {
+            title() {
+                let t = "极寒末影护甲"
+                return t
+            },
+            display() {
+                let d = `
+                需要工具：工厂环 + 灵魂锻锤<br>
+                需要材料：24极寒末影锭<br>
+                复杂度：${formatWhole(this.complexity)}<br>
+                效果：DEF值+1，你免疫暴雪人的冻结效果`
+                return d
+            },
+            complexity: d(1.8e27),
+            canClick() { return player.crafting_table.points.gte(1) && player.geild_enderium.points.gte(24) && !hasCraftingItem(this.id) && !player.crafting_table.crafting && hasCraftingItem(422) && hasCraftingItem(641) },
+            onClick() {
+                player.crafting_table.crafting = true,
+                    player.crafting_table.craftingItem = this.id,
+                    player.geild_enderium.points = player.geild_enderium.points.sub(24)
+            },
+            unlocked() { return hasUpgrade(ct, 302) },
+            style() {
+                return {
+                    'min-height': '210px',
+                    'width': '210px',
+                    "background": "linear-gradient(45deg, #083839 5%, #106565 15%, #0b4748 25%, #0f5c5c 30%, #127575 60%, #0d6161 90%, #093f40 95%)",
+                    'background-color': '#0f5c5c',
+                    "border-color": "#40b8fb",
+                }
+            },
+            marked() { return hasCraftingItem(this.id) },
+        },
+        761: {
+            title() {
+                let t = "极寒末影魔杖"
+                return t
+            },
+            display() {
+                let d = `
+                需要工具：工厂环 + 灵魂锻锤<br>
+                需要材料：48极寒末影锭 + ${f('10^^32450')}泰拉钢锭<br>
+                复杂度：${formatWhole(this.complexity)}<br>
+                效果：解锁战斗技能：极寒射线`
+                return d
+            },
+            complexity: d(1.8e27),
+            canClick() { return player.crafting_table.points.gte(1) && player.geild_enderium.points.gte(48) && player.terrasteel.points.gte('10^^32450') && !hasCraftingItem(this.id) && !player.crafting_table.crafting && hasCraftingItem(422) && hasCraftingItem(641) },
+            onClick() {
+                player.crafting_table.crafting = true,
+                    player.crafting_table.craftingItem = this.id,
+                    player.geild_enderium.points = player.geild_enderium.points.sub(48),
+                    player.terrasteel.points = player.terrasteel.points.sub('10^^32450')
+            },
+            unlocked() { return hasUpgrade(ct, 303) },
+            style() {
+                return {
+                    'min-height': '210px',
+                    'width': '210px',
+                    "background": "linear-gradient(45deg, #083839 5%, #106565 15%, #0b4748 25%, #0f5c5c 30%, #127575 60%, #0d6161 90%, #093f40 95%)",
+                    'background-color': '#0f5c5c',
+                    "border-color": "#40b8fb",
+                }
+            },
+            marked() { return hasCraftingItem(this.id) },
+        },
+        762: {
+            title() {
+                let t = "极寒末影熔炼记忆器"
+                return t
+            },
+            display() {
+                let d = `
+                需要工具：工厂环 + 灵魂锻锤<br>
+                需要材料：${f(1e158)}极寒末影锭 + ${f('10^^9e11')}红石粉<br>
+                复杂度：${formatWhole(this.complexity)}<br>
+                效果：当你熔炼/合金一种配方时，如果材料不足，不会直接中断，会等待材料足够后自动恢复熔炼/合金。功能选项分别独立存在于熔炼和合金炉层`
+                return d
+            },
+            complexity: d(2.1e27),
+            canClick() { return player.crafting_table.points.gte(1) && player.geild_enderium.points.gte(1e158) && player.redstone.points.gte('10^^9e11') && !hasCraftingItem(this.id) && !player.crafting_table.crafting && hasCraftingItem(422) && hasCraftingItem(641) },
+            onClick() {
+                player.crafting_table.crafting = true,
+                    player.crafting_table.craftingItem = this.id,
+                    player.geild_enderium.points = player.geild_enderium.points.sub(1e158),
+                    player.redstone.points = player.redstone.points.sub('10^^9e11')
+            },
+            unlocked() { return hasUpgrade(ct, 304) },
+            style() {
+                return {
+                    'min-height': '210px',
+                    'width': '210px',
+                    "background": "linear-gradient(45deg, #083839 5%, #106565 15%, #0b4748 25%, #0f5c5c 30%, #127575 60%, #0d6161 90%, #093f40 95%)",
+                    'background-color': '#0f5c5c',
+                    "border-color": "#40b8fb",
+                }
+            },
+            marked() { return hasCraftingItem(this.id) },
+        },
+        771: {
+            title() {
+                let t = "玄钢经验吸收器"
+                return t
+            },
+            display() {
+                let d = `
+                需要工具：工厂环 + 灵魂锻锤<br>
+                需要材料：${f(4000000)}玄钢锭 + ${f('10^^1.024e12')}知识精华锭<br>
+                复杂度：${formatWhole(this.complexity)}<br>
+                效果：在玄钢层级解锁“吸收”界面`
+                return d
+            },
+            complexity: d(2.4e27),
+            canClick() { return player.crafting_table.points.gte(1) && player.dark_steel.points.gte(4000000) && player.experience.points.gte('10^^1.024e12') && !hasCraftingItem(this.id) && !player.crafting_table.crafting && hasCraftingItem(422) && hasCraftingItem(641) },
+            onClick() {
+                player.crafting_table.crafting = true,
+                    player.crafting_table.craftingItem = this.id,
+                    player.dark_steel.points = player.dark_steel.points.sub(4000000),
+                    player.experience.points = player.experience.points.sub('10^^1.024e12')
+            },
+            unlocked() { return hasUpgrade(ct, 305) },
+            style() {
+                return {
+                    'min-height': '210px',
+                    'width': '210px',
+                    "background": "linear-gradient(45deg, #1a1a1a 5%, #696969 10%, #535353 15%, #2a2a2a 20%, #636363 30%, #4c4c4c 85%, #1a1a1a 95%)",
+                    'background-color': '#535353',
+                }
+            },
+            marked() { return hasCraftingItem(this.id) },
+        },
+        772: {
+            title() {
+                let t = "耐酸铝抽牌器"
+                return t
+            },
+            display() {
+                let d = `
+                需要工具：工厂环 + 灵魂锻锤<br>
+                需要材料：${f(4000)}耐酸铝锭 + ${f('10^^1.3e54')}红石粉<br>
+                复杂度：${formatWhole(this.complexity)}<br>
+                效果：在耐酸铝层级解锁“抽牌”界面和耐酸铝里程碑`
+                return d
+            },
+            complexity: d(2.6e27),
+            canClick() { return player.crafting_table.points.gte(1) && player.alumite.points.gte(4000) && player.redstone.points.gte('10^^1.3e54') && !hasCraftingItem(this.id) && !player.crafting_table.crafting && hasCraftingItem(422) && hasCraftingItem(641) },
+            onClick() {
+                player.crafting_table.crafting = true,
+                    player.crafting_table.craftingItem = this.id,
+                    player.alumite.points = player.alumite.points.sub(4000),
+                    player.experience.points = player.experience.points.sub('10^^1.3e54')
+            },
+            unlocked() { return hasUpgrade(ct, 311) },
+            style() {
+                return {
+                    'min-height': '210px',
+                    'width': '210px',
+                    "background": "linear-gradient(45deg, #dc7ec4 5%, #f4ceec 10%, #fcfefc 20%, #fcfefc 80%, #f4ceec 85%, #dc7ec4 95%)",
+                    'background-color': '#f4ceec',
                 }
             },
             marked() { return hasCraftingItem(this.id) },
@@ -34587,7 +40399,7 @@ addLayer("crafting_table", {
 
     update(diff) {
         if (isCraftingItem()) player.crafting_table.progress = player.crafting_table.progress.add(player.crafting_table.speed.times(diff))
-        if (player.crafting_table.progress.gte(craftingItemComp(craftingItemID()))) getCraftingItem(craftingItemID()),
+        if (player.crafting_table.progress.gte(craftingItemComp(craftingItemID())) && isCraftingItem()) getCraftingItem(craftingItemID()),
             stopCrafting()
 
         //合成台合成速度
@@ -34606,6 +40418,7 @@ addLayer("crafting_table", {
         if (hasCraftingItem(422)) speed = speed.times(25)
         if (hasCraftingItem(492)) speed = speed.times(clickableEffect(ct, 492))
         if (hasCraftingItem(641)) speed = speed.times(120)
+        if (hasUpgrade(enderium, 22)) speed = speed.times(upgradeEffect(enderium, 22))
         player[ct].speed = speed
 
         //更新最大页码
@@ -34726,10 +40539,14 @@ function isSmeltingItem() {
     return player.furnace.smelting
 }
 
-function stopSmelting() {
-    player.furnace.smelting = false,
-        player.furnace.smeltingItem = 0,
-        player.furnace.temperature = d(20)
+function stopSmelting(wait = false) {
+    let type = wait ? '暂停' : '中断'
+    doPopup("default", smeltingItemName(smeltingItemID()) + "的熔炼" + "已" + type + "！", type + "提醒", 3, smeltingItemColorBg(smeltingItemID()) || smeltingItemColor(smeltingItemID()), tmp.furnace.clickables[smeltingItemID()].style['color'] || "black")
+    if (wait) { player.furnace.waitingforID = player.furnace.smeltingItem }
+    else { player.furnace.waitingforID = 0 }
+    player.furnace.smelting = false
+    player.furnace.smeltingItem = 0
+    player.furnace.temperature = d(20)
 }
 
 function smeltingItemName(id) {
@@ -34746,6 +40563,10 @@ function smeltingItemID() {
 
 function smeltingItemColor(id) {
     return tmp.furnace.clickables[id].style['background-color']
+}
+
+function smeltingItemColorBg(id) {
+    return tmp.furnace.clickables[id].style['background']
 }
 
 function smeltResult(id) {
@@ -34785,6 +40606,13 @@ function normalIDList(amt) {
     return list
 }
 
+function resumeSmelting() {
+    if (player.furnace.waitingforID == 0) return;
+    player.furnace.smelting = true
+    player.furnace.smeltingItem = player.furnace.waitingforID
+    player.furnace.waitingforID = 0
+}
+
 const normalList = normalIDList(195)
 
 //制造层2：熔炉
@@ -34813,6 +40641,8 @@ addLayer("furnace", {
             speed: d(40),
             smelting: false,
             smeltingItem: 0, //0为凑数id
+            enableWaiting: false,
+            waitingforID: 0,
             burning: false,
             fuel: 10000, //10000为凑数id
             temperature: d(20),
@@ -34839,7 +40669,7 @@ addLayer("furnace", {
         return e
     },
     resetDescription: "重置以合成 ",
-    layerShown() { return hasNormalAchievement(25) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return hasNormalAchievement(25) && !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
 
     onPrestige() {
         return player.furnace.cooldown = d(1)
@@ -34990,6 +40820,30 @@ addLayer("furnace", {
             cost() { return new ExpantaNum(0) },
             unlocked() { return hasUpgrade(fracturite, 11) },
         },
+        42: {
+            title: "炽炎锭",
+            fullDisplay() {
+                return `<h3>${this.title}</h3><br>解锁炽炎锭的熔炼配方<br><br>购买第1个炽炎升级后免费解锁`
+            },
+            cost() { return new ExpantaNum(0) },
+            unlocked() { return hasUpgrade(torridite, 11) },
+        },
+        43: {
+            title: "钴锭",
+            fullDisplay() {
+                return `<h3>${this.title}</h3><br>解锁钴锭的熔炼配方<br><br>购买第2个钴升级后免费解锁`
+            },
+            cost() { return new ExpantaNum(0) },
+            unlocked() { return hasUpgrade(cobalt, 12) },
+        },
+        44: {
+            title: "阿迪特锭",
+            fullDisplay() {
+                return `<h3>${this.title}</h3><br>解锁阿迪特锭的熔炼配方<br><br>购买第2个阿迪特升级后免费解锁`
+            },
+            cost() { return new ExpantaNum(0) },
+            unlocked() { return hasUpgrade(ardite, 12) },
+        },
     },
 
     milestones: {
@@ -35033,6 +40887,7 @@ addLayer("furnace", {
             },
             temperature: d(800),
             mult() {
+                if (hasMilestone(torridite, 2)) return getPointGen()
                 let m = d(1)
                 if (hasUpgrade(copper, 22)) m = m.times(upgradeEffect(copper, 22))
                 if (hasUpgrade(tin, 14)) m = m.times(upgradeEffect(tin, 14))
@@ -35045,7 +40900,7 @@ addLayer("furnace", {
                     return player.copper.points = player.copper.points.add(this.mult().min(player.copper.ore)),
                         player.copper.ore = player.copper.ore.sub(this.mult().min(player.copper.ore)),
                         player.furnace.temperature = d(20)
-                if (player.copper.ore.lt(1) && smeltingItemID() == this.id) stopSmelting()
+                if (player.copper.ore.lt(1) && smeltingItemID() == this.id) stopSmelting(player.furnace.enableWaiting)
             },
             canClick() { return player.copper.ore.gte(1) && player.furnace.burning && !player.furnace.smelting },
             onClick() {
@@ -35078,6 +40933,7 @@ addLayer("furnace", {
             },
             temperature: d(150),
             mult() {
+                if (hasMilestone(torridite, 2)) return getPointGen()
                 let m = d(1)
                 if (hasUpgrade(copper, 24)) m = m.times(upgradeEffect(copper, 24))
                 return m
@@ -35096,7 +40952,7 @@ addLayer("furnace", {
                     return player.furnace.glass = player.furnace.glass.add(effm),
                         player.stone.sand = player.stone.sand.sub(effm),
                         player.furnace.temperature = d(20)
-                if (player.stone.sand.lt(1) && smeltingItemID() == this.id) stopSmelting()
+                if (player.stone.sand.lt(1) && smeltingItemID() == this.id) stopSmelting(player.furnace.enableWaiting)
             },
             canClick() { return player.stone.sand.gte(1) && player.furnace.burning && !player.furnace.smelting },
             onClick() {
@@ -35128,6 +40984,7 @@ addLayer("furnace", {
             },
             temperature: d(960),
             mult() {
+                if (hasMilestone(torridite, 3)) return getPointGen()
                 let m = d(1)
                 if (hasUpgrade(bronze, 14)) m = m.times(upgradeEffect(bronze, 14))
                 if (hasMilestone(bronze, 1)) m = player.tin.ore.div(10).ceil().max(0)
@@ -35138,7 +40995,7 @@ addLayer("furnace", {
                     return player.tin.points = player.tin.points.add(this.mult().min(player.tin.ore)),
                         player.tin.ore = player.tin.ore.sub(this.mult().min(player.tin.ore)),
                         player.furnace.temperature = d(20)
-                if (player.tin.ore.lt(1) && smeltingItemID() == this.id) stopSmelting()
+                if (player.tin.ore.lt(1) && smeltingItemID() == this.id) stopSmelting(player.furnace.enableWaiting)
             },
             canClick() { return player.tin.ore.gte(1) && player.furnace.burning && !player.furnace.smelting },
             onClick() {
@@ -35179,7 +41036,7 @@ addLayer("furnace", {
                     return player.furnace.charcoal = player.furnace.charcoal.add(this.mult().min(player.wood.points)),
                         player.wood.points = player.wood.points.sub(this.mult().min(player.wood.points)),
                         player.furnace.temperature = d(20)
-                if (player.wood.points.lt(1) && smeltingItemID() == this.id) stopSmelting()
+                if (player.wood.points.lt(1) && smeltingItemID() == this.id) stopSmelting(player.furnace.enableWaiting)
             },
             canClick() { return player.wood.points.gte(1) && player.furnace.burning && !player.furnace.smelting },
             onClick() {
@@ -35212,6 +41069,7 @@ addLayer("furnace", {
             },
             temperature: d(1930),
             mult() {
+                if (hasMilestone(torridite, 5)) return getPointGen()
                 let m = d(1)
                 if (hasUpgrade(iron, 22)) m = m.times(upgradeEffect(iron, 22))
                 if (hasUpgrade(nickel, 22)) m = m.times(challengeEffect(nickel, 12))
@@ -35224,7 +41082,7 @@ addLayer("furnace", {
                     return player.iron.points = player.iron.points.add(this.mult().min(player.iron.ore)),
                         player.iron.ore = player.iron.ore.sub(this.mult().min(player.iron.ore)),
                         player.furnace.temperature = d(20)
-                if (player.iron.ore.lt(1) && smeltingItemID() == this.id) stopSmelting()
+                if (player.iron.ore.lt(1) && smeltingItemID() == this.id) stopSmelting(player.furnace.enableWaiting)
             },
             canClick() { return player.iron.ore.gte(1) && player.furnace.burning && !player.furnace.smelting },
             onClick() {
@@ -35257,6 +41115,7 @@ addLayer("furnace", {
             },
             temperature: d(2160),
             mult() {
+                if (hasMilestone(torridite, 6)) return getPointGen()
                 let m = d(1)
                 if (hasUpgrade(nickel, 22)) m = m.times(challengeEffect(nickel, 12))
                 if (hasUpgrade(aluminum, 23)) m = m.times(upgradeEffect(aluminum, 23))
@@ -35268,7 +41127,7 @@ addLayer("furnace", {
                     return player.nickel.points = player.nickel.points.add(this.mult().min(player.nickel.ore)),
                         player.nickel.ore = player.nickel.ore.sub(this.mult().min(player.nickel.ore)),
                         player.furnace.temperature = d(20)
-                if (player.nickel.ore.lt(1) && smeltingItemID() == this.id) stopSmelting()
+                if (player.nickel.ore.lt(1) && smeltingItemID() == this.id) stopSmelting(player.furnace.enableWaiting)
             },
             canClick() { return player.nickel.ore.gte(1) && player.furnace.burning && !player.furnace.smelting },
             onClick() {
@@ -35301,6 +41160,7 @@ addLayer("furnace", {
             },
             temperature: d(2340),
             mult() {
+                if (hasMilestone(torridite, 7)) return getPointGen()
                 let m = d(1)
                 if (hasUpgrade(aluminum, 21)) m = m.times(50)
                 if (hasCraftingItem(181)) m = m.times(25)
@@ -35312,7 +41172,7 @@ addLayer("furnace", {
                     return player.aluminum.points = player.aluminum.points.add(this.mult().min(player.aluminum.ore)),
                         player.aluminum.ore = player.aluminum.ore.sub(this.mult().min(player.aluminum.ore)),
                         player.furnace.temperature = d(20)
-                if (player.aluminum.ore.lt(1) && smeltingItemID() == this.id) stopSmelting()
+                if (player.aluminum.ore.lt(1) && smeltingItemID() == this.id) stopSmelting(player.furnace.enableWaiting)
             },
             canClick() { return player.aluminum.ore.gte(1) && player.furnace.burning && !player.furnace.smelting },
             onClick() {
@@ -35345,6 +41205,7 @@ addLayer("furnace", {
             },
             temperature: d(2700),
             mult() {
+                if (hasMilestone(torridite, 7)) return getPointGen()
                 let m = d(1)
                 if (hasUpgrade(lead, 22)) m = m.times(upgradeEffect(lead, 14))
                 if (hasUpgrade(constantan, 12)) m = m.times(upgradeEffect(constantan, 12))
@@ -35355,7 +41216,7 @@ addLayer("furnace", {
                     return player.lead.points = player.lead.points.add(this.mult().min(player.lead.ore)),
                         player.lead.ore = player.lead.ore.sub(this.mult().min(player.lead.ore)),
                         player.furnace.temperature = d(20)
-                if (player.lead.ore.lt(1) && smeltingItemID() == this.id) stopSmelting()
+                if (player.lead.ore.lt(1) && smeltingItemID() == this.id) stopSmelting(player.furnace.enableWaiting)
             },
             canClick() { return player.lead.ore.gte(1) && player.furnace.burning && !player.furnace.smelting },
             onClick() {
@@ -35388,6 +41249,7 @@ addLayer("furnace", {
             },
             temperature: d(3520),
             mult() {
+                if (hasMilestone(torridite, 12)) return getPointGen()
                 let m = d(1)
                 if (hasCraftingItem(272)) m = m.times(100)
                 if (hasMilestone(brass, 0)) m = m.times(10)
@@ -35399,7 +41261,7 @@ addLayer("furnace", {
                     return player.zinc.points = player.zinc.points.add(this.mult().min(player.zinc.ore)),
                         player.zinc.ore = player.zinc.ore.sub(this.mult().min(player.zinc.ore)),
                         player.furnace.temperature = d(20)
-                if (player.zinc.ore.lt(1) && smeltingItemID() == this.id) stopSmelting()
+                if (player.zinc.ore.lt(1) && smeltingItemID() == this.id) stopSmelting(player.furnace.enableWaiting)
             },
             canClick() { return player.zinc.ore.gte(1) && player.furnace.burning && !player.furnace.smelting },
             onClick() {
@@ -35440,7 +41302,7 @@ addLayer("furnace", {
                     return player.furnace.brick = player.furnace.brick.add(this.mult().min(player.stone.clay)),
                         player.stone.clay = player.stone.clay.sub(this.mult().min(player.stone.clay)),
                         player.furnace.temperature = d(20)
-                if (player.stone.clay.lt(1) && smeltingItemID() == this.id) stopSmelting()
+                if (player.stone.clay.lt(1) && smeltingItemID() == this.id) stopSmelting(player.furnace.enableWaiting)
             },
             canClick() { return player.stone.clay.gte(1) && player.furnace.burning && !player.furnace.smelting },
             onClick() {
@@ -35482,7 +41344,7 @@ addLayer("furnace", {
                         player.furnace.brick = player.furnace.brick.sub(this.mult().min(player.furnace.brick).min(player.stone.points)),
                         player.stone.points = player.stone.points.sub(this.mult().min(player.furnace.brick).min(player.stone.points)),
                         player.furnace.temperature = d(20)
-                if ((player.furnace.brick.lt(1) || player.stone.points.lt(1)) && smeltingItemID() == this.id) stopSmelting()
+                if ((player.furnace.brick.lt(1) || player.stone.points.lt(1)) && smeltingItemID() == this.id) stopSmelting(player.furnace.enableWaiting)
             },
             canClick() { return player.furnace.brick.gte(1) && player.stone.points.gte(1) && player.furnace.burning && !player.furnace.smelting },
             onClick() {
@@ -35515,6 +41377,7 @@ addLayer("furnace", {
             },
             temperature: d(3700),
             mult() {
+                if (hasMilestone(torridite, 15)) return getPointGen()
                 let m = d(1)
                 if (hasUpgrade(silver, 22)) m = m.times(5)
                 if (hasUpgrade(silver, 24)) m = m.times(upgradeEffect(silver, 24))
@@ -35528,7 +41391,7 @@ addLayer("furnace", {
                     return player.silver.points = player.silver.points.add(this.mult().min(player.silver.ore)),
                         player.silver.ore = player.silver.ore.sub(this.mult().min(player.silver.ore)),
                         player.furnace.temperature = d(20)
-                if (player.silver.ore.lt(1) && smeltingItemID() == this.id) stopSmelting()
+                if (player.silver.ore.lt(1) && smeltingItemID() == this.id) stopSmelting(player.furnace.enableWaiting)
             },
             canClick() { return player.silver.ore.gte(1) && player.furnace.burning && !player.furnace.smelting },
             onClick() {
@@ -35561,6 +41424,7 @@ addLayer("furnace", {
             },
             temperature: d(3900),
             mult() {
+                if (hasMilestone(torridite, 16)) return getPointGen()
                 let m = d(1)
                 if (hasCraftingItem(322)) m = m.times(15),
                     m = m.times(tmp.gold.timeEff)
@@ -35575,7 +41439,7 @@ addLayer("furnace", {
                     return player.gold.points = player.gold.points.add(this.mult().min(player.gold.ore)),
                         player.gold.ore = player.gold.ore.sub(this.mult().min(player.gold.ore)),
                         player.furnace.temperature = d(20)
-                if (player.gold.ore.lt(1) && smeltingItemID() == this.id) stopSmelting()
+                if (player.gold.ore.lt(1) && smeltingItemID() == this.id) stopSmelting(player.furnace.enableWaiting)
             },
             canClick() { return player.gold.ore.gte(1) && player.furnace.burning && !player.furnace.smelting },
             onClick() {
@@ -35608,6 +41472,7 @@ addLayer("furnace", {
             },
             temperature: d(4400),
             mult() {
+                if (hasMilestone(torridite, 21)) return getPointGen()
                 let m = d(1)
                 if (hasUpgrade(platinum, 21)) m = m.times(3)
                 if (hasCraftingItem(402)) m = m.times(3)
@@ -35621,7 +41486,7 @@ addLayer("furnace", {
                     return player.platinum.points = player.platinum.points.add(this.mult().min(player.platinum.ore)),
                         player.platinum.ore = player.platinum.ore.sub(this.mult().min(player.platinum.ore)),
                         player.furnace.temperature = d(20)
-                if (player.platinum.ore.lt(1) && smeltingItemID() == this.id) stopSmelting()
+                if (player.platinum.ore.lt(1) && smeltingItemID() == this.id) stopSmelting(player.furnace.enableWaiting)
             },
             canClick() { return player.platinum.ore.gte(1) && player.furnace.burning && !player.furnace.smelting },
             onClick() {
@@ -35654,6 +41519,7 @@ addLayer("furnace", {
             },
             temperature: d(2800),
             mult() {
+                if (hasMilestone(torridite, 28)) return getPointGen()
                 let m = d(1)
                 if (hasUpgrade(ironwood, 22)) m = m.times(upgradeEffect(ironwood, 22))
                 if (hasUpgrade(ironwood, 32)) m = m.times(upgradeEffect(ironwood, 32))
@@ -35669,7 +41535,7 @@ addLayer("furnace", {
                     return player.ironwood.points = player.ironwood.points.add(m),
                         player.ironwood.raw = player.ironwood.raw.sub(m),
                         player.furnace.temperature = d(20)
-                if (player.ironwood.raw.lt(1) && smeltingItemID() == this.id) stopSmelting()
+                if (player.ironwood.raw.lt(1) && smeltingItemID() == this.id) stopSmelting(player.furnace.enableWaiting)
             },
             canClick() { return player.ironwood.raw.gte(1) && player.furnace.burning && !player.furnace.smelting },
             onClick() {
@@ -35702,6 +41568,7 @@ addLayer("furnace", {
             },
             temperature: d(3680),
             mult() {
+                if (hasMilestone(torridite, 31)) return getPointGen()
                 let m = d(1)
                 if (hasUpgrade(knight_metal, 21)) m = m.times(20)
                 if (hasUpgrade(steeleaf, 32)) m = player.knight_metal.raw.div(10).max(1)
@@ -35715,7 +41582,7 @@ addLayer("furnace", {
                     return player.knight_metal.points = player.knight_metal.points.add(m),
                         player.knight_metal.raw = player.knight_metal.raw.sub(m),
                         player.furnace.temperature = d(20)
-                if (player.knight_metal.raw.lt(1) && smeltingItemID() == this.id) stopSmelting()
+                if (player.knight_metal.raw.lt(1) && smeltingItemID() == this.id) stopSmelting(player.furnace.enableWaiting)
             },
             canClick() { return player.knight_metal.raw.gte(1) && player.furnace.burning && !player.furnace.smelting },
             onClick() {
@@ -35759,7 +41626,7 @@ addLayer("furnace", {
                     return player.fracturite.points = player.fracturite.points.add(m.times(3)),
                         player.fracturite.maze_destoryer = player.fracturite.maze_destoryer.sub(m),
                         player.furnace.temperature = d(20)
-                if (player.fracturite.maze_destoryer.lt(1) && smeltingItemID() == this.id) stopSmelting()
+                if (player.fracturite.maze_destoryer.lt(1) && smeltingItemID() == this.id) stopSmelting(player.furnace.enableWaiting)
             },
             canClick() { return player.fracturite.maze_destoryer.gte(1) && player.furnace.burning && !player.furnace.smelting },
             onClick() {
@@ -35775,6 +41642,154 @@ addLayer("furnace", {
                     'background-color': '#c3d2ad',
                     'background-size': '300% 300%, 100% 100%',
                     animation: 'enchant-glow 12s linear infinite',
+                }
+            },
+        },
+        43: {
+            title() {
+                let t = "炽炎锭"
+                return t
+            },
+            display() {
+                let d = `
+                需要工具：1熔炉<br>
+                需要材料：1炽炎矿石<br>
+                需求温度：${formatWhole(this.temperature)}<br>
+                产出：1炽炎锭<br>
+                倍率：${formatWhole(this.mult())}x`
+                return d
+            },
+            temperature: d(7000),
+            mult() {
+                let m = d(1)
+                if (hasUpgrade(torridite, 14)) m = m.times(upgradeEffect(torridite, 14))
+                if (hasCraftingItem(701)) m = m.times(1000000)
+                if (hasUpgrade(cobalt, 14)) m = m.times(upgradeEffect(cobalt, 14))
+                if (hasMilestone(sing_fus, 14)) m = m.times(buyableEffect(sing_fus, 43))
+                m = m.floor()
+                return m
+            },
+            effectiveMult() { return this.mult().min(player.torridite.ore) },
+            result(diff) {
+                let m = this.effectiveMult()
+                if (player.furnace.temperature.gte(smeltingItemTemp(smeltingItemID())) && isSmeltingItem() && smeltingItemID() == this.id)
+                    return player.torridite.points = player.torridite.points.add(m),
+                        player.torridite.ore = player.torridite.ore.sub(m),
+                        player.furnace.temperature = d(20)
+                if (player.torridite.ore.lt(1) && smeltingItemID() == this.id) stopSmelting(player.furnace.enableWaiting)
+            },
+            canClick() { return player.torridite.ore.gte(1) && player.furnace.burning && !player.furnace.smelting },
+            onClick() {
+                player.furnace.smelting = true,
+                    player.furnace.smeltingItem = this.id
+            },
+            unlocked() { return hasUpgrade(furnace, 42) },
+            style() {
+                return {
+                    'min-height': '180px',
+                    'width': '180px',
+                    background: `linear-gradient(45deg, #68031f 5%, #b91d1d 10%, #fcac83 15%, #f15221 30%, #b91d1d 45%, #f15221 60%, #b91d1d 75%, #f15221 90%, #900613 95%)`,
+                    'background-color': '#b91d1d',
+                }
+            },
+        },
+        44: {
+            title() {
+                let t = "钴锭"
+                return t
+            },
+            display() {
+                let d = `
+                需要工具：1熔炉<br>
+                需要材料：1钴矿石<br>
+                需求温度：${formatWhole(this.temperature)}<br>
+                产出：1钴锭<br>
+                倍率：${formatWhole(this.mult())}x`
+                return d
+            },
+            temperature: d(4500),
+            mult() {
+                let m = d(1)
+                if (hasUpgrade(torridite, 42)) m = m.times(upgradeEffect(torridite, 42))
+                if (hasCraftingItem(712)) m = m.times(15)
+                if (hasUpgrade(cobalt, 24)) m = m.times(upgradeEffect(cobalt, 24))
+                if (hasUpgrade(cobalt, 25)) m = m.times(591.6)
+                if (hasUpgrade(cobalt, 31)) m = m.times(tmp.cobalt.HEeff)
+                if (hasMilestone(sing_fus, 15)) m = m.times(buyableEffect(sing_fus, 44))
+                m = m.floor()
+                return m
+            },
+            effectiveMult() { return this.mult().min(player.cobalt.ore) },
+            result(diff) {
+                let m = this.effectiveMult()
+                if (player.furnace.temperature.gte(smeltingItemTemp(smeltingItemID())) && isSmeltingItem() && smeltingItemID() == this.id)
+                    return player.cobalt.points = player.cobalt.points.add(m),
+                        player.cobalt.ore = player.cobalt.ore.sub(m),
+                        player.furnace.temperature = d(20)
+                if (player.cobalt.ore.lt(1) && smeltingItemID() == this.id) stopSmelting(player.furnace.enableWaiting)
+            },
+            canClick() { return player.cobalt.ore.gte(1) && player.furnace.burning && !player.furnace.smelting },
+            onClick() {
+                player.furnace.smelting = true,
+                    player.furnace.smeltingItem = this.id
+            },
+            unlocked() { return hasUpgrade(furnace, 43) },
+            style() {
+                return {
+                    'min-height': '180px',
+                    'width': '180px',
+                    "background": "linear-gradient(45deg, #03265f 5%, #59aaef 10%, #2376dd 15%, #1d6288 20%, #2376dd 30%, #2376dd 80%, #1d6288 90%, #03265f 95%)",
+                    'background-color': '#2376dd',
+                }
+            },
+        },
+        45: {
+            title() {
+                let t = "阿迪特锭"
+                return t
+            },
+            display() {
+                let d = `
+                需要工具：1熔炉<br>
+                需要材料：1阿迪特矿石<br>
+                需求温度：${formatWhole(this.temperature)}<br>
+                产出：1阿迪特锭<br>
+                倍率：${formatWhole(this.mult())}x`
+                return d
+            },
+            temperature: d(6000),
+            mult() {
+                let m = d(1)
+                if (hasUpgrade(cobalt, 22)) m = m.times(upgradeEffect(cobalt, 22))
+                if (hasCraftingItem(721)) m = m.times(15)
+                if (hasUpgrade(ardite, 21)) m = m.times(upgradeEffect(ardite, 21))
+                if (hasUpgrade(ardite, 24)) m = m.times(100)
+                if (hasUpgrade(manyullyn, 13)) m = m.times(tmp.manyullyn.scoreEff[2])
+                if (hasMilestone(sing_fus, 16)) m = m.times(buyableEffect(sing_fus, 51))
+                m = m.floor()
+                return m
+            },
+            effectiveMult() { return this.mult().min(player.ardite.ore) },
+            result(diff) {
+                let m = this.effectiveMult()
+                if (player.furnace.temperature.gte(smeltingItemTemp(smeltingItemID())) && isSmeltingItem() && smeltingItemID() == this.id)
+                    return player.ardite.points = player.ardite.points.add(m),
+                        player.ardite.ore = player.ardite.ore.sub(m),
+                        player.furnace.temperature = d(20)
+                if (player.ardite.ore.lt(1) && smeltingItemID() == this.id) stopSmelting(player.furnace.enableWaiting)
+            },
+            canClick() { return player.ardite.ore.gte(1) && player.furnace.burning && !player.furnace.smelting },
+            onClick() {
+                player.furnace.smelting = true,
+                    player.furnace.smeltingItem = this.id
+            },
+            unlocked() { return hasUpgrade(furnace, 44) },
+            style() {
+                return {
+                    'min-height': '180px',
+                    'width': '180px',
+                    "background": "linear-gradient(45deg, #471717 5%, #ff8517 10%, #cd5117 15%, #702e17 20%, #d55917 30%, #c34c17 80%, #f97717 90%, #471717 95%)",
+                    'background-color': '#cd5117',
                 }
             },
         },
@@ -35907,8 +41922,8 @@ addLayer("furnace", {
             unlocked() { return tmp.furnace.layerShown },
             style() {
                 return {
-                    'min-height': '120px',
-                    'width': '120px',
+                    'min-height': '140px',
+                    'width': '140px',
                     'background-color': '#b8945e',
                 }
             },
@@ -35935,8 +41950,8 @@ addLayer("furnace", {
             unlocked() { return hasUpgrade(stone, 35) },
             style() {
                 return {
-                    'min-height': '120px',
-                    'width': '120px',
+                    'min-height': '140px',
+                    'width': '140px',
                     'background-color': '#2e2e2e',
                     'color': '#ffffff',
                 }
@@ -35964,8 +41979,8 @@ addLayer("furnace", {
             unlocked() { return hasUpgrade(furnace, 13) },
             style() {
                 return {
-                    'min-height': '120px',
-                    'width': '120px',
+                    'min-height': '140px',
+                    'width': '140px',
                     'background-color': '#2b261d',
                     'color': '#ffffff',
                 }
@@ -35994,8 +42009,8 @@ addLayer("furnace", {
             unlocked() { return hasUpgrade(nickel, 14) },
             style() {
                 return {
-                    'min-height': '120px',
-                    'width': '120px',
+                    'min-height': '140px',
+                    'width': '140px',
                     'background-color': '#d76013',
                 }
             },
@@ -36023,8 +42038,8 @@ addLayer("furnace", {
             unlocked() { return player[ct].items[242].gte(5) },
             style() {
                 return {
-                    'min-height': '120px',
-                    'width': '120px',
+                    'min-height': '140px',
+                    'width': '140px',
                     'background-color': '#d8d8d8',
                 }
             },
@@ -36051,8 +42066,8 @@ addLayer("furnace", {
             unlocked() { return hasNormalAchievement(216) },
             style() {
                 return {
-                    'min-height': '120px',
-                    'width': '120px',
+                    'min-height': '140px',
+                    'width': '140px',
                     'background': 'repeating-linear-gradient(45deg, #e2c941 0%, #e19252 12.5%, #e2c941 25%)',
                 }
             },
@@ -36062,7 +42077,7 @@ addLayer("furnace", {
                 let d = `取消熔炼`
                 return d
             },
-            canClick() { return isSmeltingItem() },
+            canClick() { return isSmeltingItem() || player.furnace.waitingforID != 0 },
             onClick() {
                 stopSmelting()
             },
@@ -36070,7 +42085,28 @@ addLayer("furnace", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
+                }
+            },
+        },
+        20002: {
+            display() {
+                let on = player.furnace.enableWaiting ? "开" : "关"
+                let d = `熔炼记忆：${on}`
+                return d
+            },
+            canClick() { return hasCraftingItem(762) },
+            onClick() {
+                if (player.furnace.enableWaiting) player.furnace.waitingforID = 0
+                player.furnace.enableWaiting = !player.furnace.enableWaiting
+            },
+            style() {
+                return {
+                    'min-height': '50px',
+                    'width': '160px',
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -36120,7 +42156,8 @@ addLayer("furnace", {
     update(diff) {
         if (isSmeltingItem() && player.furnace.temperature.lt(fuelMaxTemp(fuelID()))) player.furnace.temperature = player.furnace.temperature.add(player.furnace.speed.times(diff)).min(fuelMaxTemp(fuelID()))
 
-        if (!hasEnoughFuel(fuelID())) stopSmelting(), stopBurning(), stopAlloying()
+        if (!hasEnoughFuel(fuelID())) doPopup("default", smeltingItemName(fuelID()) + "已耗尽！", "燃料已耗尽", 3, smeltingItemColorBg(fuelID()) || smeltingItemColor(fuelID()), tmp.furnace.clickables[fuelID()].style['color'] || "black"),
+            stopSmelting(), stopBurning(), stopAlloying()
 
         //熔炼速度
         let speed = d(40)
@@ -36153,13 +42190,15 @@ addLayer("furnace", {
         if (player.furnace.cooldown.gt(0)) player.furnace.cooldown = player.furnace.cooldown.sub(diff).max(0)
         if (player.furnace.cooldown.lte(0.05)) player.furnace.cooldown = d(0)
 
-
+        if (player.furnace.enableWaiting && player.furnace.waitingforID) {
+            if (tmp.furnace.clickables[player.furnace.waitingforID].canClick) resumeSmelting()
+        }
     },
 
     tabFormat: [
         ["display-text", function () { return getPointsDisplay() }],
         "main-display",
-        ["row", ["prestige-button", "blank", ["display-text", () => `你同时最多拥有 ${formatWhole(player.furnace.best)} 熔炉<br><br>合成有1秒冷却：${format(player.furnace.cooldown)}/1.00`]]],
+        ["row", ["prestige-button", "blank", ["display-text", () => `你同时最多拥有 ${formatWhole(player.furnace.best)} 熔炉<br><br>合成有1秒冷却：${formatNoNegativeExponents(player.furnace.cooldown)}/1.00`]]],
         "blank",
         ["microtabs", "stuff"],
         ["blank", "65px"],
@@ -36175,10 +42214,16 @@ addLayer("furnace", {
                     ["display-text", function () {
                         let d = `你正在熔炼 ${smeltingItemName(smeltingItemID())}`
                         if (!isSmeltingItem()) d = `你当前不在熔炼`
+                        if (player.furnace.waitingforID) d = `正在等待 ${smeltingItemName(player.furnace.waitingforID)} 的原材料足够`
                         return d
                     }],
                     "blank",
-                    ["row", [["bar", "smelt"], ["clickables", [2000]]]],
+                    ["row", function () {
+                        let content = [["bar", "smelt"], ["blank", ['14px', '0']], ["clickable", 20001]]
+                        if (hasCraftingItem(762)) content.push(["blank", ['21px', '0']]),
+                            content.push(["clickable", 20002])
+                        return content
+                    }],
                     "blank",
                     ["clickables", [501]],
                     "blank",
@@ -36187,6 +42232,7 @@ addLayer("furnace", {
                         return [p * 3 - 2, p * 3 - 1, p * 3]
                     }
                     ],
+                    "blank",
                     ["display-text", function () { return `熔炼（升温）速度：${format(player.furnace.speed)}/秒` }],
                     "blank",
                     ["display-text", function () { return `一般情况下，熔炼时只会消耗材料，不会消耗工具` }],
@@ -36247,10 +42293,14 @@ function isAlloyingItem() {
     return player.alloy_s.alloying
 }
 
-function stopAlloying() {
-    player.alloy_s.alloying = false,
-        player.alloy_s.alloyingItem = 0,
-        player.alloy_s.temperature = d(20)
+function stopAlloying(wait = false) {
+    let type = wait ? '暂停' : '中断'
+    doPopup("default", alloyingItemName(alloyingItemID()) + "的合金" + "已" + type + "！", type + "提醒", 3, alloyingItemColorBg(alloyingItemID()) || alloyingItemColor(alloyingItemID()), tmp.alloy_s.clickables[alloyingItemID()].style['color'] || "black")
+    if (wait) { player.alloy_s.waitingforID = player.alloy_s.alloyingItem }
+    else { player.alloy_s.waitingforID = 0 }
+    player.alloy_s.alloying = false
+    player.alloy_s.alloyingItem = 0
+    player.alloy_s.temperature = d(20)
 }
 
 function alloyingItemName(id) {
@@ -36269,10 +42319,20 @@ function alloyingItemColor(id) {
     return tmp.alloy_s.clickables[id].style['background-color']
 }
 
+function alloyingItemColorBg(id) {
+    return tmp.alloy_s.clickables[id].style['background']
+}
+
 function alloyResult(id) {
     return tmp.alloy_s.clickables[id].result
 }
 
+function resumeAlloying() {
+    if (player.alloy_s.waitingforID == 0) return;
+    player.alloy_s.smelting = true
+    player.alloy_s.smeltingItem = player.alloy_s.waitingforID
+    player.alloy_s.waitingforID = 0
+}
 
 //制造层3：合金炉
 addLayer("alloy_s", {
@@ -36297,9 +42357,13 @@ addLayer("alloy_s", {
             speed: d(40),
             alloying: false,
             alloyingItem: 0, //0为凑数id
+            alloyWaiting: false,
+            waitingforID: 0,
+            enableWaiting: false,
             temperature: d(20),
             page: 1,
             maxPage: 1,
+            maxID: 0,
         }
     },
     color: "#40464d",
@@ -36321,7 +42385,7 @@ addLayer("alloy_s", {
         return e
     },
     resetDescription: "合成获得 ",
-    layerShown() { return hasNormalAchievement(36) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return hasNormalAchievement(36) && !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
 
     onPrestige() {
         return player.alloy_s.cooldown = d(1)
@@ -36427,6 +42491,46 @@ addLayer("alloy_s", {
             cost() { return new ExpantaNum('ee2.7e12717182') },
             unlocked() { return hasUpgrade(glowing_signalum, 12) },
         },
+        33: {
+            title: "玛玉灵",
+            description: "解锁玛玉灵锭的合金配方",
+            currencyInternalName: "points",
+            currencyDisplayName: "经验",
+            cost() { return new ExpantaNum('10^^300') },
+            unlocked() { return hasUpgrade(ardite, 35) },
+        },
+        34: {
+            title: "末影",
+            description: "解锁末影锭的合金配方",
+            currencyInternalName: "points",
+            currencyDisplayName: "经验",
+            cost() { return new ExpantaNum('10^^1748') },
+            unlocked() { return hasUpgrade(enderium, 11) },
+        },
+        35: {
+            title: "极寒末影",
+            description: "解锁极寒末影锭的合金配方",
+            currencyInternalName: "points",
+            currencyDisplayName: "经验",
+            cost() { return new ExpantaNum('10^^9735') },
+            unlocked() { return hasUpgrade(geild_enderium, 11) },
+        },
+        41: {
+            title: "玄钢",
+            description: "解锁玄钢锭的合金配方",
+            currencyInternalName: "points",
+            currencyDisplayName: "经验",
+            cost() { return new ExpantaNum('10^^2.1e11') },
+            unlocked() { return hasUpgrade(dark_steel, 11) },
+        },
+        42: {
+            title: "耐酸铝",
+            description: "解锁耐酸铝锭的合金配方",
+            currencyInternalName: "points",
+            currencyDisplayName: "经验",
+            cost() { return new ExpantaNum('10^^7e73') },
+            unlocked() { return hasUpgrade(alumite, 11) },
+        },
     },
 
     clickables: {
@@ -36455,6 +42559,7 @@ addLayer("alloy_s", {
             },
             temperature: d(1250),
             mult() {
+                if (hasMilestone(torridite, 4)) return getPointGen()
                 let m = d(1)
                 if (hasUpgrade(bronze, 15)) m = m.times(upgradeEffect(bronze, 15))
                 if (hasUpgrade(bronze, 22)) m = player.copper.points.max(0).div(30).min(player.tin.points.max(0).div(10)).ceil()
@@ -36472,7 +42577,7 @@ addLayer("alloy_s", {
                         player.copper.points = player.copper.points.sub(effm.times(3)),
                         player.tin.points = player.tin.points.sub(effm),
                         player.alloy_s.temperature = d(20)
-                if ((player.copper.points.lt(3) || player.tin.points.lt(1)) && alloyingItemID() == this.id) stopAlloying()
+                if ((player.copper.points.lt(3) || player.tin.points.lt(1)) && alloyingItemID() == this.id) stopAlloying(player.alloy_s.enableWaiting)
             },
             canClick() { return player.copper.points.gte(3) && player.tin.points.gte(1) && player.furnace.burning && !player.alloy_s.alloying },
             onClick() {
@@ -36505,6 +42610,7 @@ addLayer("alloy_s", {
             },
             temperature: d(2940),
             mult() {
+                if (hasMilestone(torridite, 9)) return getPointGen()
                 let m = d(1)
                 if (hasUpgrade(constantan, 11)) m = m.times(3)
                 if (hasUpgrade(constantan, 13)) m = m.times(10)
@@ -36518,7 +42624,7 @@ addLayer("alloy_s", {
                         player.copper.points = player.copper.points.sub(this.mult().min(player.copper.points)),
                         player.nickel.points = player.nickel.points.sub(this.mult().min(player.nickel.points)),
                         player.alloy_s.temperature = d(20)
-                if ((player.nickel.points.lt(this.mult()) || player.copper.points.lt(this.mult())) && alloyingItemID() == this.id) stopAlloying()
+                if ((player.nickel.points.lt(this.mult()) || player.copper.points.lt(this.mult())) && alloyingItemID() == this.id) stopAlloying(player.alloy_s.enableWaiting)
             },
             canClick() { return player.copper.points.gte(1) && player.nickel.points.gte(1) && player.furnace.burning && !player.alloy_s.alloying },
             onClick() {
@@ -36551,6 +42657,7 @@ addLayer("alloy_s", {
             },
             temperature: d(3180),
             mult() {
+                if (hasMilestone(torridite, 10)) return getPointGen()
                 let m = d(1)
                 if (hasUpgrade(invar, 11)) m = m.times(5)
                 if (hasUpgrade(invar, 23)) m = m.times(10)
@@ -36570,7 +42677,7 @@ addLayer("alloy_s", {
                         player.iron.points = player.iron.points.sub(effm),
                         player.nickel.points = player.nickel.points.sub(effm),
                         player.alloy_s.temperature = d(20)
-                if ((player.nickel.points.lt(1) || player.copper.points.lt(1)) && alloyingItemID() == this.id) stopAlloying()
+                if ((player.nickel.points.lt(1) || player.copper.points.lt(1)) && alloyingItemID() == this.id) stopAlloying(player.alloy_s.enableWaiting)
             },
             canClick() { return player.iron.points.gte(1) && player.nickel.points.gte(1) && player.furnace.burning && !player.alloy_s.alloying },
             onClick() {
@@ -36603,6 +42710,7 @@ addLayer("alloy_s", {
             },
             temperature: d(3300),
             mult() {
+                if (hasMilestone(torridite, 11)) return getPointGen()
                 let m = d(1)
                 if (hasUpgrade(alumbrass, 11)) m = m.times(3)
                 if (hasUpgrade(alumbrass, 14)) m = m.times(upgradeEffect(alumbrass, 14))
@@ -36620,7 +42728,7 @@ addLayer("alloy_s", {
                         player.copper.points = player.copper.points.sub(this.mult().times(3).min(player.copper.points)),
                         player.aluminum.points = player.aluminum.points.sub(this.mult().min(player.aluminum.points)),
                         player.alloy_s.temperature = d(20)
-                if ((player.copper.points.lt(d(3).times(this.mult())) || player.aluminum.points.lt(d(1).times(this.mult()))) && alloyingItemID() == this.id) stopAlloying()
+                if ((player.copper.points.lt(d(3).times(this.mult())) || player.aluminum.points.lt(d(1).times(this.mult()))) && alloyingItemID() == this.id) stopAlloying(player.alloy_s.enableWaiting)
             },
             canClick() { return player.copper.points.gte(3) && player.aluminum.points.gte(1) && player.furnace.burning && !player.alloy_s.alloying },
             onClick() {
@@ -36653,6 +42761,7 @@ addLayer("alloy_s", {
             },
             temperature: d(3702),
             mult() {
+                if (hasMilestone(torridite, 13)) return getPointGen()
                 let m = d(1)
                 if (hasNormalAchievement(102)) m = m.times(5)
                 if (hasUpgrade(brass, 22)) m = player.zinc.points.max(1).pow(0.6).floor()
@@ -36664,7 +42773,7 @@ addLayer("alloy_s", {
                         player.copper.points = player.copper.points.sub(this.mult().min(player.copper.points)),
                         player.zinc.points = player.zinc.points.sub(this.mult().min(player.zinc.points)),
                         player.alloy_s.temperature = d(20)
-                if ((player.zinc.points.lt(this.mult()) || player.copper.points.lt(this.mult())) && alloyingItemID() == this.id) stopAlloying()
+                if ((player.zinc.points.lt(this.mult()) || player.copper.points.lt(this.mult())) && alloyingItemID() == this.id) stopAlloying(player.alloy_s.enableWaiting)
             },
             canClick() { return player.zinc.points.gte(1) && player.copper.points.gte(1) && player.furnace.burning && !player.alloy_s.alloying },
             onClick() {
@@ -36697,6 +42806,7 @@ addLayer("alloy_s", {
             },
             temperature: d(4000),
             mult() {
+                if (hasMilestone(torridite, 17)) return getPointGen()
                 let m = d(1)
                 if (hasUpgrade(gold, 44)) m = m.times(12)
                 if (hasUpgrade(electrum, 14)) m = m.times(upgradeEffect(electrum, 14))
@@ -36712,7 +42822,7 @@ addLayer("alloy_s", {
                         player.silver.points = player.silver.points.sub(this.mult().min(player.silver.points)),
                         player.gold.points = player.gold.points.sub(this.mult().min(player.gold.points)),
                         player.alloy_s.temperature = d(20)
-                if ((player.gold.points.lt(this.mult()) || player.silver.points.lt(this.mult())) && alloyingItemID() == this.id) stopAlloying()
+                if ((player.gold.points.lt(this.mult()) || player.silver.points.lt(this.mult())) && alloyingItemID() == this.id) stopAlloying(player.alloy_s.enableWaiting)
             },
             canClick() { return player.gold.points.gte(1) && player.silver.points.gte(1) && player.furnace.burning && !player.alloy_s.alloying },
             onClick() {
@@ -36745,6 +42855,7 @@ addLayer("alloy_s", {
             },
             temperature: d(4200),
             mult() {
+                if (hasMilestone(torridite, 19)) return getPointGen()
                 let m = d(1)
                 if (hasUpgrade(redstone, 55)) m = m.times(upgradeEffect(redstone, 55))
                 m = m.floor()
@@ -36756,7 +42867,7 @@ addLayer("alloy_s", {
                         player.electrum.points = player.electrum.points.sub(this.mult().min(player.electrum.points)),
                         player.redstone.molten = player.redstone.molten.sub(this.mult().min(player.redstone.molten.div(200).floor()).times(200)),
                         player.alloy_s.temperature = d(20)
-                if ((player.electrum.points.lt(this.mult()) || player.redstone.molten.lt(this.mult().times(200))) && alloyingItemID() == this.id) stopAlloying()
+                if ((player.electrum.points.lt(this.mult()) || player.redstone.molten.lt(this.mult().times(200))) && alloyingItemID() == this.id) stopAlloying(player.alloy_s.enableWaiting)
             },
             canClick() { return player.electrum.points.gte(1) && player.redstone.molten.gte(200) && player.furnace.burning && !player.alloy_s.alloying },
             onClick() {
@@ -36808,7 +42919,7 @@ addLayer("alloy_s", {
                         player.lead.points = player.lead.points.sub(effm),
                         player.obsidian.dust = player.obsidian.dust.sub(effm.times(4)),
                         player.alloy_s.temperature = d(20)
-                if (((player.lead.points.lt(1) || player.obsidian.dust.lt(4)) && alloyingItemID() == this.id)) stopAlloying()
+                if (((player.lead.points.lt(1) || player.obsidian.dust.lt(4)) && alloyingItemID() == this.id)) stopAlloying(player.alloy_s.enableWaiting)
             },
             canClick() { return player.lead.points.gte(1) && player.obsidian.dust.gte(4) && player.furnace.burning && !player.alloy_s.alloying },
             onClick() {
@@ -36843,6 +42954,7 @@ addLayer("alloy_s", {
             },
             temperature: d(3930),
             mult() {
+                if (hasMilestone(torridite, 34)) return getPointGen()
                 let m = d(1)
                 if (hasUpgrade(soularium, 11)) m = m.times(3)
                 if (hasUpgrade(soularium, 22)) m = m.times(upgradeEffect(soularium, 22))
@@ -36861,7 +42973,7 @@ addLayer("alloy_s", {
                         player.gold.points = player.gold.points.sub(effm),
                         player.stone.soulSand = player.stone.soulSand.sub(effm),
                         player.alloy_s.temperature = d(20)
-                if (((player.gold.points.lt(1) || player.stone.soulSand.lt(1)) && alloyingItemID() == this.id)) stopAlloying()
+                if (((player.gold.points.lt(1) || player.stone.soulSand.lt(1)) && alloyingItemID() == this.id)) stopAlloying(player.alloy_s.enableWaiting)
             },
             canClick() { return player.gold.points.gte(1) && player.stone.soulSand.gte(1) && player.furnace.burning && !player.alloy_s.alloying },
             onClick() {
@@ -36894,6 +43006,7 @@ addLayer("alloy_s", {
             },
             temperature: d(4211),
             mult() {
+                if (hasMilestone(torridite, 37)) return getPointGen()
                 let m = d(1)
                 if (hasUpgrade(glowstone, 13)) m = m.times(upgradeEffect(glowstone, 13))
                 m = m.floor()
@@ -36912,7 +43025,7 @@ addLayer("alloy_s", {
                         player.silver.points = player.silver.points.sub(effm),
                         player.glowstone.points = player.glowstone.points.sub(effm.times(4)),
                         player.alloy_s.temperature = d(20)
-                if (((player.tin.points.lt(3) || player.silver.points.lt(1) || player.glowstone.points.lt(4)) && alloyingItemID() == this.id)) stopAlloying()
+                if (((player.tin.points.lt(3) || player.silver.points.lt(1) || player.glowstone.points.lt(4)) && alloyingItemID() == this.id)) stopAlloying(player.alloy_s.enableWaiting)
             },
             canClick() { return player.tin.points.gte(3) && player.silver.points.gte(1) && player.glowstone.points.gte(4) && player.furnace.burning && !player.alloy_s.alloying },
             onClick() {
@@ -36966,7 +43079,7 @@ addLayer("alloy_s", {
                         player.silver.points = player.silver.points.sub(effm),
                         player.redstone.points = player.redstone.points.sub(effm.times(10)),
                         player.alloy_s.temperature = d(20)
-                if (((player.copper.points.lt(3) || player.silver.points.lt(1) || player.redstone.points.lt(10)) && alloyingItemID() == this.id)) stopAlloying()
+                if (((player.copper.points.lt(3) || player.silver.points.lt(1) || player.redstone.points.lt(10)) && alloyingItemID() == this.id)) stopAlloying(player.alloy_s.enableWaiting)
             },
             canClick() { return player.copper.points.gte(3) && player.silver.points.gte(1) && player.redstone.points.gte(10) && player.furnace.burning && !player.alloy_s.alloying },
             onClick() {
@@ -37017,7 +43130,7 @@ addLayer("alloy_s", {
                         player.glowstone.points = player.glowstone.points.sub(effm.times(4)),
                         player.signalum.points = player.signalum.points.sub(effm),
                         player.alloy_s.temperature = d(20)
-                if (((player.glowstone.points.lt(4) || player.signalum.points.lt(1)) && alloyingItemID() == this.id)) stopAlloying()
+                if (((player.glowstone.points.lt(4) || player.signalum.points.lt(1)) && alloyingItemID() == this.id)) stopAlloying(player.alloy_s.enableWaiting)
             },
             canClick() { return player.glowstone.points.gte(4) && player.signalum.points.gte(1) && player.furnace.burning && !player.alloy_s.alloying },
             onClick() {
@@ -37035,6 +43148,385 @@ addLayer("alloy_s", {
                 }
             },
         },
+        33: {
+            title() {
+                let t = "玛玉灵锭"
+                return t
+            },
+            display() {
+                let d = `
+                需要工具：1合金炉<br>
+                需要材料：1钴锭 + 1阿迪特锭<br>
+                需求温度：${formatWhole(this.temperature)}<br>
+                产出：1玛玉灵锭<br>
+                倍率：${formatWhole(this.mult())}x`
+                return d
+            },
+            temperature: d(6250),
+            mult() {
+                let m = d(1)
+                if (hasUpgrade(manyullyn, 11)) m = m.times(3)
+                if (hasUpgrade(manyullyn, 12)) m = m.times(upgradeEffect(manyullyn, 12))
+                if (hasUpgrade(geild_enderium, 23)) m = m.times(tmp.geild_enderium.GCeffect[0])
+                m = m.floor()
+                return m
+            },
+            effectiveMult() {
+                let m = this.mult()
+                m = m.min(player.cobalt.points).min(player.ardite.points).floor().max(0)
+                return m
+            },
+            result(diff) {
+                let effm = this.effectiveMult()
+                if ((player.alloy_s.temperature.gte(alloyingItemTemp(alloyingItemID())) || player.furnace.speed.times(diff).gte(alloyingItemTemp(alloyingItemID()))) && isAlloyingItem() && alloyingItemID() == this.id)
+                    player.manyullyn.points = player.manyullyn.points.add(effm),
+                        player.cobalt.points = player.cobalt.points.sub(effm),
+                        player.ardite.points = player.ardite.points.sub(effm),
+                        player.alloy_s.temperature = d(20)
+                if (((player.cobalt.points.lt(1) || player.ardite.points.lt(1)) && alloyingItemID() == this.id)) stopAlloying(player.alloy_s.enableWaiting)
+            },
+            canClick() { return player.cobalt.points.gte(1) && player.ardite.points.gte(1) && player.furnace.burning && !player.alloy_s.alloying },
+            onClick() {
+                player.alloy_s.alloying = true,
+                    player.alloy_s.alloyingItem = this.id
+            },
+            unlocked() { return hasUpgrade(alloy_s, 33) },
+            style() {
+                return {
+                    'min-height': '180px',
+                    'width': '180px',
+                    "background": "linear-gradient(45deg, #481d6d 5%, #bd92f1 10%, #a97de0 15%, #926ae3 20%, #a97de0 30%, #a97de0 80%, #926ac3 90%, #481d6d 95%)",
+                    'background-color': '#a97de0',
+                }
+            },
+        },
+        34: {
+            title() {
+                let t = "末影锭"
+                return t
+            },
+            display() {
+                let d = `
+                需要工具：1合金炉<br>
+                需要材料：2银锭 + 1锡锭 + 1铂锭 + 4末影珍珠<br>
+                需求温度：${formatWhole(this.temperature)}<br>
+                产出：4末影锭<br>
+                倍率：${formatWhole(this.mult())}x`
+                return d
+            },
+            temperature: d(5300),
+            mult() {
+                let m = d(1)
+                if (hasUpgrade(enderium, 12)) m = m.times(3)
+                if (hasUpgrade(enderium, 21)) m = m.times(upgradeEffect(enderium, 21))
+                if (hasMilestone(enderium, 1)) m = m.times(10)
+                if (hasUpgrade(enderium, 24)) m = m.times(upgradeEffect(enderium, 24))
+                if (hasUpgrade(enderium, 32)) m = m.times(17976)
+                if (hasUpgrade(enderium, 33)) m = m.times(upgradeEffect(enderium, 33))
+                if (hasUpgrade(enderium, 34)) m = m.times(100)
+                if (hasUpgrade(geild_enderium, 23)) m = m.times(tmp.geild_enderium.GCeffect[1])
+                if (hasUpgrade(geild_enderium, 25)) m = m.times(upgradeEffect(geild_enderium, 25))
+                m = m.floor()
+                return m
+            },
+            effectiveMult() {
+                let m = this.mult()
+                m = m.min(player.silver.points.div(2)).min(player.tin.points).min(player.platinum.points).min(player.map.battle.drops.ender_pearl.div(4)).floor().max(0)
+                return m
+            },
+            result(diff) {
+                let effm = this.effectiveMult()
+                if ((player.alloy_s.temperature.gte(alloyingItemTemp(alloyingItemID())) || player.furnace.speed.times(diff).gte(alloyingItemTemp(alloyingItemID()))) && isAlloyingItem() && alloyingItemID() == this.id)
+                    player.enderium.points = player.enderium.points.add(effm.times(4)),
+                        player.silver.points = player.silver.points.sub(effm.times(2)),
+                        player.tin.points = player.tin.points.sub(effm),
+                        player.platinum.points = player.platinum.points.sub(effm),
+                        player.map.battle.drops.ender_pearl = player.map.battle.drops.ender_pearl.sub(effm.times(4)),
+                        player.alloy_s.temperature = d(20)
+                if (((player.silver.points.lt(2) || player.tin.points.lt(1) || player.platinum.points.lt(1) || player.map.battle.drops.ender_pearl.lt(4)) && alloyingItemID() == this.id)) stopAlloying(player.alloy_s.enableWaiting)
+            },
+            canClick() { return player.silver.points.gte(2) && player.tin.points.gte(1) && player.platinum.points.gte(1) && player.map.battle.drops.ender_pearl.gte(4) && player.furnace.burning && !player.alloy_s.alloying },
+            onClick() {
+                player.alloy_s.alloying = true,
+                    player.alloy_s.alloyingItem = this.id
+            },
+            unlocked() { return hasUpgrade(alloy_s, 34) },
+            style() {
+                return {
+                    'min-height': '180px',
+                    'width': '180px',
+                    "background": "linear-gradient(45deg, #083839 5%, #106565 15%, #0b4748 25%, #0f5c5c 30%, #127575 60%, #0d6161 90%, #093f40 95%)",
+                    'background-color': '#0f5c5c',
+                }
+            },
+        },
+        35: {
+            title() {
+                let t = "极寒末影锭"
+                return t
+            },
+            display() {
+                let d = `
+                需要工具：1合金炉<br>
+                需要材料：1末影锭 + 20 mB极寒之凛冰<br>
+                需求温度：${formatWhole(this.temperature)}<br>
+                产出：1极寒末影锭<br>
+                倍率：${formatWhole(this.mult())}x`
+                return d
+            },
+            temperature: d(1200),
+            mult() {
+                let m = d(1)
+                if (hasUpgrade(geild_enderium, 22)) m = m.times(upgradeEffect(geild_enderium, 22))
+                if (hasMilestone(geild_enderium, 1)) m = m.times(tmp.geild_enderium.GCeffect[3])
+                if (hasUpgrade(geild_enderium, 31)) m = m.times(upgradeEffect(geild_enderium, 31))
+                m = m.floor()
+                return m
+            },
+            effectiveMult() {
+                let m = this.mult()
+                m = m.min(player.enderium.points).min(player.blast_furnace.geild_cryotheum.div(20)).floor().max(0)
+                return m
+            },
+            result(diff) {
+                let effm = this.effectiveMult()
+                if ((player.alloy_s.temperature.gte(alloyingItemTemp(alloyingItemID())) || player.furnace.speed.times(diff).gte(alloyingItemTemp(alloyingItemID()))) && isAlloyingItem() && alloyingItemID() == this.id)
+                    player.geild_enderium.points = player.geild_enderium.points.add(effm),
+                        player.enderium.points = player.enderium.points.sub(effm),
+                        player.blast_furnace.geild_cryotheum = player.blast_furnace.geild_cryotheum.sub(effm.times(20)),
+                        player.alloy_s.temperature = d(20)
+                if (((player.enderium.points.lt(1) || player.blast_furnace.geild_cryotheum.lt(20)) && alloyingItemID() == this.id)) stopAlloying(player.alloy_s.enableWaiting)
+            },
+            canClick() { return player.enderium.points.gte(1) && player.blast_furnace.geild_cryotheum.gte(20) && player.furnace.burning && !player.alloy_s.alloying },
+            onClick() {
+                player.alloy_s.alloying = true,
+                    player.alloy_s.alloyingItem = this.id
+            },
+            unlocked() { return hasUpgrade(alloy_s, 35) },
+            style() {
+                return {
+                    'min-height': '180px',
+                    'width': '180px',
+                    "background": "linear-gradient(45deg, #083839 5%, #106565 15%, #0b4748 25%, #0f5c5c 30%, #127575 60%, #0d6161 90%, #093f40 95%)",
+                    'background-color': '#0f5c5c',
+                    "border-color": "#40b8fb",
+                }
+            },
+        },
+        41: {
+            title() {
+                let t = "玄钢锭"
+                return t
+            },
+            display() {
+                let d = `
+                需要工具：1合金炉<br>
+                需要材料：1钢锭 + 1黑曜石<br>
+                需求温度：${formatWhole(this.temperature)}<br>
+                产出：1玄钢锭<br>
+                倍率：${formatWhole(this.mult())}x`
+                return d
+            },
+            temperature: d(4880),
+            mult() {
+                let m = d(1)
+                if (hasUpgrade(dark_steel, 12)) m = m.times(upgradeEffect(dark_steel, 12))
+                if (hasUpgrade(dark_steel, 14)) m = m.times(upgradeEffect(dark_steel, 14))
+                if (hasUpgrade(dark_steel, 15)) m = m.times(upgradeEffect(dark_steel, 15))
+                if (hasMilestone(geild_enderium, 5)) m = m.times(3)
+                if (hasMilestone(dark_steel, 0)) m = m.times(10)
+                if (hasUpgrade(dark_steel, 23)) m = m.times(buyableEffect(dark_steel, 12))
+                if (hasMilestone(dark_steel, 2)) m = m.times(10)
+                if (hasUpgrade(dark_steel, 32)) m = m.times(12500)
+                if (hasUpgrade(alumite, 13)) m = m.times(tmp.alumite.effect)
+                m = m.floor()
+                return m
+            },
+            effectiveMult() {
+                let m = this.mult()
+                m = m.min(player.steel.points).min(player.obsidian.points).floor().max(0)
+                return m
+            },
+            result(diff) {
+                let effm = this.effectiveMult()
+                if ((player.alloy_s.temperature.gte(alloyingItemTemp(alloyingItemID())) || player.furnace.speed.times(diff).gte(alloyingItemTemp(alloyingItemID()))) && isAlloyingItem() && alloyingItemID() == this.id)
+                    player.dark_steel.points = player.dark_steel.points.add(effm),
+                        player.steel.points = player.steel.points.sub(effm),
+                        player.obsidian.points = player.obsidian.points.sub(effm),
+                        player.alloy_s.temperature = d(20)
+                if (((player.steel.points.lt(1) || player.obsidian.points.lt(1)) && alloyingItemID() == this.id)) stopAlloying(player.alloy_s.enableWaiting)
+            },
+            canClick() { return player.steel.points.gte(1) && player.obsidian.points.gte(1) && player.furnace.burning && !player.alloy_s.alloying },
+            onClick() {
+                player.alloy_s.alloying = true,
+                    player.alloy_s.alloyingItem = this.id
+            },
+            unlocked() { return hasUpgrade(alloy_s, 41) },
+            style() {
+                return {
+                    'min-height': '180px',
+                    'width': '180px',
+                    "background": "linear-gradient(45deg, #1a1a1a 5%, #696969 10%, #535353 15%, #2a2a2a 20%, #636363 30%, #4c4c4c 85%, #1a1a1a 95%)",
+                    'background-color': '#535353',
+                }
+            },
+        },
+        42: {
+            title() {
+                let t = "耐酸铝锭"
+                return t
+            },
+            display() {
+                let d = `
+                需要工具：1合金炉<br>
+                需要材料：5铝锭 + 2铁锭 + 1黑曜石<br>
+                需求温度：${formatWhole(this.temperature)}<br>
+                产出：3耐酸铝锭<br>
+                倍率：${formatWhole(this.mult())}x`
+                return d
+            },
+            temperature: d(4880),
+            mult() {
+                let m = d(1)
+                if (hasUpgrade(alumite, 12)) m = m.times(upgradeEffect(alumite, 12))
+                if (hasUpgrade(alumite, 14)) m = m.times(5)
+                if (hasCraftingItem(772)) m = m.times(tmp.alumite.scoreEff)
+                if (hasUpgrade(alumite, 21)) m = m.times(10)
+                if (hasUpgrade(alumite, 34)) m = m.times(398)
+                m = m.floor()
+                return m
+            },
+            effectiveMult() {
+                let m = this.mult()
+                m = m.min(player.aluminum.points.div(5)).min(player.iron.points.div(2)).min(player.obsidian.points).floor().max(0)
+                return m
+            },
+            result(diff) {
+                let effm = this.effectiveMult()
+                if ((player.alloy_s.temperature.gte(alloyingItemTemp(alloyingItemID())) || player.furnace.speed.times(diff).gte(alloyingItemTemp(alloyingItemID()))) && isAlloyingItem() && alloyingItemID() == this.id)
+                    player.alumite.points = player.alumite.points.add(effm.times(3)),
+                        player.aluminum.points = player.aluminum.points.sub(effm.times(5)),
+                        player.iron.points = player.iron.points.sub(effm.times(2)),
+                        player.obsidian.points = player.obsidian.points.sub(effm),
+                        player.alloy_s.temperature = d(20)
+                if (((player.aluminum.points.lt(5) || player.iron.points.lt(2) || player.obsidian.points.lt(1)) && alloyingItemID() == this.id)) stopAlloying(player.alloy_s.enableWaiting)
+            },
+            canClick() { return player.steel.points.gte(1) && player.obsidian.points.gte(1) && player.furnace.burning && !player.alloy_s.alloying },
+            onClick() {
+                player.alloy_s.alloying = true,
+                    player.alloy_s.alloyingItem = this.id
+            },
+            unlocked() { return hasUpgrade(alloy_s, 42) },
+            style() {
+                return {
+                    'min-height': '180px',
+                    'width': '180px',
+                    "background": "linear-gradient(45deg, #dc7ec4 5%, #f4ceec 10%, #fcfefc 20%, #fcfefc 80%, #f4ceec 85%, #dc7ec4 95%)",
+                    'background-color': '#f4ceec',
+                }
+            },
+        },
+        5011: {
+            display() {
+                let d = `<<`
+                return d
+            },
+            tooltip: "向前翻5页",
+            canClick() { return player.alloy_s.page > 1 },
+            onClick() {
+                player.alloy_s.page = Math.max(player.alloy_s.page - 5, 1)
+            },
+            unlocked() { return hasUpgrade(alloy_s, 41) },
+            style() {
+                return {
+                    'min-height': '50px',
+                    'width': '50px',
+                    'font-size': '20px',
+                    'margin-left': '-7px',
+                    'margin-right': '-7px',
+                }
+            },
+        },
+        5012: {
+            display() {
+                let d = `<`
+                return d
+            },
+            canClick() { return player.alloy_s.page > 1 },
+            onClick() {
+                player.alloy_s.page -= 1
+            },
+            unlocked() { return hasUpgrade(alloy_s, 41) },
+            style() {
+                return {
+                    'min-height': '50px',
+                    'width': '50px',
+                    'font-size': '20px',
+                    'margin-left': '-7px',
+                    'margin-right': '-7px',
+                }
+            },
+        },
+        5013: {
+            display() {
+                let d = `${formatWhole(player.alloy_s.page)}/${formatWhole(player.alloy_s.maxPage)}页`
+                return d
+            },
+            canClick() { return false },
+            unlocked() { return hasUpgrade(alloy_s, 41) },
+            style() {
+                return {
+                    'min-height': '50px',
+                    'width': '150px',
+                    'font-size': '20px',
+                    'background-color': '#40464d',
+                    'margin-left': '-7px',
+                    'margin-right': '-7px',
+                    'border-radius': '2.5px',
+                }
+            },
+        },
+        5014: {
+            display() {
+                let d = `>`
+                return d
+            },
+            canClick() { return player.alloy_s.page < player.alloy_s.maxPage },
+            onClick() {
+                player.alloy_s.page += 1
+            },
+            unlocked() { return hasUpgrade(alloy_s, 41) },
+            style() {
+                return {
+                    'min-height': '50px',
+                    'width': '50px',
+                    'font-size': '20px',
+                    'margin-left': '-7px',
+                    'margin-right': '-7px',
+                }
+            },
+        },
+        5015: {
+            display() {
+                let d = `>>`
+                return d
+            },
+            tooltip: "向后翻5页",
+            canClick() { return player.alloy_s.page < player.alloy_s.maxPage },
+            onClick() {
+                player.alloy_s.page = Math.min(player.alloy_s.page + 5, player.alloy_s.maxPage)
+            },
+            unlocked() { return hasUpgrade(alloy_s, 41) },
+            style() {
+                return {
+                    'min-height': '50px',
+                    'width': '50px',
+                    'font-size': '20px',
+                    'margin-left': '-7px',
+                    'margin-right': '-7px',
+                }
+            },
+        },
         20001: {
             display() {
                 let d = `取消合金`
@@ -37048,7 +43540,28 @@ addLayer("alloy_s", {
                 return {
                     'min-height': '50px',
                     'width': '120px',
-                    'font-size': '20px'
+                    'font-size': '20px',
+                    'border-radius': '5px',
+                }
+            },
+        },
+        20002: {
+            display() {
+                let on = player.alloy_s.enableWaiting ? "开" : "关"
+                let d = `合金记忆：${on}`
+                return d
+            },
+            canClick() { return hasCraftingItem(762) },
+            onClick() {
+                if (player.alloy_s.enableWaiting) player.alloy_s.waitingforID = 0
+                player.alloy_s.enableWaiting = !player.alloy_s.enableWaiting
+            },
+            style() {
+                return {
+                    'min-height': '50px',
+                    'width': '160px',
+                    'font-size': '20px',
+                    'border-radius': '5px',
                 }
             },
         },
@@ -37080,17 +43593,27 @@ addLayer("alloy_s", {
         if (isAlloyingItem() && player.alloy_s.temperature.lt(fuelMaxTemp(fuelID()))) player.alloy_s.temperature = player.alloy_s.temperature.add(player.furnace.speed.times(diff)).min(fuelMaxTemp(fuelID()))
 
         //更新最大页码
-        // if (tmp[ct].clickables[31].unlocked) player[ct].maxPage = 2
+        for (let i = 0; i < normalList.length; i++) {
+            if (tmp.alloy_s.clickables[normalList[i]] == undefined) break;
+            if (!tmp.alloy_s.clickables[normalList[i]].unlocked) continue;
+            if (normalList[i] > player.alloy_s.maxID) player.alloy_s.maxID = normalList[i]
+        }
+        let maxpage = Math.ceil((player.alloy_s.maxID - 10) / 30)
+        player.alloy_s.maxPage = maxpage
 
         //最多有
         if (player.alloy_s.points.gt(player.alloy_s.best)) player.alloy_s.best = player.alloy_s.points
         if (player.alloy_s.cooldown.gt(0)) player.alloy_s.cooldown = player.alloy_s.cooldown.sub(diff).max(0)
+
+        if (player.alloy_s.enableWaiting && player.alloy_s.waitingforID) {
+            if (tmp.alloy_s.clickables[player.alloy_s.waitingforID].canClick) resumeAlloying()
+        }
     },
 
     tabFormat: [
         ["display-text", function () { return getPointsDisplay() }],
         "main-display",
-        ["row", ["prestige-button", "blank", ["display-text", () => `你同时最多拥有 ${formatWhole(player.alloy_s.best)} 合金炉<br><br>合成有1秒冷却：${format(player.alloy_s.cooldown)}/1.00`]]],
+        ["row", ["prestige-button", "blank", ["display-text", () => `你同时最多拥有 ${formatWhole(player.alloy_s.best)} 合金炉<br><br>合成有1秒冷却：${formatNoNegativeExponents(player.alloy_s.cooldown)}/1.00`]]],
         "blank",
         ["microtabs", "stuff"],
         ["blank", "65px"],
@@ -37106,12 +43629,24 @@ addLayer("alloy_s", {
                     ["display-text", function () {
                         let d = `你正在合金 ${alloyingItemName(alloyingItemID())}`
                         if (!isAlloyingItem()) d = `你当前不在合金`
+                        if (player.furnace.waitingforID != 0) d = `正在等待 ${alloyingItemName(player.alloy_s.waitingforID)} 的原材料足够`
                         return d
                     }],
                     "blank",
-                    ["row", [["bar", "alloy"], ["clickables", [2000]]]],
+                    ["row", function () {
+                        let content = [["bar", "alloy"], ["blank", ['14px', '0']], ["clickable", 20001]]
+                        if (hasCraftingItem(762)) content.push(["blank", ['21px', '0']]),
+                            content.push(["clickable", 20002])
+                        return content
+                    }],
                     "blank",
-                    ["clickables", function () { return [1, 2, 3] }],
+                    ["clickables", [501]],
+                    "blank",
+                    ["clickables", function () {
+                        let p = player.alloy_s.page
+                        return [p * 3 - 2, p * 3 - 1, p * 3]
+                    }],
+                    "blank",
                     ["display-text", function () { return `合金（升温）速度：${format(player.furnace.speed)}/秒 （和熔炼页面一致）` }],
                     "blank",
                     ["display-text", function () { return `合金完成会自动开始下一次合金，直到材料用完` }],
@@ -37184,7 +43719,7 @@ addLayer("sing_fus", {
         e = d(1)
         return e
     },
-    layerShown() { return hasNormalAchievement(73) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return hasNormalAchievement(73) && !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
 
     doReset(resettingLayer) {
         return undefined
@@ -37862,7 +44397,7 @@ addLayer("sing_fus", {
                 if (this.canAfford())
                     return setBuyableAmount(sing_fus, 42, player.quartz.points.max(1).log10().div(d(1e204)).max(1).logBase(1e100).root(1.5).floor().add(1))
             },
-            canBuyMax() { return false },
+            canBuyMax() { return hasMilestone(sing_fus, 14) },
             buy() {
                 if (!this.canBuyMax()) player.quartz.points = player.quartz.points.sub(this.cost()).max(0),
                     setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
@@ -37894,6 +44429,157 @@ addLayer("sing_fus", {
                         'height': '120px',
                         "background": "#dbccbf",
                         'box-shadow': '0 0 20px #dbccbf',
+                    }
+                return s
+            }
+        },
+        43: {
+            title: "聚合奇点-炽炎",
+            cost(x) { return d('1e25000').pow(x).times('1e196500') },
+            display() {
+                let display = `加成炽炎矿石和炽炎锭熔炼倍率<br>
+                效果公式：${format(this.effBase())}<sup>x</sup><br>
+                凝聚需求量：${format(this.cost())} 炽炎锭`
+                return display
+            },
+            canAfford() { return player.torridite.points.gte(this.cost()) },
+            buyMax() {
+                if (this.canAfford())
+                    return setBuyableAmount(sing_fus, 43, player.torridite.points.div('1e196500').max(1).logBase('1e25000').floor().add(1))
+            },
+            canBuyMax() { return hasMilestone(sing_fus, 15) },
+            buy() {
+                if (!this.canBuyMax()) player.torridite.points = player.torridite.points.sub(this.cost()).max(0),
+                    setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                if (this.canBuyMax()) this.buyMax()
+            },
+            effBase() {
+                let b = d('1e5000')
+                return b
+            },
+            effect(x) {
+                let effect = ExpantaNum.pow(this.effBase(), x.max(0))
+                return effect
+            },
+            unlocked() { return hasMilestone(sing_fus, 14) },
+            canAuto() { return hasMilestone(sing_fus, 16) },
+            auto() {
+                if (this.canAuto())
+                    this.buyMax()
+
+                player.torridite.singularity = getBuyableAmount(this.layer, this.id)
+            },
+            style() {
+                s = {
+                    'height': '120px',
+                    'box-shadow': '0 0 20px #b91d1d',
+                }
+                if (this.canAfford())
+                    s = {
+                        'height': '120px',
+                        'box-shadow': '0 0 20px #b91d1d',
+                        "background": "linear-gradient(45deg, #68031f 5%, #b91d1d 10%, #fcac83 15%, #f15221 30%, #b91d1d 45%, #f15221 60%, #b91d1d 75%, #f15221 90%, #900613 95%)",
+                        "border-color": '#b91d1d',
+                    }
+                return s
+            }
+        },
+        44: {
+            title: "聚合奇点-钴",
+            cost(x) { return d('1e110000').pow(x).times('1e750000') },
+            display() {
+                let display = `加成钴矿石和钴锭熔炼倍率<br>
+                效果公式：${format(this.effBase())}<sup>x</sup><br>
+                凝聚需求量：${format(this.cost())} 钴锭`
+                return display
+            },
+            canAfford() { return player.cobalt.points.gte(this.cost()) },
+            buyMax() {
+                if (this.canAfford())
+                    return setBuyableAmount(sing_fus, 44, player.cobalt.points.div('1e750000').max(1).logBase('1e110000').floor().add(1))
+            },
+            canBuyMax() { return hasMilestone(sing_fus, 16) },
+            buy() {
+                if (!this.canBuyMax()) player.cobalt.points = player.cobalt.points.sub(this.cost()).max(0),
+                    setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                if (this.canBuyMax()) this.buyMax()
+            },
+            effBase() {
+                let b = d('1e18000')
+                return b
+            },
+            effect(x) {
+                let effect = ExpantaNum.pow(this.effBase(), x.max(0))
+                return effect
+            },
+            unlocked() { return hasMilestone(sing_fus, 15) },
+            canAuto() { return hasMilestone(dark_steel, 1) },
+            auto() {
+                if (this.canAuto())
+                    this.buyMax()
+
+                player.cobalt.singularity = getBuyableAmount(this.layer, this.id)
+            },
+            style() {
+                s = {
+                    'height': '120px',
+                    'box-shadow': '0 0 20px #2376dd',
+                }
+                if (this.canAfford())
+                    s = {
+                        'height': '120px',
+                        'box-shadow': '0 0 20px #2376dd',
+                        "background": "linear-gradient(45deg, #03265f 5%, #59aaef 10%, #2376dd 15%, #1d6288 20%, #2376dd 30%, #2376dd 80%, #1d6288 90%, #03265f 95%)",
+                    }
+                return s
+            }
+        },
+        51: {
+            title: "聚合奇点-阿迪特",
+            cost(x) { return d('e2e9').pow(x).times('e1.6e10') },
+            display() {
+                let display = `加成阿迪特矿石和阿迪特锭熔炼倍率<br>
+                效果公式：${format(this.effBase())}<sup>x</sup><br>
+                凝聚需求量：${format(this.cost())} 阿迪特锭`
+                return display
+            },
+            canAfford() { return player.ardite.points.gte(this.cost()) },
+            buyMax() {
+                if (this.canAfford())
+                    return setBuyableAmount(sing_fus, 51, player.ardite.points.div('e1.6e10').max(1).logBase('e2e9').floor().add(1))
+            },
+            canBuyMax() { return hasMilestone(sing_fus, 16) },
+            buy() {
+                if (!this.canBuyMax()) player.ardite.points = player.ardite.points.sub(this.cost()).max(0),
+                    setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                if (this.canBuyMax()) this.buyMax()
+            },
+            effBase() {
+                let b = d('e1.8e8')
+                return b
+            },
+            effect(x) {
+                let effect = ExpantaNum.pow(this.effBase(), x.max(0))
+                return effect
+            },
+            unlocked() { return hasMilestone(sing_fus, 16) },
+            canAuto() { return hasMilestone(dark_steel, 1) },
+            auto() {
+                if (this.canAuto())
+                    this.buyMax()
+
+                player.ardite.singularity = getBuyableAmount(this.layer, this.id)
+            },
+            style() {
+                s = {
+                    'height': '120px',
+                    'box-shadow': '0 0 20px #cd5117',
+                }
+                if (this.canAfford())
+                    s = {
+                        'height': '120px',
+                        'box-shadow': '0 0 20px #cd5117',
+                        "background": "linear-gradient(45deg, #471717 5%, #ff8517 10%, #cd5117 15%, #702e17 20%, #d55917 30%, #c34c17 80%, #f97717 90%, #471717 95%)",
                     }
                 return s
             }
@@ -37985,19 +44671,39 @@ addLayer("sing_fus", {
             done() { return player.quartz.points.gte('1e4480000') },
             unlocked() { return tmp.quartz.layerShown },
         },
+        14: {
+            requirementDescription() { return `获得${f('1e196500')}炽炎锭` },
+            effectDescription() { return `解锁炽炎奇点，自动购买绿宝石奇点，下界石英奇点可以购买最大` },
+            done() { return player.torridite.points.gte('1e196500') },
+            unlocked() { return tmp.torridite.layerShown },
+        },
+        15: {
+            requirementDescription() { return `获得${f('1e750000')}钴锭` },
+            effectDescription() { return `解锁钴奇点，自动购买下界石英奇点，炽炎奇点可以购买最大` },
+            done() { return player.cobalt.points.gte('1e750000') },
+            unlocked() { return tmp.cobalt.layerShown },
+        },
+        16: {
+            requirementDescription() { return `获得${f('e1.6e10')}阿迪特锭` },
+            effectDescription() { return `解锁阿迪特奇点，自动购买炽炎奇点，钴和阿迪特奇点可以购买最大` },
+            done() { return player.ardite.points.gte('e1.6e10') },
+            unlocked() { return tmp.ardite.layerShown },
+        },
     },
 
     update(diff) {
         if (hasCraftingItem(172)) player.sing_fus.points = d(1)
 
         let singularity = 0
-        for (let id in player.sing_fus.buyables) {
-            if (tmp.sing_fus.buyables[id].unlocked && tmp.sing_fus.buyables[id].canAfford) {
-                let order = getSingularityBuyblesOrder(id)
-                let correspondingMilestoneID = order + 1
-                let effectiveMilestoneID = correspondingMilestoneID > 14 ? order : correspondingMilestoneID
-                if (hasMilestone(sing_fus, effectiveMilestoneID)) continue
-                else singularity += 1
+        if (!hasMilestone(dark_steel, 1)) {
+            for (let id in player.sing_fus.buyables) {
+                if (tmp.sing_fus.buyables[id].unlocked && tmp.sing_fus.buyables[id].canAfford) {
+                    let order = getSingularityBuyblesOrder(id)
+                    let correspondingMilestoneID = order + 1
+                    let effectiveMilestoneID = correspondingMilestoneID// > 14 ? order : correspondingMilestoneID
+                    if (hasMilestone(sing_fus, effectiveMilestoneID)) continue
+                    else singularity += 1
+                }
             }
         }
         player.sing_fus.availableSingularityText = singularity >= 1 ? "当前有奇点可聚合 " + textColor('[!]', 'cc0000') : "当前没有奇点可以聚合"
@@ -38034,6 +44740,9 @@ addLayer("sing_fus", {
                     ["display-text", function () { if (hasMilestone(sing_fus, 11)) return `你有 ${textStyle_h2(fw(singularity(diamond)), 'a2fbea')} 钻石奇点，加成钻石矿石获取 ${textStyle_h2(f(buyableEffect(sing_fus, 34)) + "x", 'a2fbea')}` }],
                     ["display-text", function () { if (hasMilestone(sing_fus, 12)) return `你有 ${textStyle_h2(fw(singularity(emerald)), '17dd61')} 绿宝石奇点，加成工具匠补货倍率 ${textStyle_h2(f(buyableEffect(sing_fus, 41)) + "x", '17dd61')}` }],
                     ["display-text", function () { if (hasMilestone(sing_fus, 13)) return `你有 ${textStyle_h2(fw(singularity(quartz)), 'dbccbf')} 石英奇点，加成石英矿石 ${textStyle_h2("^" + f(buyableEffect(sing_fus, 42)), 'dbccbf')}` }],
+                    ["display-text", function () { if (hasMilestone(sing_fus, 14)) return `你有 ${textResourceStyle(fw(singularity(torridite)), 'text-torridite')} 炽炎奇点，加成炽炎矿石和炽炎锭熔炼倍率 ${textResourceStyle(f(buyableEffect(sing_fus, 43)) + 'x', 'text-torridite')}` }],
+                    ["display-text", function () { if (hasMilestone(sing_fus, 15)) return `你有 ${textResourceStyle(fw(singularity(cobalt)), 'text-cobalt')} 钴奇点，加成钴矿石和钴锭熔炼倍率 ${textResourceStyle(f(buyableEffect(sing_fus, 44)) + 'x', 'text-cobalt')}` }],
+                    ["display-text", function () { if (hasMilestone(sing_fus, 16)) return `你有 ${textResourceStyle(fw(singularity(ardite)), 'text-ardite')} 阿迪特奇点，加成阿迪特矿石和阿迪特锭熔炼倍率 ${textResourceStyle(f(buyableEffect(sing_fus, 51)) + 'x', 'text-ardite')}` }],
                     "buyables",
                 ],
             },
@@ -38154,6 +44863,7 @@ addLayer("blast_furnace", {
             placeBlock: "remove",
             posY: 1,
             blazing_pyrotheum: d(0),
+            geild_cryotheum: d(0),
         }
     },
     color: "#3a2f18",
@@ -38174,7 +44884,7 @@ addLayer("blast_furnace", {
         return e
     },
     resetDescription: "重置以合成 ",
-    layerShown() { return hasNormalAchievement(106) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return hasNormalAchievement(106) && !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
 
 
     canReset() {
@@ -38434,6 +45144,7 @@ addLayer("blast_furnace", {
             },
             time: d(10),
             mult() {
+                if (hasMilestone(torridite, 14)) return getPointGen()
                 let m = d(1)
                 if (hasUpgrade(steel, 11)) m = m.times(3)
                 if (hasUpgrade(steel, 13)) m = m.times(3)
@@ -38566,6 +45277,7 @@ addLayer("blast_furnace", {
             time: d(5),
             mult() {
                 let m = d(1)
+                if (hasMilestone(enderium, 0)) m = m.times(milestoneEffect(enderium, 0))
                 return m
             },
             effectiveMult() {
@@ -38603,6 +45315,71 @@ addLayer("blast_furnace", {
                     'width': '160px',
                     'background-image': 'url("resources/game_pic/molten.png")',
                     'background-color': '#e2c83f',
+                    'border-radius': '0',
+                    border: 'none',
+                }
+                else return {
+                    'min-height': '160px',
+                    'width': '160px',
+                }
+            },
+        },
+        34: {
+            title() {
+                let t = "极寒之凛冰"
+                return t
+            },
+            display() {
+                let d = `
+                需要材料：1暴雪棒<br>
+                产出：20mB 极寒之凛冰<br>
+                ${player.blast_furnace.actived[this.id] ? `进度：${ftl(player.blast_furnace.time[this.id])}/${ftl(tmp.blast_furnace.clickables[this.id].time)}` : "此配方未激活或者材料不足"}
+                倍率：${formatWhole(this.mult())}x`
+                return d
+            },
+            time: d(5),
+            mult() {
+                if (hasUpgrade(geild_enderium, 21)) return player.map.battle.drops.blizz_rod.times(0.3).floor().max(1)
+                let m = d(1)
+                if (hasUpgrade(geild_enderium, 13)) m = m.times(2)
+                if (hasUpgrade(geild_enderium, 14)) m = m.times(2)
+                return m
+            },
+            effectiveMult() {
+                let m = this.mult()
+                let effm = m.min(player.map.battle.drops.blizz_rod)
+                return effm
+            },
+            result(diff) {
+                let effm = this.effectiveMult()
+                if (player.blast_furnace.actived[this.id]) {
+                    if (!(player.map.battle.drops.blizz_rod.gte(1))) player.blast_furnace.actived[this.id] = false
+                    player.blast_furnace.time[this.id] = player.blast_furnace.time[this.id].add(player.blast_furnace.time_multi.times(diffout)).min(this.time)
+                }
+                if (player.blast_furnace.time[this.id].gte(tmp.blast_furnace.clickables[this.id].time)) {
+                    player.blast_furnace.time[this.id] = d(0)
+                    player.blast_furnace.geild_cryotheum = player.blast_furnace.geild_cryotheum.add(d(20).times(effm))
+                    player.map.battle.drops.blizz_rod = player.map.battle.drops.blizz_rod.sub(effm)
+                }
+            },
+            canClick() {
+                if (!player.blast_furnace.actived[this.id]) return player.map.battle.drops.blizz_rod.gte(1)
+                else return true
+            },
+            onClick() {
+                player.blast_furnace.actived[this.id] = !player.blast_furnace.actived[this.id],
+                    player.blast_furnace.time[this.id] = d(0)
+            },
+            unlocked() { return hasUpgrade(enderium, 34) },
+            styleClass() {
+                if (this.canClick()) return 'fluid-pixels bbmm liquid-animation'
+            },
+            style() {
+                if (this.canClick()) return {
+                    'min-height': '160px',
+                    'width': '160px',
+                    'background-image': 'url("resources/game_pic/liquid.png")',
+                    'background-color': '#40b8fb',
                     'border-radius': '0',
                     border: 'none',
                 }
@@ -38693,7 +45470,8 @@ addLayer("blast_furnace", {
                     "blank",
                     ["clickables", [3, 4, 5]],
                     "blank",
-                    ["display-text", () => `你有 ${textAnimatedStyle(formatWhole(player.blast_furnace.blazing_pyrotheum) + ' mB', 'blazing_pyrotheum')} 烈焰之炽焱`],
+                    ["display-text", function () { if (hasUpgrade(glowing_signalum, 12)) return `你有 ${textAnimatedStyle(formatWhole(player.blast_furnace.blazing_pyrotheum) + ' mB', 'blazing_pyrotheum')} 烈焰之炽焱` }],
+                    ["display-text", function () { if (hasUpgrade(enderium, 34)) return `你有 ${textAnimatedStyle(formatWhole(player.blast_furnace.geild_cryotheum) + ' mB', 'geild_cryotheum')} 极寒之凛冰` }],
                 ]
             },
             "milestones": {
@@ -38725,7 +45503,7 @@ addLayer("blast_furnace", {
                     ["display-text", function () { return `高炉可以熔炼未来一系列复杂合金，要使用高炉，需要先建造对应的多方块结构` }],
                     ["display-text", function () { return `通过翻页调整Y值（高度），点击上方6个按钮选择放置的方块（或者移除放置错误的方块）` }],
                     ["display-text", function () { return `选中方块后点击上方的5x5方格进行放置，并扣除相应的高炉砖（高炉砖不足无法放置）` }],
-                    ["display-text", function () { return `底部中间3x3放置高炉方块，第2层中间的3x3除中心需要一个高炉控制器，高炉排液口，其余为高炉方块。` }],
+                    ["display-text", function () { return `底部中间3x3放置高炉方块，第2层中间的3x3除中心留空外，需要一个高炉控制器，高炉排液口，其余为高炉方块。` }],
                     ["display-text", function () { return `高炉浇注口需要在高炉排液口外进行连接。高炉浇注口的正下方需要一个高炉浇铸台，第3层3x3高炉方块封顶，另外中心点(3,2,3)需要为空` }],
                     ["display-text", function () { return `或者<a href=\"https://www.mcmod.cn/item/401543.html\" target=\"_blank\" style=\"color:#0080ff;text-decoration:underline\" window.open(this.href, '_blank'); return false;\">点此</a>查看高炉原型和搭建教程` }],
                 ],
@@ -38894,7 +45672,7 @@ addLayer("botania", {
         return e
     },
     resetDescription: "重置以合成 ",
-    layerShown() { return hasNormalAchievement(143) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return hasNormalAchievement(143) && !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
 
     doReset(resettingLayer) {
         return undefined
@@ -39208,6 +45986,7 @@ addLayer("botania", {
                 return d
             },
             mult() {
+                if (hasMilestone(torridite, 20)) return getPointGen()
                 let m = d(1)
                 if (hasUpgrade(manasteel, 21)) m = m.times(player.mana.points.div(30000).floor())
                 return m
@@ -39253,6 +46032,7 @@ addLayer("botania", {
                 return d
             },
             mult() {
+                if (hasMilestone(torridite, 26)) return getPointGen()
                 let m = d(1)
                 if (hasUpgrade(terrasteel, 13)) m = player.mana.points.div(1e106).min(player.diamond.points).div(10).floor().max(1)
                 return m
@@ -39266,7 +46046,7 @@ addLayer("botania", {
             onClick() {
                 let effm = this.effectiveMult()
                 player.botania.mana_diamond = player.botania.mana_diamond.add(effm),
-                    player.mana.points = player.mana.points.sub(effm),
+                    player.mana.points = player.mana.points.sub(effm.times(1e106)),
                     player.diamond.points = player.diamond.points.sub(effm)
             },
             unlocked() { return hasNormalAchievement(145) },
@@ -39298,6 +46078,7 @@ addLayer("botania", {
                 return d
             },
             mult() {
+                if (hasMilestone(torridite, 26)) return getPointGen()
                 let m = d(1)
                 if (hasUpgrade(terrasteel, 13)) m = player.mana.points.div(1e106).min(player.map.battle.drops.ender_pearl).div(10).floor().max(1)
                 return m
@@ -39355,6 +46136,7 @@ addLayer("botania", {
                 return c
             },
             mult() {
+                if (hasMilestone(torridite, 26)) return getPointGen()
                 let m = d(1)
                 if (hasMilestone(terrasteel, 0)) m = m.times(100)
                 if (hasCraftingItem(512)) m = m.times(player.terrasteel.points.max(1))
@@ -39982,7 +46764,7 @@ addLayer("botania", {
                     ["display-text", function () {
                         return `每次放置传送门的方块都消耗对应的1个物品，移除模式不返还，若无法放置请检查合成台界面物品是否足够`
                     }],
-                    ["display-text", function () {
+                    /*["display-text", function () {
                         return `在这个5x5网格中，左右为X轴方向，上下为Y轴方向`
                     }],
                     ["display-text", function () {
@@ -39990,6 +46772,15 @@ addLayer("botania", {
                     }],
                     ["display-text", function () {
                         return `从第2排第1个开始，顺时针搭建，顺序为2个活木、1个微光活木、2个活木、1个微光活木、2个活木、1个精灵门核心、2个活木、1个微光活木，共12个方块`
+                    }],*/
+                    ["display-text", function () {
+                        return `要搭建精灵传送门框架，你需要先在4个角落格子所相邻的8个格子上放置活木`
+                    }],
+                    ["display-text", function () {
+                        return `接着放置3个微光活木分别在最上一行，最左一列，最右一列的中心格子`
+                    }],
+                    ["display-text", function () {
+                        return `最后在最下一行中心格子(1,3)放置精灵门核心，中心的3x3区域需要留空`
                     }],
                     ["display-text", function () {
                         return `或者<a href=\"https://www.mcmod.cn/item/35212.html\" target=\"_blank\" style=\"color:#0080ff;text-decoration:underline\" window.open(this.href, '_blank'); return false;\">点此</a>查看具体搭建方法，游戏截图`
@@ -40077,6 +46868,8 @@ addLayer("rf", {
             },
             autoCurrencyPage: 1,
             maxAutoCurrencyPage: 1,
+            autoSmeltPage: 1,
+            maxAutoSmeltPage: 1,
         }
     },
     color: "#fc0000",
@@ -40105,6 +46898,8 @@ addLayer("rf", {
         if (hasCraftingItem(651)) m = m.times(3)
         if (hasCraftingItem(672)) m = m.times(2)
         if (hasCraftingItem(681)) m = m.times(2)
+        if (hasCraftingItem(722)) m = m.times(2)
+        if (hasCraftingItem(751)) m = m.times(2)
         return m
     },
     netGrowth() {
@@ -40151,6 +46946,12 @@ addLayer("rf", {
         if (RFAutobuyerActivated(102)) g = g.sub(3e9)
         if (RFAutobuyerActivated(103)) g = g.sub(7e9)
         if (RFAutobuyerActivated(104)) g = g.sub(9e9)
+        if (RFAutobuyerActivated(105)) g = g.sub(1.25e10)
+        if (RFAutobuyerActivated(111)) g = g.sub(1.5e10)
+        if (RFAutobuyerActivated(112)) g = g.sub(1.2e10)
+        if (RFAutobuyerActivated(113)) g = g.sub(1.8e10)
+        if (RFAutobuyerActivated(114)) g = g.sub(2.4e10)
+        if (RFAutobuyerActivated(115)) g = g.sub(2.4e10)
 
         if (RFAutobuyerActivated(10001)) g = g.sub(66)
         if (RFAutobuyerActivated(10002)) g = g.sub(66)
@@ -40174,6 +46975,12 @@ addLayer("rf", {
         if (RFAutobuyerActivated(10035)) g = g.sub(150000000)
         if (RFAutobuyerActivated(10041)) g = g.sub(800000000)
         if (RFAutobuyerActivated(10042)) g = g.sub(4e9)
+        if (RFAutobuyerActivated(10043)) g = g.sub(4e10)
+        if (RFAutobuyerActivated(10044)) g = g.sub(1.5e10)
+        if (RFAutobuyerActivated(10045)) g = g.sub(2.4e10)
+        if (RFAutobuyerActivated(10051)) g = g.sub(3.6e10)
+        if (RFAutobuyerActivated(10052)) g = g.sub(3.708e10)
+        if (RFAutobuyerActivated(10053)) g = g.sub(3.708e10)
 
         if (fuelID() == 10005) g = g.sub(51200)
 
@@ -40198,13 +47005,14 @@ addLayer("rf", {
         if (RFAutobuyerActivated(40012)) g = g.sub(300000000)
         if (RFAutobuyerActivated(40013)) g = g.sub(300000000)
         if (RFAutobuyerActivated(40014)) g = g.sub(300000000)
+        if (RFAutobuyerActivated(40021)) g = g.sub(3.708e10)
         return g
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
         e = d(1)
         return e
     },
-    layerShown() { return hasNormalAchievement(33) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return hasNormalAchievement(33) && !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
 
 
     doReset(resettingLayer) {
@@ -40942,6 +47750,123 @@ addLayer("rf", {
             currencyLayer: signalum,
             cost() { return new ExpantaNum(100000) },
             unlocked() { return hasMilestone(signalum, 2) },
+        },
+        181: {
+            title: "炽炎矿石矿机",
+            description: "解锁自动挖掘炽炎矿石",
+            currencyInternalName: "points",
+            currencyDisplayName: "炽炎锭",
+            currencyLayer: torridite,
+            cost() { return new ExpantaNum('1e2134') },
+            unlocked() { return hasCraftingItem(722) },
+        },
+        182: {
+            title: "虚空熔炼炽炎锭",
+            description: "解锁虚空熔炼炽炎锭",
+            currencyInternalName: "points",
+            currencyDisplayName: "炽炎锭",
+            currencyLayer: torridite,
+            cost() { return new ExpantaNum('1e2136') },
+            unlocked() { return hasCraftingItem(722) },
+        },
+        183: {
+            title: "钴矿石矿机",
+            description: "解锁自动挖掘钴矿石",
+            currencyInternalName: "points",
+            currencyDisplayName: "钴锭",
+            currencyLayer: cobalt,
+            cost() { return new ExpantaNum('1e258') },
+            unlocked() { return hasCraftingItem(722) },
+        },
+        184: {
+            title: "虚空熔炼钴锭",
+            description: "解锁虚空熔炼钴锭",
+            currencyInternalName: "points",
+            currencyDisplayName: "钴锭",
+            currencyLayer: cobalt,
+            cost() { return new ExpantaNum('1e259') },
+            unlocked() { return hasCraftingItem(722) },
+        },
+        185: {
+            title: "黑石矿机",
+            description: "解锁黑石矿机",
+            currencyInternalName: "blackStone",
+            currencyDisplayName: "黑石",
+            currencyLayer: stone,
+            cost() { return new ExpantaNum('1e160') },
+            unlocked() { return hasCraftingItem(722) },
+        },
+        191: {
+            title: "阿迪特矿石矿机",
+            description: "解锁自动挖掘阿迪特矿石",
+            currencyInternalName: "points",
+            currencyDisplayName: "阿迪特锭",
+            currencyLayer: ardite,
+            cost() { return new ExpantaNum('1e35777') },
+            unlocked() { return hasCraftingItem(751) },
+        },
+        192: {
+            title: "虚空熔炼阿迪特锭",
+            description: "解锁虚空熔炼阿迪特锭",
+            currencyInternalName: "points",
+            currencyDisplayName: "阿迪特锭",
+            currencyLayer: ardite,
+            cost() { return new ExpantaNum('1e35777') },
+            unlocked() { return hasCraftingItem(751) },
+        },
+        193: {
+            title: "虚空合金玛玉灵锭",
+            description: "解锁虚空合金玛玉灵锭",
+            currencyInternalName: "points",
+            currencyDisplayName: "玛玉灵锭",
+            currencyLayer: manyullyn,
+            cost() { return new ExpantaNum(1e105) },
+            unlocked() { return hasCraftingItem(751) },
+        },
+        194: {
+            title: "绯红菌种植站",
+            description: "解锁自动种植绯红菌获得绯红菌柄",
+            currencyInternalName: "points",
+            currencyDisplayName: "末影锭",
+            currencyLayer: enderium,
+            cost() { return new ExpantaNum(1e190) },
+            unlocked() { return hasCraftingItem(751) },
+        },
+        195: {
+            title: "诡异菌种植站",
+            description: "解锁自动种植诡异菌获得诡异菌柄",
+            currencyInternalName: "points",
+            currencyDisplayName: "末影锭",
+            currencyLayer: enderium,
+            cost() { return new ExpantaNum(1e190) },
+            unlocked() { return hasCraftingItem(751) },
+        },
+        201: {
+            title: "虚空合金末影锭",
+            description: "解锁虚空合金末影锭",
+            currencyInternalName: "points",
+            currencyDisplayName: "极寒末影锭",
+            currencyLayer: geild_enderium,
+            cost() { return new ExpantaNum(1e116) },
+            unlocked() { return hasUpgrade(geild_enderium, 34) },
+        },
+        202: {
+            title: "暴雪人生物捕捉笼",
+            description: "解锁自动扫荡获得暴雪棒",
+            currencyInternalName: "points",
+            currencyDisplayName: "极寒末影锭",
+            currencyLayer: geild_enderium,
+            cost() { return new ExpantaNum(1e116) },
+            unlocked() { return hasUpgrade(geild_enderium, 34) },
+        },
+        203: {
+            title: "虚空合金极寒末影锭",
+            description: "解锁虚空合金极寒末影锭",
+            currencyInternalName: "points",
+            currencyDisplayName: "极寒末影锭",
+            currencyLayer: geild_enderium,
+            cost() { return new ExpantaNum(1e116) },
+            unlocked() { return hasUpgrade(geild_enderium, 34) },
         },
     },
 
@@ -42426,6 +49351,217 @@ addLayer("rf", {
                 }
             },
         },
+        105: {
+            title() {
+                let t = "自动矿机-炽炎矿石"
+                return t
+            },
+            display() {
+                let onoff = RFAutobuyerActivated(this.id) ? "开" : "关"
+                let d = `
+                需要耗能：${f(1.25e10)} RF/t<br>
+                效果：每秒自动获取一次挖掘炽炎矿石期望的100%<br><br>
+                状态：${onoff}`
+                return d
+            },
+            cost() {
+                return d(1.25e10)
+            },
+            auto(diff) {
+                if (player.rf.autobuyer[this.id] == undefined) return player.rf.autobuyer[this.id] = false
+                if (RFAutobuyerActivated(this.id)) {
+                    player.torridite.ore = player.torridite.ore.add(tmp.torridite.chainExpectation.times(diffout))
+                }
+            },
+            canClick() { return player.rf.points.gte(this.cost().times(20)) },
+            onClick() {
+                if (RFAutobuyerActivated(this.id)) return player.rf.autobuyer[this.id] = false
+                if (!RFAutobuyerActivated(this.id)) return player.rf.autobuyer[this.id] = true
+            },
+            unlocked() { return hasUpgrade(rf, 181) },
+            styleClass: "automation-clickables",
+            style() {
+                return {
+                    "background": "linear-gradient(45deg, #68031f 5%, #b91d1d 10%, #fcac83 15%, #f15221 30%, #b91d1d 45%, #f15221 60%, #b91d1d 75%, #f15221 90%, #900613 95%)"
+                }
+            },
+        },
+        111: {
+            title() {
+                let t = "自动矿机-钴矿石"
+                return t
+            },
+            display() {
+                let onoff = RFAutobuyerActivated(this.id) ? "开" : "关"
+                let d = `
+                需要耗能：${f(1.5e10)} RF/t<br>
+                效果：每秒自动获取一次挖掘钴矿石期望的100%<br><br>
+                状态：${onoff}`
+                return d
+            },
+            cost() {
+                return d(1.5e10)
+            },
+            auto(diff) {
+                if (player.rf.autobuyer[this.id] == undefined) return player.rf.autobuyer[this.id] = false
+                if (RFAutobuyerActivated(this.id)) {
+                    player.cobalt.ore = player.cobalt.ore.add(tmp.cobalt.chainExpectation.times(diffout))
+                }
+            },
+            canClick() { return player.rf.points.gte(this.cost().times(20)) },
+            onClick() {
+                if (RFAutobuyerActivated(this.id)) return player.rf.autobuyer[this.id] = false
+                if (!RFAutobuyerActivated(this.id)) return player.rf.autobuyer[this.id] = true
+            },
+            unlocked() { return hasUpgrade(rf, 183) },
+            styleClass: "automation-clickables",
+            style() {
+                return {
+                    "background": "linear-gradient(45deg, #03265f 5%, #59aaef 10%, #2376dd 15%, #1d6288 20%, #2376dd 30%, #2376dd 80%, #1d6288 90%, #03265f 95%)"
+                }
+            },
+        },
+        112: {
+            title() {
+                let t = "自动矿机-黑石"
+                return t
+            },
+            display() {
+                let onoff = RFAutobuyerActivated(this.id) ? "开" : "关"
+                let d = `
+                需要耗能：${f(1.2e10)} RF/t<br>
+                效果：每秒自动获取一次挖掘黑石的100%<br><br>
+                状态：${onoff}`
+                return d
+            },
+            cost() {
+                return d(1.2e10)
+            },
+            auto(diff) {
+                if (player.rf.autobuyer[this.id] == undefined) return player.rf.autobuyer[this.id] = false
+                if (RFAutobuyerActivated(this.id)) {
+                    player.stone.blackStone = player.stone.blackStone.add(tmp.stone.otherGain.blackStone.times(diffout))
+                }
+            },
+            canClick() { return player.rf.points.gte(this.cost().times(20)) },
+            onClick() {
+                if (RFAutobuyerActivated(this.id)) return player.rf.autobuyer[this.id] = false
+                if (!RFAutobuyerActivated(this.id)) return player.rf.autobuyer[this.id] = true
+            },
+            unlocked() { return hasUpgrade(rf, 185) },
+            styleClass: "automation-clickables",
+            style() {
+                return {
+                    "background": "#353339",
+                    "color": "white"
+                }
+            },
+        },
+        113: {
+            title() {
+                let t = "自动矿机-阿迪特矿石"
+                return t
+            },
+            display() {
+                let onoff = RFAutobuyerActivated(this.id) ? "开" : "关"
+                let d = `
+                需要耗能：${f(1.8e10)} RF/t<br>
+                效果：每秒自动获取一次挖掘阿迪特矿石的100%<br><br>
+                状态：${onoff}`
+                return d
+            },
+            cost() {
+                return d(1.8e10)
+            },
+            auto(diff) {
+                if (player.rf.autobuyer[this.id] == undefined) return player.rf.autobuyer[this.id] = false
+                if (RFAutobuyerActivated(this.id)) {
+                    player.ardite.ore = player.ardite.ore.add(tmp.ardite.chainExpectation.times(diffout))
+                }
+            },
+            canClick() { return player.rf.points.gte(this.cost().times(20)) },
+            onClick() {
+                if (RFAutobuyerActivated(this.id)) return player.rf.autobuyer[this.id] = false
+                if (!RFAutobuyerActivated(this.id)) return player.rf.autobuyer[this.id] = true
+            },
+            unlocked() { return hasUpgrade(rf, 191) },
+            styleClass: "automation-clickables",
+            style() {
+                return {
+                    "background": "linear-gradient(45deg, #471717 5%, #ff8517 10%, #cd5117 15%, #702e17 20%, #d55917 30%, #c34c17 80%, #f97717 90%, #471717 95%)",
+                }
+            },
+        },
+        114: {
+            title() {
+                let t = "绯红菌种植站"
+                return t
+            },
+            display() {
+                let onoff = RFAutobuyerActivated(this.id) ? "开" : "关"
+                let d = `
+                需要耗能：${f(2.4e10)} RF/t<br>
+                效果：每秒自动获取一次撸树的绯红菌柄的100%<br><br>
+                状态：${onoff}`
+                return d
+            },
+            cost() {
+                return d(2.4e10)
+            },
+            auto(diff) {
+                if (player.rf.autobuyer[this.id] == undefined) return player.rf.autobuyer[this.id] = false
+                if (RFAutobuyerActivated(this.id)) {
+                    player.wood.crimsonStem = player.wood.crimsonStem.add(tmp.wood.logGain_ne.crimsonStem.times(diffout))
+                }
+            },
+            canClick() { return player.rf.points.gte(this.cost().times(20)) },
+            onClick() {
+                if (RFAutobuyerActivated(this.id)) return player.rf.autobuyer[this.id] = false
+                if (!RFAutobuyerActivated(this.id)) return player.rf.autobuyer[this.id] = true
+            },
+            unlocked() { return hasUpgrade(rf, 194) },
+            styleClass: "automation-clickables",
+            style() {
+                return {
+                    "background": "#843d59",
+                }
+            },
+        },
+        115: {
+            title() {
+                let t = "诡异菌种植站"
+                return t
+            },
+            display() {
+                let onoff = RFAutobuyerActivated(this.id) ? "开" : "关"
+                let d = `
+                需要耗能：${f(2.4e10)} RF/t<br>
+                效果：每秒自动获取一次撸树的绯红菌柄的100%<br><br>
+                状态：${onoff}`
+                return d
+            },
+            cost() {
+                return d(2.4e10)
+            },
+            auto(diff) {
+                if (player.rf.autobuyer[this.id] == undefined) return player.rf.autobuyer[this.id] = false
+                if (RFAutobuyerActivated(this.id)) {
+                    player.wood.warpedStem = player.wood.warpedStem.add(tmp.wood.logGain_ne.warpedStem.times(diffout))
+                }
+            },
+            canClick() { return player.rf.points.gte(this.cost().times(20)) },
+            onClick() {
+                if (RFAutobuyerActivated(this.id)) return player.rf.autobuyer[this.id] = false
+                if (!RFAutobuyerActivated(this.id)) return player.rf.autobuyer[this.id] = true
+            },
+            unlocked() { return hasUpgrade(rf, 195) },
+            styleClass: "automation-clickables",
+            style() {
+                return {
+                    "background": "#398c8b",
+                }
+            },
+        },
         //自动熔炼
         10001: {
             title() {
@@ -42507,6 +49643,7 @@ addLayer("rf", {
                 return d
             },
             mult() {
+                if (hasMilestone(torridite, 4)) return getPointGen()
                 let m = d(100)
                 if (hasCraftingItem(302)) m = m.times(clickableEffect(ct, 302))
                 return m
@@ -43173,6 +50310,217 @@ addLayer("rf", {
                 }
             },
         },
+        10043: {
+            title() {
+                let t = "虚空熔炼-炽炎锭"
+                return t
+            },
+            display() {
+                let onoff = RFAutobuyerActivated(this.id) ? "开" : "关"
+                let d = `
+                需要耗能：${f(4e10)} RF/t<br>
+                效果：每秒自动熔炼一次100%有的炽炎矿石获得炽炎锭，但不能超过炽炎矿石总量<br><br>
+                状态：${onoff}`
+                return d
+            },
+            cost() {
+                return d(4e10)
+            },
+            auto(diff) {
+                if (player.rf.autobuyer[this.id] == undefined) return player.rf.autobuyer[this.id] = false
+                if (RFAutobuyerActivated(this.id)) {
+                    if (player.torridite.points.lt(player.torridite.ore)) player.torridite.points = player.torridite.points.add(player.torridite.ore.times(diffout)).min(player.torridite.ore).max(0)
+                }
+            },
+            canClick() { return player.rf.points.gte(this.cost().times(20)) },
+            onClick() {
+                if (RFAutobuyerActivated(this.id)) return player.rf.autobuyer[this.id] = false
+                if (!RFAutobuyerActivated(this.id)) return player.rf.autobuyer[this.id] = true
+            },
+            unlocked() { return hasUpgrade(rf, 182) },
+            styleClass: "automation-clickables",
+            style() {
+                return {
+                    background: "linear-gradient(45deg, #68031f 5%, #b91d1d 10%, #fcac83 15%, #f15221 30%, #b91d1d 45%, #f15221 60%, #b91d1d 75%, #f15221 90%, #900613 95%)",
+                }
+            },
+        },
+        10044: {
+            title() {
+                let t = "虚空熔炼-钴锭"
+                return t
+            },
+            display() {
+                let onoff = RFAutobuyerActivated(this.id) ? "开" : "关"
+                let d = `
+                需要耗能：${f(1.5e10)} RF/t<br>
+                效果：每秒自动熔炼一次100%的钴矿石获得钴锭，但不能超过钴矿石总量<br><br>
+                状态：${onoff}`
+                return d
+            },
+            cost() {
+                return d(1.5e10)
+            },
+            auto(diff) {
+                if (player.rf.autobuyer[this.id] == undefined) return player.rf.autobuyer[this.id] = false
+                if (RFAutobuyerActivated(this.id)) {
+                    if (player.cobalt.points.lt(player.cobalt.ore)) player.cobalt.points = player.cobalt.points.add(player.cobalt.ore.times(diffout)).min(player.cobalt.ore).max(0)
+                }
+            },
+            canClick() { return player.rf.points.gte(this.cost().times(20)) },
+            onClick() {
+                if (RFAutobuyerActivated(this.id)) return player.rf.autobuyer[this.id] = false
+                if (!RFAutobuyerActivated(this.id)) return player.rf.autobuyer[this.id] = true
+            },
+            unlocked() { return hasUpgrade(rf, 184) },
+            styleClass: "automation-clickables",
+            style() {
+                return {
+                    background: "linear-gradient(45deg, #03265f 5%, #59aaef 10%, #2376dd 15%, #1d6288 20%, #2376dd 30%, #2376dd 80%, #1d6288 90%, #03265f 95%)",
+                }
+            },
+        },
+        10045: {
+            title() {
+                let t = "虚空熔炼-阿迪特锭"
+                return t
+            },
+            display() {
+                let onoff = RFAutobuyerActivated(this.id) ? "开" : "关"
+                let d = `
+                需要耗能：${f(2.4e10)} RF/t<br>
+                效果：每秒自动熔炼一次100%的阿迪特矿石获得阿迪特锭，但不能超过阿迪特矿石总量<br><br>
+                状态：${onoff}`
+                return d
+            },
+            cost() {
+                return d(2.4e10)
+            },
+            auto(diff) {
+                if (player.rf.autobuyer[this.id] == undefined) return player.rf.autobuyer[this.id] = false
+                if (RFAutobuyerActivated(this.id)) {
+                    if (player.ardite.points.lt(player.ardite.ore)) player.ardite.points = player.ardite.points.add(player.ardite.ore.times(diffout)).min(player.ardite.ore).max(0)
+                }
+            },
+            canClick() { return player.rf.points.gte(this.cost().times(20)) },
+            onClick() {
+                if (RFAutobuyerActivated(this.id)) return player.rf.autobuyer[this.id] = false
+                if (!RFAutobuyerActivated(this.id)) return player.rf.autobuyer[this.id] = true
+            },
+            unlocked() { return hasUpgrade(rf, 192) },
+            styleClass: "automation-clickables",
+            style() {
+                return {
+                    background: "linear-gradient(45deg, #471717 5%, #ff8517 10%, #cd5117 15%, #702e17 20%, #d55917 30%, #c34c17 80%, #f97717 90%, #471717 95%)",
+                }
+            },
+        },
+        10051: {
+            title() {
+                let t = "虚空合金-玛玉灵锭"
+                return t
+            },
+            display() {
+                let onoff = RFAutobuyerActivated(this.id) ? "开" : "关"
+                let d = `
+                需要耗能：${f(3.6e10)} RF/t<br>
+                效果：每个游戏刻（tick）自动合金一次当前玛玉灵锭合金倍率的100%<br><br>
+                状态：${onoff}`
+                return d
+            },
+            cost() {
+                return d(3.6e10)
+            },
+            auto(diff) {
+                if (player.rf.autobuyer[this.id] == undefined) return player.rf.autobuyer[this.id] = false
+                if (RFAutobuyerActivated(this.id)) {
+                    player.manyullyn.points = player.manyullyn.points.add(tmp.alloy_s.clickables[33].effectiveMult.times(diffout))
+                }
+            },
+            canClick() { return player.rf.points.gte(this.cost().times(20)) },
+            onClick() {
+                if (RFAutobuyerActivated(this.id)) return player.rf.autobuyer[this.id] = false
+                if (!RFAutobuyerActivated(this.id)) return player.rf.autobuyer[this.id] = true
+            },
+            unlocked() { return hasUpgrade(rf, 193) },
+            styleClass: "automation-clickables",
+            style() {
+                return {
+                    background: "linear-gradient(45deg, #481d6d 5%, #bd92f1 10%, #a97de0 15%, #926ae3 20%, #a97de0 30%, #a97de0 80%, #926ac3 90%, #481d6d 95%)",
+                }
+            },
+        },
+        10052: {
+            title() {
+                let t = "虚空合金-末影锭"
+                return t
+            },
+            display() {
+                let onoff = RFAutobuyerActivated(this.id) ? "开" : "关"
+                let d = `
+                需要耗能：${f(3.708e10)} RF/t<br>
+                效果：每个游戏刻（tick）自动合金一次当前末影锭合金倍率的100%<br><br>
+                状态：${onoff}`
+                return d
+            },
+            cost() {
+                return d(3.708e10)
+            },
+            auto(diff) {
+                if (player.rf.autobuyer[this.id] == undefined) return player.rf.autobuyer[this.id] = false
+                if (RFAutobuyerActivated(this.id)) {
+                    player.enderium.points = player.enderium.points.add(tmp.alloy_s.clickables[34].effectiveMult.times(diffout))
+                }
+            },
+            canClick() { return player.rf.points.gte(this.cost().times(20)) },
+            onClick() {
+                if (RFAutobuyerActivated(this.id)) return player.rf.autobuyer[this.id] = false
+                if (!RFAutobuyerActivated(this.id)) return player.rf.autobuyer[this.id] = true
+            },
+            unlocked() { return hasUpgrade(rf, 201) },
+            styleClass: "automation-clickables",
+            style() {
+                return {
+                    background: "linear-gradient(45deg, #083839 5%, #106565 15%, #0b4748 25%, #0f5c5c 30%, #127575 60%, #0d6161 90%, #093f40 95%)",
+                }
+            },
+        },
+        10053: {
+            title() {
+                let t = "虚空合金-极寒末影锭"
+                return t
+            },
+            display() {
+                let onoff = RFAutobuyerActivated(this.id) ? "开" : "关"
+                let d = `
+                需要耗能：${f(3.708e10)} RF/t<br>
+                效果：每个游戏刻（tick）自动合金一次当前极寒末影锭合金倍率的100%<br><br>
+                状态：${onoff}`
+                return d
+            },
+            cost() {
+                return d(3.708e10)
+            },
+            auto(diff) {
+                if (player.rf.autobuyer[this.id] == undefined) return player.rf.autobuyer[this.id] = false
+                if (RFAutobuyerActivated(this.id)) {
+                    player.geild_enderium.points = player.geild_enderium.points.add(tmp.alloy_s.clickables[35].effectiveMult.times(diffout))
+                }
+            },
+            canClick() { return player.rf.points.gte(this.cost().times(20)) },
+            onClick() {
+                if (RFAutobuyerActivated(this.id)) return player.rf.autobuyer[this.id] = false
+                if (!RFAutobuyerActivated(this.id)) return player.rf.autobuyer[this.id] = true
+            },
+            unlocked() { return hasUpgrade(rf, 203) },
+            styleClass: "automation-clickables",
+            style() {
+                return {
+                    background: "linear-gradient(45deg, #083839 5%, #106565 15%, #0b4748 25%, #0f5c5c 30%, #127575 60%, #0d6161 90%, #093f40 95%)",
+                    "border-color": "#40b8fb",
+                }
+            },
+        },
         //功能类机械配方
         20001: {
             title() {
@@ -43199,8 +50547,10 @@ addLayer("rf", {
             },
             auto(diff) {
                 if (player.rf.autobuyer[this.id] == undefined) return player.rf.autobuyer[this.id] = false
-                if (RFAutobuyerActivated(this.id)) return player.obsidian.dust = player.obsidian.dust.add(this.mult().times(diffout).times(4)),
-                    player.obsidian.points = player.obsidian.points.sub(this.mult().times(diffout)).max(0)
+                if (RFAutobuyerActivated(this.id)) {
+                    player.obsidian.dust = player.obsidian.dust.add(this.mult().times(diffout).times(4))
+                    if (player.obsidian.points.neq(this.mult().times(diffout)) || player.obsidian.points.lt(2)) player.obsidian.points = player.obsidian.points.sub(this.mult().times(diffout)).max(0)
+                }
             },
             canClick() { return player.rf.points.gte(this.cost().times(20)) && player.obsidian.points.gte(1) },
             onClick() {
@@ -43836,6 +51186,41 @@ addLayer("rf", {
                 }
             },
         },
+        40021: {
+            title() {
+                let t = "生物捕捉笼-暴雪人"
+                return t
+            },
+            display() {
+                let onoff = RFAutobuyerActivated(this.id) ? "开" : "关"
+                let d = `
+                需要耗能：${f(3.708e10)} RF/t<br>
+                效果：每秒自动扫荡获得一次掉落暴雪棒的100%<br><br>
+                状态：${onoff}`
+                return d
+            },
+            cost() {
+                return d(3.708e10)
+            },
+            auto(diff) {
+                if (player.rf.autobuyer[this.id] == undefined) return player.rf.autobuyer[this.id] = false
+                if (RFAutobuyerActivated(this.id)) {
+                    player.map.battle.drops.blizz_rod = player.map.battle.drops.blizz_rod.add(enemies.blizz.drop_gain().times(diffout))
+                }
+            },
+            canClick() { return player.rf.points.gte(this.cost().times(20)) },
+            onClick() {
+                if (RFAutobuyerActivated(this.id)) return player.rf.autobuyer[this.id] = false
+                if (!RFAutobuyerActivated(this.id)) return player.rf.autobuyer[this.id] = true
+            },
+            unlocked() { return hasUpgrade(rf, 202) },
+            styleClass: "automation-clickables",
+            style() {
+                return {
+                    'background-color': '#4be2ec',
+                }
+            },
+        },
         //翻页
         200002: {
             display() {
@@ -43887,6 +51272,56 @@ addLayer("rf", {
                 }
             },
         },
+        200012: {
+            display() {
+                let d = `<`
+                return d
+            },
+            canClick() { return player.rf.maxAutoSmeltPage > 1 },
+            onClick() {
+                player.rf.autoSmeltPage -= 1
+            },
+            style() {
+                return {
+                    'min-height': '50px',
+                    'width': '50px',
+                    'font-size': '20px',
+                }
+            },
+        },
+        200013: {
+            display() {
+                let d = `${formatWhole(player.rf.autoSmeltPage)}/${formatWhole(player.rf.maxAutoSmeltPage)}页`
+                return d
+            },
+            canClick() { return false },
+            style() {
+                return {
+                    'min-height': '50px',
+                    'width': '150px',
+                    'font-size': '20px',
+                    'background-color': '#fc0000',
+                    'border-radius': '2.5px',
+                }
+            },
+        },
+        200014: {
+            display() {
+                let d = `>`
+                return d
+            },
+            canClick() { return player.rf.autoSmeltPage < player.rf.maxAutoSmeltPage },
+            onClick() {
+                player.rf.autoSmeltPage += 1
+            },
+            style() {
+                return {
+                    'min-height': '50px',
+                    'width': '50px',
+                    'font-size': '20px',
+                }
+            },
+        },
     },
 
     pulverizer_efficiency() {
@@ -43902,7 +51337,10 @@ addLayer("rf", {
         //最多有
         if (player.rf.points.gte(player.rf.best)) player.rf.best = player.rf.points
         //更新最大页码
-        if (tmp.rf.clickables[61].unlocked || tmp.rf.clickables[62].unlocked) player.rf.maxAutoCurrencyPage = 2
+        if (tmp.rf.clickables[111].unlocked || tmp.rf.clickables[112].unlocked) player.rf.maxAutoCurrencyPage = 3
+        else if (tmp.rf.clickables[61].unlocked || tmp.rf.clickables[62].unlocked) player.rf.maxAutoCurrencyPage = 2
+
+        if (tmp.rf.clickables[10051].unlocked /*|| tmp.rf.clickables[10052].unlocked*/) player.rf.maxAutoSmeltPage = 2
     },
 
     tabFormat: [
@@ -43941,8 +51379,12 @@ addLayer("rf", {
                 name() { return '自动熔炼' },
                 content: [
                     ["blank", "15px"],
+                    ["clickables", [20001]],
                     "blank",
-                    ["clickables", [1000, 1001, 1002, 1003, 1004]],
+                    ["clickables", function () {
+                        let p = player.rf.autoSmeltPage
+                        return [[p * 5 + 995], [p * 5 + 996], [p * 5 + 997], [p * 5 + 998], [p * 5 + 999]]
+                    }],
                     "blank",
                     ["display-text", () => `请注意自己的RF发电速度`],
                     ["display-text", () => `若RF能源不足以保持自动化，将强制关闭所有自动化！`],
@@ -44033,6 +51475,7 @@ addLayer("mana", {
     requires: d(1414213),
     tooltip() { return false },
     gainMult() { // Calculate the multiplier for main currency from bonuses
+        if (hasMilestone(torridite, 20)) return getPointGen()
         let m = d(0) //就全靠火红莲吗（阿卡纳蔷薇：我**来辣！
         let em = d(0)
         if (player.botania.endoflame.gte(1) && player[ct].items[381].gte(1)) {
@@ -44053,7 +51496,7 @@ addLayer("mana", {
         e = d(1)
         return e
     },
-    layerShown() { return hasNormalAchievement(144) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return hasNormalAchievement(144) && !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
 
 
     doReset(resettingLayer) {

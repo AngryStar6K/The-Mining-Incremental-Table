@@ -121,8 +121,14 @@ function updateTemp() {
 	}
 }
 
+const temp_resources_layer_part1 = ['copper', 'tin', 'bronze', 'iron',
+    'nickel', 'aluminum', 'lead', 'constantan', 'invar', 'alumbrass', 'zinc', 'brass', 'steel', 'silver', 'gold', 'electrum', 'redstone', 'red_ele',
+    'platinum', 'diamond', 'obsidian', 'emerald', 'experience', 'signalum', 'manasteel', 'terrasteel', 'elementium', 'alfsteel', 'twilight_gem', 'ironwood',
+    'naga_scale', 'steeleaf', 'knight_metal', 'fracturite', 'fiery', 'carminite', 'soularium', 'quartz', 'glowstone', 'lumium', 'glowing_signalum']
+
 function updateTempData(layerData, tmpData, funcsData, useThis) {
 	for (item in funcsData){
+		if (temp_resources_layer_part1.includes(item) && firstTickCheck && player.layer_select.layerPaused[1]) continue; // Skip resource calculations to improve performance
 		if (Array.isArray(layerData[item])) {
 			if (item !== "tabFormat" && item !== "content") // These are only updated when needed
 				updateTempData(layerData[item], tmpData[item], funcsData[item], useThis)

@@ -31,6 +31,10 @@
   width: 720px;
 }
 
+.secret.achievement.bought{
+  background-color: #a080ff
+}
+
 .background-overworld {
   background: linear-gradient(to bottom, #6b99ff 40%, #548049 40%, #548049 41%, #5f452f 41%, #5f452f 44%, #4a4a4a 44%, #4a4a4a 71.5%, #252525 71.5%, #252525 99%, #0d0d0d 99%, #0d0d0d 100%);
 }
@@ -226,6 +230,7 @@
 .text-redstoneElectrum {
   color: #fffcbc;
   text-shadow: 0 0 10px #fc0000;
+  display: inline-block;
 }
 
 /* 拆解神秘花clickables */
@@ -243,6 +248,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 10px #005ee0;
+  display: inline-block;
 }
 
 .text-platinum {
@@ -251,6 +257,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 10px #c8fbff;
+  display: inline-block;
 }
 
 .text-terrasteel {
@@ -259,6 +266,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 10px #53f900;
+  display: inline-block;
 }
 
 .text-ironwood {
@@ -267,11 +275,13 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 10px #827766;
+  display: inline-block;
 }
 
 .text-naga_scale {
   color: #325425;
   text-shadow: 0 0 10px #172911;
+  display: inline-block;
 }
 
 .text-elementium {
@@ -280,6 +290,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 10px #f15cae;
+  display: inline-block;
 }
 
 .text-alfsteel {
@@ -288,6 +299,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 10px #fcbb00;
+  display: inline-block;
 }
 
 @keyframes fieryText {
@@ -315,6 +327,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 10px #b38ef3;
+  display: inline-block;
 }
 
 .text-lumium {
@@ -323,6 +336,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 10px #f1f9df;
+  display: inline-block;
 }
 
 .text-signalum {
@@ -331,6 +345,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 10px #e13f00;
+  display: inline-block;
 }
 
 .text-glowing_signalum {
@@ -339,6 +354,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 10px #fff030;
+  display: inline-block;
 }
 
 .text-torridite {
@@ -347,6 +363,80 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 10px #b91d1d;
+  display: inline-block;
+}
+
+.text-cobalt {
+  background: linear-gradient(to bottom, #03265f 5%, #59aaef 10%, #2376dd 15%, #1d6288 20%, #2376dd 30%, #2376dd 80%, #1d6288 90%, #03265f 95%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #2376dd;
+  display: inline-block;
+}
+
+.text-ardite {
+  background: linear-gradient(to bottom, #471717 5%, #ff8517 10%, #cd5117 15%, #702e17 20%, #d55917 30%, #c34c17 80%, #f97717 90%, #471717 95%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #cd5117;
+  display: inline-block;
+}
+
+.text-manyullyn {
+  background: linear-gradient(to bottom, #481d6d 5%, #bd92f1 10%, #a97de0 15%, #926ae3 20%, #a97de0 30%, #a97de0 80%, #926ac3 90%, #481d6d 95%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #a97de0;
+  display: inline-block;
+}
+
+
+.text-enderium {
+  background: linear-gradient(to bottom, #083839 5%, #106565 15%, #0b4748 25%, #0f5c5c 30%, #127575 60%, #0d6161 90%, #093f40 95%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #0f5c5c;
+  display: inline-block;
+}
+
+.text-geild_enderium {
+  background: linear-gradient(to bottom, #083839 5%, #106565 15%, #0b4748 25%, #0f5c5c 30%, #127575 60%, #0d6161 90%, #093f40 95%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #40b8fb;
+  display: inline-block;
+}
+
+.text-dark_steel {
+  background: linear-gradient(to bottom, #1a1a1a 5%, #696969 10%, #535353 15%, #2a2a2a 20%, #636363 30%, #4c4c4c 85%, #1a1a1a 95%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #535353;
+  display: inline-block;
+}
+
+.text-alumite {
+  background: linear-gradient(to bottom, #dc7ec4 5%, #f4ceec 10%, #fcfefc 20%, #fcfefc 80%, #f4ceec 85%, #dc7ec4 95%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #f4ceec;
+  display: inline-block;
+}
+
+.text-end_steel {
+  background: linear-gradient(to bottom, #6b6531 5%, #f2ecb8 10%, #9d9765 20%, #f7f1bd 40%, #dbd3a7 48%, #dbd3a7 52%, #f9f7c8 90%, #6b6531 95%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #f7f1bd;
+  display: inline-block;
 }
 
 .platinum45deg {
@@ -472,4 +562,91 @@
 
 .rainbowText {
   animation: rainbowText 10s ease-in-out infinite;
+}
+
+.expired {
+  text-decoration: line-through;
+  background-color: #4e0000;
+  color: #ffeeee;
+}
+
+/* 在左下角添加序列ID */
+.achievement::after {
+  content: attr(data-id); /* 从data-id属性读取ID */
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+
+  
+  /* 文字样式 */
+  color: rgba(0, 0, 0, 0.01);
+  font-size: 25px; /* 小字体，不喧宾夺主 */
+  font-weight: 600;
+  
+  /* 内边距和形状 */
+  padding: 2px 6px;
+  border-radius: 3px;
+  line-height: 1;
+  
+  /* 确保在最上层但又不干扰交互 */
+  z-index: 0;
+  
+  /* 轻微阴影提升可读性 */
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+.star4_1,
+.star4_2,
+.star4_3,
+.star4_4,
+.star4_5 {
+	position: relative;
+	display: inline-block;
+	width: 30px;
+	height: 30px;
+	z-index: 10000;
+	font-size: 15px;
+	overflow:auto;
+	pointer-events: none;
+  clip-path: polygon(50% 100%, 70% 70%, 100% 50%, 70% 30%, 50% 0, 30% 30%, 0 50%, 30% 70% );
+}
+
+.star4_1 {
+  background-color: lightgray;
+}
+
+.star4_2 {
+  background-color: limegreen;
+}
+
+.star4_3 {
+  background-color: cyan;
+}
+
+.star4_4 {
+  background-color: #8825ca;
+}
+
+.star4_5 {
+  background-color: orange;
+}
+
+.star4_1::after {
+  content: '1';
+}
+
+.star4_2::after {
+  content: '2';
+}
+
+.star4_3::after {
+  content: '3';
+}
+
+.star4_4::after {
+  content: '4';
+}
+
+.star4_5::after {
+  content: '5';
 }

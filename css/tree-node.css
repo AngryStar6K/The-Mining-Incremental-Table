@@ -135,7 +135,6 @@
 	border-left: 0.3em solid transparent;
 	font-size: 10px;
 	pointer-events: none;
-
 }
 
 .star:before, .star:after {

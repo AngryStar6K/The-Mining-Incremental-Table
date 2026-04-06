@@ -24,6 +24,7 @@ function getStartOptions() {
 		updatingRate: 50,
 		newsShown: true,
 		unitLanguage: false,
+		smallPopup: false,
 	}
 }
 
@@ -175,4 +176,8 @@ function newsSetting() {
 
 function unitLanguageSetting() {
 	options.unitLanguage = !options.unitLanguage
+}
+
+function switchPopupSize() {
+	options.smallPopup = !options.smallPopup
 }

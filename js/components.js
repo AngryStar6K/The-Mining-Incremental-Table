@@ -173,7 +173,7 @@ function loadVue() {
 	Vue.component('upgrade', {
 		props: ['layer', 'data'],
 		template: `
-			<button v-if="tmp[layer].upgrades && tmp[layer].upgrades[data]!== undefined && tmp[layer].upgrades[data].unlocked" :id='"upgrade-" + layer + "-" + data' v-on:click="buyUpg(layer, data)" v-bind:class="[{ [layer]: true, tooltipBox: true, upg: true, bought: hasUpgrade(layer, data), locked: (!(canAffordUpgrade(layer, data))&&!hasUpgrade(layer, data)), can: (canAffordUpgrade(layer, data)&&!hasUpgrade(layer, data))}, tmp[layer].upgrades[data].styleClass]"
+			<button v-if="tmp[layer].upgrades && tmp[layer].upgrades[data]!== undefined && tmp[layer].upgrades[data].unlocked" :id='"upgrade-" + layer + "-" + data' v-on:click="buyUpg(layer, data)" v-bind:class="[{ [layer]: true, tooltipBox: true, upg: true, bought: hasUpgrade(layer, data), locked: (!(canAffordUpgrade(layer, data))&&!hasUpgrade(layer, data)), can: (canAffordUpgrade(layer, data)&&!hasUpgrade(layer, data)), expired: (upgradeExpired(layer, data))}, tmp[layer].upgrades[data].styleClass]"
 			v-bind:style="[((!hasUpgrade(layer, data) && canAffordUpgrade(layer, data)) ? {'background-color': tmp[layer].color} : {}), tmp[layer].upgrades[data].style]">
 			<span v-if="layers[layer].upgrades[data].fullDisplay" v-html="run(layers[layer].upgrades[data].fullDisplay, layers[layer].upgrades[data])"></span>
 			<span v-else>
@@ -311,13 +311,14 @@ function loadVue() {
 					this.interval = false
 					this.time = 0
 				}
+				window.globalStopBuying = this.stop.bind(this)
 			},
 			stop() {
 				if (layers[this.layer].buyables[this.data].holdBuy_stop) run(layers[this.layer].buyables[this.data].holdBuy_stop, layers[this.layer].buyables[this.data])
 				clearInterval(this.interval)
 				this.interval = false
 				this.time = 0
-			}
+			},
 		},
 	})
 
@@ -384,6 +385,7 @@ function loadVue() {
 						this.time = this.time + options.updatingRate / 25
 					}).bind(this), options.updatingRate)
 				}
+				window.globalStopBuying = this.stop.bind(this)
 			},
 			stop() {
 				clearInterval(this.interval)
@@ -518,8 +520,8 @@ function loadVue() {
 	Vue.component('achievement', {
 		props: ['layer', 'data'],
 		template: `
-		<div v-if="tmp[layer].achievements && tmp[layer].achievements[data]!== undefined && tmp[layer].achievements[data].unlocked" v-bind:class="{ [layer]: true, achievement: true, tooltipBox:true, locked: !hasAchievement(layer, data), bought: hasAchievement(layer, data)}"
-			v-bind:style="achievementStyle(layer, data)">
+		<div v-if="tmp[layer].achievements && tmp[layer].achievements[data]!== undefined && tmp[layer].achievements[data].unlocked" v-bind:class="{ [layer]: true, achievement: true, tooltipBox:true, locked: !hasAchievement(layer, data), bought: hasAchievement(layer, data), secret: data >= 100000}"
+			v-bind:style="achievementStyle(layer, data)" v-bind:data-id=achievementIDorder(data)>
 			<tooltip :text="
 			(tmp[layer].achievements[data].tooltip == '') ? false : hasAchievement(layer, data) ? (tmp[layer].achievements[data].doneTooltip ? tmp[layer].achievements[data].doneTooltip : (tmp[layer].achievements[data].tooltip ? (geti18n()?tmp[layer].achievements[data].tooltip:tmp[layer].achievements[data].tooltipI18N) : (geti18n()?'已完成!':'Completed!')))
 			: (tmp[layer].achievements[data].goalTooltip ? tmp[layer].achievements[data].goalTooltip : (tmp[layer].achievements[data].tooltip ? (geti18n()?tmp[layer].achievements[data].tooltip:tmp[layer].achievements[data].tooltipI18N) : (geti18n()?'锁定':'Locked')))

@@ -147,6 +147,14 @@ const animationTextColors = {
     loopTime: 4,
 		nodes: 2,
   },
+  geild_cryotheum: {
+    color1: '27ebfb',
+    color2: '40b8fb',
+    shadow1: '27ebfb',
+    shadow2: '40b8fb',
+    loopTime: 4,
+		nodes: 2,
+  },
 }
 
 function getAnimatedTextColor(style) { //暂时只支持平滑渐变，TMT变色字体函数
@@ -250,31 +258,31 @@ function plog(num) {
     if (!(num instanceof ExpantaNum)) num = new ExpantaNum(num);
     let pol = polarize(num.array, true);
     if (ExpantaNum.eq(pol.height, 1)) {
-        return num.slog().slog().add(1).toString();
+        return num.slog().slog().add(1)
     }
     if (ExpantaNum.eq(pol.height, 3)) {
-        return ExpantaNum.hexate(ExpantaNum.pent(10,pol.bottom), ExpantaNum(pol.top).sub(1)).toString();
+        return ExpantaNum.hexate(ExpantaNum.pent(10,pol.bottom), ExpantaNum(pol.top).sub(1))
     }
     if (ExpantaNum.gte(pol.height, 4)) {
-        return num.toString();
+        return num
     }
-    return ExpantaNum(pol.top).add(ExpantaNum.log10(pol.bottom)).toString(); 
+    return ExpantaNum(pol.top).add(ExpantaNum.log10(pol.bottom))
 }
 // this one was easier
 function hlog(num) {
     if (!(num instanceof ExpantaNum)) num = new ExpantaNum(num);
     let pol = polarize(num.array, true);
     if (ExpantaNum.lte(num, "10^^^10")) {
-        return ExpantaNum(plog(plog(num))).add(1).toString();
+        return ExpantaNum(plog(plog(num))).add(1)
     }
     if (ExpantaNum.gt(num, "10^^^10") && ExpantaNum.lt(num, "10^^^^10")) {
-        return ExpantaNum.log10(pol.bottom).add(pol.top).toString();
+        return ExpantaNum.log10(pol.bottom).add(pol.top)
     }
     if (ExpantaNum.eq(pol.height, 4)) {
-        return ExpantaNum.heptate(ExpantaNum.hexate(10,pol.bottom), ExpantaNum(pol.top).sub(1)).toString();
+        return ExpantaNum.heptate(ExpantaNum.hexate(10,pol.bottom), ExpantaNum(pol.top).sub(1))
     }
     if (ExpantaNum.gte(pol.height, 5)) {
-      return num.toString();
+      return num
     }
 }
 // i think i have too much logs
@@ -282,16 +290,16 @@ function heplog(num) {
     if (!(num instanceof ExpantaNum)) num = new ExpantaNum(num);
     let pol = polarize(num.array, true);
     if (ExpantaNum.lte(num, "10^^^^10")) {
-        return ExpantaNum(hlog(num)).log10().add(1).toString();
+        return ExpantaNum(hlog(num)).log10().add(1)
     }
     if (ExpantaNum.lt(num, "10^^^^^10") && ExpantaNum.gte(num, "10^^^^10")) {
-        return ExpantaNum.log10(pol.bottom).add(pol.top).toString();
+        return ExpantaNum.log10(pol.bottom).add(pol.top)
     }
     if (ExpantaNum.eq(pol.height, 5)) {
-      return ExpantaNum.octate(ExpantaNum.heptate(10,pol.bottom), ExpantaNum(pol.top).sub(1)).toString();
+      return ExpantaNum.octate(ExpantaNum.heptate(10,pol.bottom), ExpantaNum(pol.top).sub(1))
     }
     if (ExpantaNum.gt(pol.height, 5)) {
-      return num.toString();
+      return num
     }
 }
 // 1 more cant hurt
@@ -299,16 +307,16 @@ function olog(num) {
     if (!(num instanceof ExpantaNum)) num = new ExpantaNum(num);
     let pol = polarize(num.array, true);
     if (ExpantaNum.lte(num, "10^^^^^10")) {
-        return ExpantaNum(heplog(num)).log10().add(1).toString();
+        return ExpantaNum(heplog(num)).log10().add(1)
     }
     if (ExpantaNum.lt(num, "10^^^^^^10") && ExpantaNum.gte(num, "10^^^^^10")) {
-        return ExpantaNum.log10(pol.bottom).add(pol.top).toString();
+        return ExpantaNum.log10(pol.bottom).add(pol.top)
     }
     if (ExpantaNum.eq(pol.height, 6)) {
-      return ExpantaNum.arrow(ExpantaNum.arrow(10,6,pol.bottom), 7, ExpantaNum(pol.top).sub(1)).toString();
+      return ExpantaNum.arrow(ExpantaNum.arrow(10,6,pol.bottom), 7, ExpantaNum(pol.top).sub(1))
     }
     if (ExpantaNum.gt(pol.height, 6)) {
-      return num.toString();
+      return num
     }
 }
 // yeah okay i wont be rewriting the code each time so uhh here is ultra log
@@ -318,10 +326,10 @@ function ultralog(num, arrows) {
     let pol = polarize(num.array, true);
     num = num.array;
     if (ExpantaNum.eq(arrows, 1)){
-      return ExpantaNum.log10(num).toString();
+      return ExpantaNum.log10(num)
     }
     if (ExpantaNum.eq(arrows, 2)){
-      return ExpantaNum.slog(num).toString();
+      return ExpantaNum.slog(num)
     }
     if (ExpantaNum.eq(arrows, 3)){
       return plog(num);
@@ -337,19 +345,30 @@ function ultralog(num, arrows) {
     }
     if (ExpantaNum.gt(arrows, 6) && ExpantaNum.lte(arrows,20)){
       if (ExpantaNum.lte(num, ExpantaNum.arrow(10, ExpantaNum(arrows).sub(1), 10))) {
-        return ExpantaNum(ultralog(ExpantaNum(num), ExpantaNum(arrows).sub(1))).log10().add(1).toString();
+        return ExpantaNum(ultralog(ExpantaNum(num), ExpantaNum(arrows).sub(1))).log10().add(1)
       }
       if (ExpantaNum.lt(num, ExpantaNum.arrow(10, ExpantaNum(arrows), 10)) && ExpantaNum.gte(num, ExpantaNum.arrow(10, ExpantaNum(arrows).sub(1), 10))) {
-        return ExpantaNum.log10(pol.bottom).add(pol.top).toString();
+        return ExpantaNum.log10(pol.bottom).add(pol.top)
       }
       if (ExpantaNum.eq(arrows, pol.height)) {
-        return ExpantaNum.arrow(ExpantaNum.arrow(10,ExpantaNum(arrows),pol.bottom), ExpantaNum(arrows).add(1), ExpantaNum(pol.top).sub(1)).toString();
+        return ExpantaNum.arrow(ExpantaNum.arrow(10,ExpantaNum(arrows),pol.bottom), ExpantaNum(arrows).add(1), ExpantaNum(pol.top).sub(1))
       }
       if (ExpantaNum.gt(pol.height, arrows)) {
-        return ExpantaNum(num).toString();
+        return ExpantaNum(num)
       }
     }
     if (ExpantaNum.gt(arrows, 20)){
       throw Error("Max 20 arrows due to precision");
     }
+}
+
+function upgradeExpired(layer, id) {
+    return (player[layer].upgradesExpired.includes(toNumber(id)) || player[layer].upgradesExpired.includes(id.toString()))
+}
+
+//基于上列高阶log而写的layeradd延伸
+function pentlayeradd(num, layer) {
+    num = new ExpantaNum(num)
+    layer = new ExpantaNum(layer)
+    return new ExpantaNum(10).pentate(plog(num).add(layer))
 }

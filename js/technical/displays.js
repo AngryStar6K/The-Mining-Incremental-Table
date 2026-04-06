@@ -73,27 +73,63 @@ function updateWidth() {
 	tmp.other.lastPoints = player.points
 }
 
-function updateOomps(diff)
-{
-	tmp.other.oompsMag = 0
+function updateOomps(diff) {
+	tmp.other.oompsMag = {
+		operator: [[1, ExpantaNumZero], [2, ExpantaNumZero], [3, ExpantaNumZero], [4, ExpantaNumZero], [5, ExpantaNumZero], [6, ExpantaNumZero], [7, ExpantaNumZero], [8, ExpantaNumZero]],
+		highestOperator: 0,
+		expansion: 0
+	}
 	if (player.points.lte(new ExpantaNum(1e100)) || diff == 0) return
 
 	var pp = new ExpantaNum(player.points);
 	var lp = tmp.other.lastPoints || new ExpantaNum(0);
 	if (pp.gt(lp)) {
-		if (pp.gte("10^^20")) {
+		if (pp.gte("10^^100")) {
+			var tetrationtower = plog(lp).sub(1.1142873094756345).floor()
+			var pentld = tetrationtower.neg()
+			var ppoomt2 = pentlayeradd(pp, pentld)
+			var lpoomt2 = pentlayeradd(lp, pentld)
+			var oomt2ps = ppoomt2.sub(lpoomt2).div(diff)
+			tmp.other.oomps = oomt2ps
+			if (lpoomt2.gte('e100') && tetrationtower.lte(10)) {
+				var powertower = lpoomt2.slog(10).sub(1.3010299956639813).floor()
+				var ld = powertower.neg()
+				var oomps = ppoomt2.layeradd(ld).sub(lpoomt2.layeradd(ld)).div(diff)
+				tmp.other.oomps = oomps
+				tmp.other.oompsMag.operator[0][1] = powertower
+			}
+			tmp.other.oompsMag.operator[1][1] = tetrationtower
+			tmp.other.oompsMag.highestOperator = 2
+		} else if (lp.gte('e100')) {
+			var powertower = lp.slog(10).sub(1.3010299956639813).floor()
+			var ld = powertower.neg()
+			var oomps = pp.layeradd(ld).sub(lp.layeradd(ld)).div(diff)
+			if (oomps.lt(10) && powertower.gte(2)) {
+				tmp.other.oomps = pp.layeradd(ld.add(1)).sub(lp.layeradd(ld.add(1))).div(diff)
+				tmp.other.oompsMag.operator[0][1] = powertower.sub(1)
+				tmp.other.oompsMag.highestOperator = 1
+			}
+			else if (oomps.gte(10)) {
+				tmp.other.oomps = oomps
+				tmp.other.oompsMag.operator[0][1] = powertower
+				tmp.other.oompsMag.highestOperator = 1
+			}
+		}
+		/*if (pp.gte("10^^10")) {
 			pp = pp.slog(1e10)
 			lp = lp.slog(1e10)
 			tmp.other.oomps = pp.sub(lp).div(diff)
-			tmp.other.oompsMag = -1;
+			tmp.other.oompsMag.operator[1][1] = 1;
+			tmp.other.oompsMag.highestOperator = 2
 		} else {
-			while (pp.div(lp).logBase(10).div(diff).gte("10") && tmp.other.oompsMag <= 5 && lp.gt(0)) {
+			while (pp.div(lp).logBase(10).div(diff).gte("10") && tmp.other.oompsMag.operator[0][1] <= 10 && lp.gt(0)) {
 				pp = pp.logBase(10)
 				lp = lp.logBase(10)
 				tmp.other.oomps = pp.sub(lp).div(diff)
-				tmp.other.oompsMag++;
+				tmp.other.oompsMag.operator[0][1]++;
+				tmp.other.oompsMag.highestOperator = 1
 			}
-		}
+		}*/
 	}
 
 }
