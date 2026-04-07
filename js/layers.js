@@ -3774,7 +3774,7 @@ addLayer("achievements", {
             },
         },
         227: {
-            name: "虚构的，但是格雷给出的“化学符号”是“Ar”",
+            name: "虚构的，但是格雷给出的“化学符号”是“Ai”",
             tooltip: "解锁阿迪特层级<br> 奖励：1.000000F15成就点数",
             done() { return hasUpgrade(torridite, 45) && this.unlocked() },
             onComplete() {
