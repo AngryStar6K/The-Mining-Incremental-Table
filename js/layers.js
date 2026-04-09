@@ -229,7 +229,7 @@ addLayer("statistics", {
     color: "#fefefe",
     type: "none",
     tooltip() { return false },
-    layerShown() { return !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return true },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
     tabFormat: [
         ["display-text", function () { return getPointsDisplay() }],
         "blank",
@@ -496,7 +496,7 @@ addLayer("statistics", {
                 },
             },
             "more1": {
-                unlocked() { return tmp.lead.layerShown || layerHidden(lead) },
+                unlocked() { return tmp.lead.layerShown },
                 name() { return '更多' },
                 content: [
                     ["blank", "15px"],
@@ -638,7 +638,7 @@ addLayer("statistics", {
                 },
             },
             "more2": {
-                unlocked() { return tmp.gold.layerShown || layerHidden(gold) },
+                unlocked() { return tmp.gold.layerShown },
                 name() { return '更多' },
                 content: [
                     ["blank", "15px"],
@@ -774,7 +774,7 @@ addLayer("statistics", {
                 },
             },
             "more3": {
-                unlocked() { return tmp.emerald.layerShown || layerHidden(emerald) },
+                unlocked() { return tmp.emerald.layerShown },
                 name() { return '更多' },
                 content: [
                     ["blank", "15px"],
@@ -1123,7 +1123,7 @@ addLayer("statistics", {
                 },
             },
             "more1": {
-                unlocked() { return tmp.fiery.layerShown || layerHidden(fiery) },
+                unlocked() { return tmp.fiery.layerShown },
                 name() { return '更多' },
                 content: [
                     ["blank", "15px"],
@@ -1275,7 +1275,7 @@ addLayer("statistics", {
                 },
             },
             "more1": {
-                unlocked() { return tmp.cobalt.layerShown || layerHidden(cobalt) },
+                unlocked() { return tmp.cobalt.layerShown },
                 name() { return '更多' },
                 content: [
                     ["blank", "15px"],
@@ -1763,7 +1763,7 @@ addLayer("stories", {
     color: "#fcfdf5",
     type: "none",
     tooltip() { return false },
-    layerShown() { return !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return true },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
 
     doReset() { return undefined },
 
@@ -1971,7 +1971,7 @@ addLayer("layer_select", {
         getStyle(data, id) {
             if (!data) return { visibility: 'hidden' }
             else if (
-                (!tmp[data].layerShown && !layerHidden(data)) ||
+                (!tmp[data].layerShown) ||
                 (player.layer_select.searching && !tmp[data].symbol.includes(player.layer_select.search)) ||
                 (player.layer_select.showPinned && !player.layer_select.pinned.includes(data))
             ) return { visibility: 'hidden' }
@@ -2158,7 +2158,7 @@ addLayer("achievements", {
     color: "#ffe125",
     type: "none",
     tooltip() { return false },
-    layerShown() { return !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return true },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
 
     doReset() { return undefined },
 
@@ -4224,7 +4224,7 @@ addLayer("offline_progress", {
     color: "#b2ff59",
     type: "none",
     tooltip() { return false },
-    layerShown() { return !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return true },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
 
     doReset() { return undefined },
 
@@ -5071,7 +5071,7 @@ addLayer("map", {
     color: "#548049",
     type: "none",
     tooltip() { return false },
-    layerShown() { return !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return true },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
 
     doReset() { return undefined },
 
@@ -6479,7 +6479,7 @@ addLayer("wood", {
         return d(1)
     },
     row: 1, // Row the layer is in on the tree (0 is the first row)
-    layerShown() { return !layerHidden(this.layer) },
+    layerShown() { return true },
 
     doReset(resettingLayer) {
         if (layers[resettingLayer].name == ct && !hasMilestone(furnace, 0)) {
@@ -7216,7 +7216,7 @@ addLayer("stone", {
         return d(1)
     },
 
-    layerShown() { return hasNormalAchievement(16) && !layerHidden(this.layer) },          // Returns a bool for if this layer's node should be visible in the tree.
+    layerShown() { return hasNormalAchievement(16) },          // Returns a bool for if this layer's node should be visible in the tree.
 
     doReset(resettingLayer) {
         if (layers[resettingLayer].name == ct) {
@@ -7935,7 +7935,7 @@ addLayer("copper", {
         return d(1)
     },
 
-    layerShown() { return hasNormalAchievement(24) && !layerHidden(this.layer) },          // Returns a bool for if this layer's node should be visible in the tree.
+    layerShown() { return hasNormalAchievement(24) },          // Returns a bool for if this layer's node should be visible in the tree.
 
     doReset(resettingLayer) {
         if (layers[resettingLayer] == ct) {
@@ -8300,7 +8300,7 @@ addLayer("tin", {
         return d(1)
     },
 
-    layerShown() { return hasNormalAchievement(34) && !layerHidden(this.layer) },          // Returns a bool for if this layer's node should be visible in the tree.
+    layerShown() { return hasNormalAchievement(34) },          // Returns a bool for if this layer's node should be visible in the tree.
 
     doReset(resettingLayer) {
         return undefined
@@ -8549,7 +8549,7 @@ addLayer("bronze", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(37) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(37) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -9177,7 +9177,7 @@ addLayer("iron", {
         return d(1)
     },
 
-    layerShown() { return hasNormalAchievement(46) && !layerHidden(this.layer) },          // Returns a bool for if this layer's node should be visible in the tree.
+    layerShown() { return hasNormalAchievement(46) },          // Returns a bool for if this layer's node should be visible in the tree.
 
     doReset(resettingLayer) {
         return undefined
@@ -9632,7 +9632,7 @@ addLayer("nickel", {
         return d(1)
     },
 
-    layerShown() { return hasNormalAchievement(46) && !layerHidden(this.layer) },          // Returns a bool for if this layer's node should be visible in the tree.
+    layerShown() { return hasNormalAchievement(46) },          // Returns a bool for if this layer's node should be visible in the tree.
 
     doReset(resettingLayer) {
         return undefined
@@ -10093,7 +10093,7 @@ addLayer("aluminum", {
         return d(1)
     },
 
-    layerShown() { return (hasNormalAchievement(64) || hasUpgrade(nickel, 25)) && !layerHidden(this.layer) },          // Returns a bool for if this layer's node should be visible in the tree.
+    layerShown() { return (hasNormalAchievement(64) || hasUpgrade(nickel, 25)) },          // Returns a bool for if this layer's node should be visible in the tree.
 
     doReset(resettingLayer) {
         return undefined
@@ -10416,7 +10416,7 @@ addLayer("lead", {
         return d(1)
     },
 
-    layerShown() { return (hasNormalAchievement(64) || hasUpgrade(nickel, 25)) && !layerHidden(this.layer) },          // Returns a bool for if this layer's node should be visible in the tree.
+    layerShown() { return (hasNormalAchievement(64) || hasUpgrade(nickel, 25)) },          // Returns a bool for if this layer's node should be visible in the tree.
 
     doReset(resettingLayer) {
         return undefined
@@ -10756,7 +10756,7 @@ addLayer("constantan", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(75) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(75) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -11324,7 +11324,7 @@ addLayer("invar", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(75) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(75) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -12398,7 +12398,7 @@ addLayer("alumbrass", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(92) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(92) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -12816,7 +12816,7 @@ addLayer("zinc", {
         return d(1)
     },
 
-    layerShown() { return hasNormalAchievement(95) && !layerHidden(this.layer) },          // Returns a bool for if this layer's node should be visible in the tree.
+    layerShown() { return hasNormalAchievement(95) },          // Returns a bool for if this layer's node should be visible in the tree.
 
     doReset(resettingLayer) {
         return undefined
@@ -13228,7 +13228,7 @@ addLayer("brass", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(97) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(97) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -13677,7 +13677,7 @@ addLayer("steel", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasMilestone(blast_furnace, 0) && !layerHidden(this.layer) },
+    layerShown() { return hasMilestone(blast_furnace, 0) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         if (hasMilestone(torridite, 14)) return getPointGen()
@@ -14052,7 +14052,7 @@ addLayer("silver", {
         return d(1)
     },
 
-    layerShown() { return hasNormalAchievement(113) && !layerHidden(this.layer) },          // Returns a bool for if this layer's node should be visible in the tree.
+    layerShown() { return hasNormalAchievement(113) },          // Returns a bool for if this layer's node should be visible in the tree.
 
     doReset(resettingLayer) {
         return undefined
@@ -14696,7 +14696,7 @@ addLayer("gold", {
         return d(1)
     },
 
-    layerShown() { return hasNormalAchievement(113) && !layerHidden(this.layer) },          // Returns a bool for if this layer's node should be visible in the tree.
+    layerShown() { return hasNormalAchievement(113) },          // Returns a bool for if this layer's node should be visible in the tree.
 
     doReset(resettingLayer) {
         return undefined
@@ -15782,7 +15782,7 @@ addLayer("electrum", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(123) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(123) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -16149,7 +16149,7 @@ addLayer("redstone", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(126) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(126) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         if (hasMilestone(torridite, 18)) return getPointGen()
@@ -17464,7 +17464,7 @@ addLayer("red_ele", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(134) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(134) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -17763,7 +17763,7 @@ addLayer("platinum", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(146) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(146) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         if (hasMilestone(torridite, 21)) return getPointGen()
@@ -18131,7 +18131,7 @@ addLayer("diamond", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(146) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(146) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         if (hasMilestone(torridite, 22)) return getPointGen()
@@ -18964,7 +18964,7 @@ addLayer("obsidian", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return (hasNormalAchievement(151) || hasCraftingItem(421)) && !layerHidden(this.layer) },
+    layerShown() { return (hasNormalAchievement(151) || hasCraftingItem(421)) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         if (hasMilestone(torridite, 23)) return getPointGen()
@@ -19849,7 +19849,7 @@ addLayer("emerald", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(156) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(156) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         if (hasMilestone(torridite, 24)) return getPointGen()
@@ -20531,7 +20531,7 @@ addLayer("experience", {
     color: "#b2ff59",
     type: "custom",
     tooltip() { return false },
-    layerShown() { return hasNormalAchievement(164) && !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return hasNormalAchievement(164) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
 
     baseResource: "points",                 // The name of the resource your prestige gain is based on.
     baseAmount() { return player.points },  // A function to return the current amount of baseResource.
@@ -21233,7 +21233,7 @@ addLayer("signalum", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(215) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(215) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -21506,7 +21506,7 @@ addLayer("manasteel", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(145) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(145) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -21762,7 +21762,7 @@ addLayer("terrasteel", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(171) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(171) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -22250,7 +22250,7 @@ addLayer("elementium", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(207) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(207) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -23261,7 +23261,7 @@ addLayer("alfsteel", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(212) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(212) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -23729,7 +23729,7 @@ addLayer("vis_crystal", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(174) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(174) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(3)
@@ -24021,7 +24021,7 @@ addLayer("twilight_gem", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(176) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(176) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -24548,7 +24548,7 @@ addLayer("ironwood", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(177) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(177) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         if (hasMilestone(torridite, 28)) return getPointGen()
@@ -25006,7 +25006,7 @@ addLayer("naga_scale", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(181) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(181) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -25526,7 +25526,7 @@ addLayer("steeleaf", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(184) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(184) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         if (hasMilestone(torridite, 30)) return getPointGen()
@@ -26208,7 +26208,7 @@ addLayer("knight_metal", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasCraftingItem(571) && !layerHidden(this.layer) },
+    layerShown() { return hasCraftingItem(571) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -26487,7 +26487,7 @@ addLayer("fracturite", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(192) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(192) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -26595,7 +26595,7 @@ addLayer("fiery", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(193) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(193) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -26932,7 +26932,7 @@ addLayer("carminite", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasUpgrade(fracturite, 15) && !layerHidden(this.layer) },
+    layerShown() { return hasUpgrade(fracturite, 15) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -27136,7 +27136,7 @@ addLayer("soularium", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(201) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(201) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -27519,7 +27519,7 @@ addLayer("quartz", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(204) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(204) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         if (hasMilestone(torridite, 35)) return getPointGen()
@@ -28036,7 +28036,7 @@ addLayer("glowstone", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(205) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(205) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         if (hasMilestone(torridite, 36)) return getPointGen()
@@ -28321,7 +28321,7 @@ addLayer("lumium", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(214) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(214) },
 
     doReset() {
         return undefined
@@ -28851,7 +28851,7 @@ addLayer("glowing_signalum", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return (hasNormalAchievement(221) || hasUpgrade(signalum, 35)) && !layerHidden(this.layer) },
+    layerShown() { return (hasNormalAchievement(221) || hasUpgrade(signalum, 35)) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -29026,7 +29026,7 @@ addLayer("torridite", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasUpgrade(glowing_signalum, 25) && !layerHidden(this.layer) },
+    layerShown() { return hasUpgrade(glowing_signalum, 25) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -30145,7 +30145,7 @@ addLayer("cobalt", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(226) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(226) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -30623,7 +30623,7 @@ addLayer("ardite", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(227) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(227) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -31036,7 +31036,7 @@ addLayer("manyullyn", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(232) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(232) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -31604,7 +31604,7 @@ addLayer("enderium", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(234) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(234) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -31881,7 +31881,7 @@ addLayer("geild_enderium", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(236) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(236) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -32447,7 +32447,7 @@ addLayer("dark_steel", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(241) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(241) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -32970,7 +32970,7 @@ addLayer("alumite", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(243) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(243) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -33442,7 +33442,7 @@ addLayer("end_steel", {
 
     type: "none",                         // Determines the formula used for calculating prestige currency.
     exponent: 0.5,                          // "normal" prestige gain is (currency^exponent).
-    layerShown() { return hasNormalAchievement(245) && !layerHidden(this.layer) },
+    layerShown() { return hasNormalAchievement(245) },
 
     gainMult() {                            // Returns your multiplier to your gain of the prestige resource.
         let m = d(1)                            // 合金的gainMult是给对应合金倍率的？
@@ -33646,7 +33646,7 @@ addLayer("crafting_table", {
         return e
     },
     resetDescription: "重置以合成 ",
-    layerShown() { return hasNormalAchievement(12) && !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return hasNormalAchievement(12) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
 
     onPrestige() {
         if (options.notation == 'Emoji') player.crafting_table.emojiNotationResets = player.crafting_table.emojiNotationResets.add(1)
@@ -40679,7 +40679,7 @@ addLayer("furnace", {
         return e
     },
     resetDescription: "重置以合成 ",
-    layerShown() { return hasNormalAchievement(25) && !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return hasNormalAchievement(25) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
 
     onPrestige() {
         return player.furnace.cooldown = d(1)
@@ -42395,7 +42395,7 @@ addLayer("alloy_s", {
         return e
     },
     resetDescription: "合成获得 ",
-    layerShown() { return hasNormalAchievement(36) && !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return hasNormalAchievement(36) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
 
     onPrestige() {
         return player.alloy_s.cooldown = d(1)
@@ -43729,7 +43729,7 @@ addLayer("sing_fus", {
         e = d(1)
         return e
     },
-    layerShown() { return hasNormalAchievement(73) && !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return hasNormalAchievement(73) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
 
     doReset(resettingLayer) {
         return undefined
@@ -44894,7 +44894,7 @@ addLayer("blast_furnace", {
         return e
     },
     resetDescription: "重置以合成 ",
-    layerShown() { return hasNormalAchievement(106) && !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return hasNormalAchievement(106) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
 
 
     canReset() {
@@ -45682,7 +45682,7 @@ addLayer("botania", {
         return e
     },
     resetDescription: "重置以合成 ",
-    layerShown() { return hasNormalAchievement(143) && !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return hasNormalAchievement(143) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
 
     doReset(resettingLayer) {
         return undefined
@@ -47022,7 +47022,7 @@ addLayer("rf", {
         e = d(1)
         return e
     },
-    layerShown() { return hasNormalAchievement(33) && !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return hasNormalAchievement(33) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
 
 
     doReset(resettingLayer) {
@@ -51506,7 +51506,7 @@ addLayer("mana", {
         e = d(1)
         return e
     },
-    layerShown() { return hasNormalAchievement(144) && !layerHidden(this.layer) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
+    layerShown() { return hasNormalAchievement(144) },// If any layer in the array is unlocked, it will returns true. Otherwise it will return false.
 
 
     doReset(resettingLayer) {
