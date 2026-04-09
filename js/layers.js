@@ -3863,7 +3863,7 @@ addLayer("achievements", {
         },
         241: {
             name: "经改造的坚硬钢铁",
-            tooltip: "解锁玄钢层级<br> 奖励：1.00000F10,000成就点数<br><br>解锁ω+1阶等级",
+            tooltip: "解锁玄钢层级<br> 奖励：1.00000F10,000成就点数<br>",
             done() { return hasUpgrade(geild_enderium, 35) && this.unlocked() },
             onComplete() {
                 return player.achievements.points = player.achievements.points.add('10^^10000')
@@ -3885,7 +3885,7 @@ addLayer("achievements", {
         },
         243: {
             name: "经强化的铝",
-            tooltip: "解锁耐酸铝层级<br> 奖励：1.000F1,000,000成就点数<br><br>解锁ω+1阶等级",
+            tooltip: "解锁耐酸铝层级<br> 奖励：1.000F1,000,000成就点数<br>",
             done() { return hasUpgrade(dark_steel, 35) && this.unlocked() },
             onComplete() {
                 return player.achievements.points = player.achievements.points.add('10^^1000000')
