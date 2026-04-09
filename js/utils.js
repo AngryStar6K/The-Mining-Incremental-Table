@@ -236,7 +236,7 @@ function subtabResetNotify(layer, family, id) {
 }
 
 function nodeShown(layer) {
-	return layerShown(layer)
+	return layerShown(layer) && !layerHidden(layer)
 }
 
 function layerunlocked(layer) {
