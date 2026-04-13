@@ -6223,10 +6223,10 @@ addLayer("1layer", {
         //["display-text", function () { if (player.devmode) return textStyle_h2(hyperE(player.notationTest)) }],
         //["display-text", function () { if (player.devmode) return textStyle_h2(letter(player.notationTest)) }],
         //["display-text", function () { if (player.devmode) return textStyle_h2(f(player.notationTest)) }],
-        ["microtabs", "stuff"],
+        //["microtabs", "stuff"],
         ["blank", "65px"],
     ],
-    microtabs: {
+    /*microtabs: {
         stuff: {
             "quick jump": {
                 unlocked() { return true },
@@ -6238,7 +6238,7 @@ addLayer("1layer", {
                 ]
             },
         },
-    },
+    },*/
 })
 //世界1 （原型：主世界）材料解锁顺序（暂定）
 const wood = "wood" //木头 1
@@ -40551,12 +40551,14 @@ function isSmeltingItem() {
 
 function stopSmelting(wait = false) {
     let type = wait ? '暂停' : '中断'
-    doPopup("default", smeltingItemName(smeltingItemID()) + "的熔炼" + "已" + type + "！", type + "提醒", 3, smeltingItemColorBg(smeltingItemID()) || smeltingItemColor(smeltingItemID()), tmp.furnace.clickables[smeltingItemID()].style['color'] || "black")
-    if (wait) { player.furnace.waitingforID = player.furnace.smeltingItem }
-    else { player.furnace.waitingforID = 0 }
-    player.furnace.smelting = false
-    player.furnace.smeltingItem = 0
-    player.furnace.temperature = d(20)
+    if (smeltingItemID() != 0) {
+        doPopup("default", smeltingItemName(smeltingItemID()) + "的熔炼" + "已" + type + "！", type + "提醒", 3, smeltingItemColorBg(smeltingItemID()) || smeltingItemColor(smeltingItemID()), tmp.furnace.clickables[smeltingItemID()].style['color'] || "black")
+        if (wait) { player.furnace.waitingforID = player.furnace.smeltingItem }
+        else { player.furnace.waitingforID = 0 }
+        player.furnace.smelting = false
+        player.furnace.smeltingItem = 0
+        player.furnace.temperature = d(20)
+    }
 }
 
 function smeltingItemName(id) {
@@ -42268,6 +42270,7 @@ addLayer("furnace", {
                     ["clickables", [2001]],
                     "blank",
                     ["clickables", function () { return [1000, 1001] }],
+                    "blank",
                     ["display-text", function () { return `熔炼（升温）速度：${format(player.furnace.speed)}/秒` }],
                     "blank",
                     ["display-text", function () { return `只有正在熔炼时才会提升温度` }],
@@ -42305,12 +42308,14 @@ function isAlloyingItem() {
 
 function stopAlloying(wait = false) {
     let type = wait ? '暂停' : '中断'
-    doPopup("default", alloyingItemName(alloyingItemID()) + "的合金" + "已" + type + "！", type + "提醒", 3, alloyingItemColorBg(alloyingItemID()) || alloyingItemColor(alloyingItemID()), tmp.alloy_s.clickables[alloyingItemID()].style['color'] || "black")
-    if (wait) { player.alloy_s.waitingforID = player.alloy_s.alloyingItem }
-    else { player.alloy_s.waitingforID = 0 }
-    player.alloy_s.alloying = false
-    player.alloy_s.alloyingItem = 0
-    player.alloy_s.temperature = d(20)
+    if (alloyingItemID() != 0) {
+        doPopup("default", alloyingItemName(alloyingItemID()) + "的合金" + "已" + type + "！", type + "提醒", 3, alloyingItemColorBg(alloyingItemID()) || alloyingItemColor(alloyingItemID()), tmp.alloy_s.clickables[alloyingItemID()].style['color'] || "black")
+        if (wait) { player.alloy_s.waitingforID = player.alloy_s.alloyingItem }
+        else { player.alloy_s.waitingforID = 0 }
+        player.alloy_s.alloying = false
+        player.alloy_s.alloyingItem = 0
+        player.alloy_s.temperature = d(20)
+    }
 }
 
 function alloyingItemName(id) {
@@ -45203,6 +45208,7 @@ addLayer("blast_furnace", {
                 else return {
                     'min-height': '160px',
                     'width': '160px',
+                    'border-radius': '0',
                 }
             },
         },
@@ -45268,6 +45274,7 @@ addLayer("blast_furnace", {
                 else return {
                     'min-height': '160px',
                     'width': '160px',
+                    'border-radius': '0',
                 }
             },
         },
@@ -45331,6 +45338,7 @@ addLayer("blast_furnace", {
                 else return {
                     'min-height': '160px',
                     'width': '160px',
+                    'border-radius': '0',
                 }
             },
         },
@@ -45396,6 +45404,7 @@ addLayer("blast_furnace", {
                 else return {
                     'min-height': '160px',
                     'width': '160px',
+                    'border-radius': '0',
                 }
             },
         },
