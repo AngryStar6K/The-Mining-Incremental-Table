@@ -13749,6 +13749,7 @@ addLayer("steel", {
             cost() { return new ExpantaNum(30) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = d(10).pow(player.steel.points.add(1).log10().div(3).pow(0.9))
                 return eff
             },
@@ -13773,6 +13774,7 @@ addLayer("steel", {
             cost() { return new ExpantaNum(500) },
             unlocked() { return hasCraftingItem(302) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = d(2).pow(player.steel.upgrades.length)
                 return eff
             },
@@ -13791,6 +13793,7 @@ addLayer("steel", {
             cost() { return new ExpantaNum(130000) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = player.level.max(30303).sub(30302).pow(0.18)
                 return eff
             },
@@ -13808,6 +13811,7 @@ addLayer("steel", {
             cost() { return new ExpantaNum(2400000) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = d(10).pow(player.level.max(0))
                 return eff
             },
@@ -13826,6 +13830,7 @@ addLayer("steel", {
             cost() { return new ExpantaNum(30000000) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let eff = d(10).pow(player.steel.points.add(1).log10().div(5).pow(0.8))
                 return eff
             },
@@ -16217,6 +16222,7 @@ addLayer("redstone", {
                 return exp
             },
             effect() {
+                if (upgradeExpired(this.layer, this.id)) return ExpantaNumOne
                 let exp = this.extraPower()
                 let eff = player.redstone.points.max(0).add(1).pow(exp)
                 return eff
@@ -32526,7 +32532,7 @@ addLayer("dark_steel", {
                 return `${f(upgradeEffect(this.layer, this.id))}x`
             },
             tooltip() {
-                let t = `公式：20${quickSUP('slg(lg(经验))-9')}`
+                let t = `公式：20${quickSUP('slg(lg(经验))-11')}`
                 return t
             },
         },
@@ -33543,14 +33549,18 @@ function craftingItemID() {
     return player.crafting_table.craftingItem
 }
 
+var craftMult = d(1)
+
 function getCraftingItem(id) {
     let amount = ' '
     if (id == 531) player.twilight_gem.points = player.twilight_gem.points.add(1)
-    else if (id == 591) player.twilight_gem.points = player.twilight_gem.points.add(player[ct].effectiveItemMult[591]),
-        player[ct].effectiveItemMult[591] = d(1)
+    else if (id == 591) player.twilight_gem.points = player.twilight_gem.points.add(craftMult),
+        player[ct].effectiveItemMult[591] = d(1),
+        amount = ' ' + fw(craftMult) + 'x ',
+        console.log(amount)
     else if (canCraftMultiple(id)) {
-        player.crafting_table.items[id] = player.crafting_table.items[id].add(tmp[ct].clickables[id].effectiveMult ? tmp[ct].clickables[id].mult : 1)
-        amount = tmp[ct].clickables[id].effectiveMult ? (' ' + fw(tmp[ct].clickables[id].effectiveMult) + 'x ') : ' '
+        player.crafting_table.items[id] = player.crafting_table.items[id].add(tmp[ct].clickables[id].effectiveMult ? craftMult : 1)
+        amount = tmp[ct].clickables[id].effectiveMult ? (' ' + fw(craftMult) + 'x ') : ' '
     }
     else if (!canCraftMultiple(id)) player.crafting_table.items[id] = true
     doPopup("default", "获得" + amount + craftingItemName(craftingItemID()), "合成完成", 3, craftingItemColorBg(craftingItemID()) || craftingItemColor(craftingItemID()), craftingItemTextcolor(craftingItemID()) || "black")
@@ -36907,6 +36917,7 @@ addLayer("crafting_table", {
             onClick() {
                 player.crafting_table.crafting = true,
                     player.crafting_table.craftingItem = this.id,
+                    craftMult = this.effectiveMult(),
                     player.brass.points = player.brass.points.sub(d(4).times(this.effectiveMult()))
             },
             unlocked() { return hasUpgrade(ct, 112) },
@@ -36954,6 +36965,7 @@ addLayer("crafting_table", {
                 let effm = this.effectiveMult()
                 player.crafting_table.crafting = true,
                     player.crafting_table.craftingItem = this.id,
+                    craftMult = this.effectiveMult(),
                     player.wood.points = player.wood.points.sub(d(200).times(effm)),
                     player.stone.points = player.stone.points.sub(d(200).times(effm)),
                     player.crafting_table.items[281] = player.crafting_table.items[281].sub(effm)
@@ -37519,6 +37531,7 @@ addLayer("crafting_table", {
             onClick() {
                 player.crafting_table.crafting = true,
                     player.crafting_table.craftingItem = this.id,
+                    craftMult = this.effectiveMult(),
                     player.red_ele.points = player.red_ele.points.sub(this.effectiveMult().times(1e14))
             },
             unlocked() { return hasUpgrade(ct, 144) },
@@ -39015,6 +39028,7 @@ addLayer("crafting_table", {
                 let effm = this.effectiveMult()
                 player.crafting_table.crafting = true,
                     player.crafting_table.craftingItem = this.id,
+                    craftMult = this.effectiveMult(),
                     player.diamond.points = player.diamond.points.sub(effm),
                     player.ironwood.points = player.ironwood.points.sub(effm),
                     player.naga_scale.points = player.naga_scale.points.sub(effm),
