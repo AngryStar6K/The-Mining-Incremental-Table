@@ -39316,6 +39316,7 @@ addLayer("crafting_table", {
                 let effm = this.effectiveMult()
                 player.crafting_table.crafting = true,
                     player.crafting_table.craftingItem = this.id,
+                    craftMult = this.effectiveMult(),
                     player.soularium.points = player.soularium.points.sub(d(50).times(effm)),
                     player.alloy_s.hardenedGlass = player.alloy_s.hardenedGlass.sub(d(10).times(effm))
             },
