@@ -29445,10 +29445,9 @@ addLayer("torridite", {
                 if (this.canAuto()) { this.buyMax(); return; }
                 if (this.canBuyMax()) { this.buyMax() }
                 else {
-                    let cst = this.cost()
                     setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
                 }
-                player[this.layer].core = player[this.layer].core.sub(cst).max(0)
+                player[this.layer].core = player[this.layer].core.sub(this.cost()).max(0)
             },
             effect(x) {
                 let eff = this.effBase().pow(x.add(this.free()))
