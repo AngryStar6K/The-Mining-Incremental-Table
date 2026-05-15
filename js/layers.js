@@ -14155,7 +14155,7 @@ addLayer("silver", {
         },
         22: {
             title: "银牌板",
-            description: "需求：等级70,000<br>5x基础银矿石以及银锭熔炼倍率",
+            description: "需求：等级70,000<br>5x基础银矿石获取以及银锭熔炼倍率",
             canAfford() { return player.level.gte(70000) },
             cost() { return new ExpantaNum(60) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
@@ -14765,7 +14765,7 @@ addLayer("gold", {
         },
         15: {
             title: "猪灵眼里放光",
-            description: "金锭加成银矿石和银锭熔炼倍率",
+            description: "金锭加成银矿石挖掘倍率和银锭熔炼倍率",
             cost() { return new ExpantaNum(25) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
@@ -30239,7 +30239,7 @@ addLayer("cobalt", {
         },
         22: {
             title: "互相加成",
-            description() { return `最多的钴锭加成阿迪特矿石和阿迪特锭熔炼倍率` },
+            description() { return `最多的钴锭加成阿迪特矿石获取和阿迪特锭熔炼倍率` },
             cost() { return new ExpantaNum(50000000) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             currencyDisplayName: "钴矿石",
