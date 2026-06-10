@@ -417,7 +417,10 @@ var startIntervalDelay = 0
 var startIntervalDelayCap = 1
 
 var gameruntime = 0
-
+//临时
+function isNativeFunction(fn) {
+    return fn.toString().includes('[native code]');
+}
 var interval = setInterval(function() {
 	if (player===undefined||tmp===undefined) return;
 	if (ticking) return;
@@ -445,6 +448,13 @@ var interval = setInterval(function() {
 	}
 	// if (player.devSpeed) diff *= Math.min(player.devSpeed, 1) 禁用devSpeed
 	player.time = now
+	if ((!isNativeFunction(Date.now) || !isNativeFunction(performance.now)) && !softcheat) {
+            // 触发反作弊
+            alert("检测到脚本作弊，请禁用脚本重新开始游戏，如果你执意要作弊，请使用F12修改变量，我管不到你。离线时间被强行修改为-300秒");
+            player.offTime.remain = Math.min(player.offTime.remain, -300)
+            softcheat = true
+            save()
+        }
 	if (needCanvasUpdate){ resizeCanvas();
 		needCanvasUpdate = false;
 	}
