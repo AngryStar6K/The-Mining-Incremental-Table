@@ -421,6 +421,7 @@ var gameruntime = 0
 function isNativeFunction(fn) {
     return fn.toString().includes('[native code]');
 }
+var softcheat = false
 var interval = setInterval(function() {
 	if (player===undefined||tmp===undefined) return;
 	if (ticking) return;
