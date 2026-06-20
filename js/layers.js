@@ -30355,14 +30355,14 @@ addLayer("cobalt", {
             cost() { return new ExpantaNum(5e25) },
             unlocked() { return hasUpgrade(this.layer, this.id - 1) },
             effect() {
-                let eff = player.torridite.coreTier.max(85).sub(85)
+                let eff = player.torridite.coreTier.max(85).sub(84)
                 return eff
             },
             effectDisplay() {
                 return `${f(upgradeEffect(this.layer, this.id))}x`
             },
             tooltip() {
-                let t = `公式：T-85`
+                let t = `公式：T-84`
                 return t
             },
         },
