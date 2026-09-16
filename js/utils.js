@@ -11,7 +11,7 @@ function respecBuyables(layer) {
 
 function canAffordUpgrade(layer, id) {
 	let upg = tmp[layer].upgrades[id]
-	if(tmp[layer].deactivated) return false
+	if (tmp[layer].deactivated) return false
 	if (tmp[layer].upgrades[id].canAfford === false) return false
 	let cost = tmp[layer].upgrades[id].cost
 	if (cost !== undefined) 
@@ -144,6 +144,7 @@ var onTreeTab = true
 
 function showTab(name, prev) {
 	if (LAYERS.includes(name) && !layerunlocked(name)) return
+	if (player.focusLayer && player.focusLayer !== name && player.focusLayer !== 'layer_select') return
 	if (player.tab !== name) clearParticles(function(p) {return p.layer === player.tab})
 	if (tmp[name] && player.tab === name && isPlainObject(tmp[name].tabFormat)) {
 		player.subtabs[name].mainTabs = Object.keys(layers[name].tabFormat)[0]

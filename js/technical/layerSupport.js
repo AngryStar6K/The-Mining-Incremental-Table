@@ -63,7 +63,37 @@ function updateLayers(){
     for (x = 0; x < maxRow + 1; x++) {
         if (TREE_LAYERS[x]) treeLayers2.push(TREE_LAYERS[x])
     }
+    console.log(TREE_LAYERS)
     TREE_LAYERS = treeLayers2
+    if (options.layerTabShowingOrder === 'unlock order') {
+        var mainGameLayers = false
+        treeLayers3 = []
+        for (let x = 0; x < TREE_LAYERS.length; x++) {
+            for (let y = 0; y < TREE_LAYERS[x].length; y++) {
+                if (TREE_LAYERS[x][y] == 'OtherTab small') {
+                    treeLayers3.push(TREE_LAYERS[x])
+                    break
+                }
+                if (TREE_LAYERS[x][y] == 'wood') {
+                    treeLayers3.push([])
+                    for (let z = 0; z < y; z++) {
+                        treeLayers3[treeLayers3.length - 1].push(TREE_LAYERS[x][z])
+                    }
+                    mainGameLayers = true
+                    treeLayers3.push([])
+                }
+                if (mainGameLayers) {
+                    if (TREE_LAYERS[x][y] == '2layer' || TREE_LAYERS[x][y] == 'energy') {
+                        treeLayers3.push([])
+                    }
+                    else if (!layers[TREE_LAYERS[x][y]].innerID) continue
+                    treeLayers3[treeLayers3.length - 1].push(TREE_LAYERS[x][y])
+                }
+            }
+        }
+        treeLayers3[2] = treeLayers3[2].sort((a, b) => (Number(layers[a].innerID) > Number(layers[b].innerID)) ? 1 : -1)
+        TREE_LAYERS = [...treeLayers3]
+    }
     updateHotkeys()
 }
 

@@ -19,6 +19,10 @@
   min-height: 120px;
 }
 
+.nomargin {
+  margin: 0 -7px 0 -7px
+}
+
 .wide480px {
   width: 480px;
 }
@@ -107,9 +111,28 @@
   margin: 5px;
   border: 3px solid;
   border-radius: 5px;
-  transition: 0.4s;
-  transform: translateY(10px);
+  transition-duration: 0.4s;
   cursor: pointer;
+}
+
+.modalConfirm {
+  border: 2px solid white;
+  border-radius:5px; 
+  height: 25px; 
+  position: absolute; 
+  bottom: 10px; 
+  left: 44%; 
+  width: 100px; 
+  font-size:20px; 
+  padding:10px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+}
+
+.modalButton:hover,
+.modalConfirm:hover {
+  transform: scale(1.15, 1.15);
+	box-shadow: 0 0 20px var(--points)
 }
 
 /* 金层级：时钟页面 */
@@ -439,6 +462,87 @@
   display: inline-block;
 }
 
+.text-arlemite {
+  background: linear-gradient(to bottom, #6fbb4e 15%, #daf280 20%, #daf280 25%, #6fbb4e 30%, #9bd459 40%, #9bd459 70%, #6fbb4e 80%, #257c2a 95%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #6fbb4e;
+  display: inline-block;
+}
+
+.text-realmite {
+  background: linear-gradient(to bottom, #bf661d 15%, #fcdd7b 20%, #eead26 25%, #e18c29 40%, #eead26 60%, #e18c29 80%, #bf661b 90%, #7b3301 95%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #e18c29;
+  display: inline-block;
+}
+
+.text-rupee {
+  background: linear-gradient(to bottom, #094f87 15%, #b3f0ef 20%, #339fc6 25%, #3ac4e1 40%, #339fc6 60%, #3ac4e1 80%, #339fc6 90%, #175b90 95%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #3ac4e1;
+  display: inline-block;
+}
+
+.text-shadow_bar {
+  background: linear-gradient(to bottom, #2a2a2a 5%, #4e4e4e 15%, #8e8e8e 25%, #4e4e4e 30%, #666666 40%, #4e4e4e 50%, #666666 60%, #4e4e4e 70%, #666666 80%,#4e4e4e 90%, #2a2a2a 95%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #4e4e4e;
+  display: inline-block;
+}
+
+.text-hellstone {
+  background: linear-gradient(to bottom, #4c1b15 5%, #663421 15%, #a48267 25%, #663421 30%, #7c4d34 40%, #663421 50%, #7c4d34 60%, #663421 70%, #7c4d34 80%,#663421 90%, #4c1b15 95%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #663421;
+  display: inline-block;
+}
+
+.text-chromium {
+  background: linear-gradient(to bottom, #6d5560 5%, #d3bbc6 20%, #7e6671 25%, #d3bbc6 80%, #ebd3de 85%, #6d5560 95%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #d3bbc6;
+  display: inline-block;
+}
+
+.text-manganese {
+  background: linear-gradient(to bottom, #263238 5%, #546e7a 20%, #37474f 25%, #546e7a 30%, #546e7a 80%, #78909c 87%, #263238 94%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #546e7a;
+  display: inline-block;
+}
+
+.text-manganese_steel {
+  background: linear-gradient(to bottom, #263238 5%, #546e7a 20%, #37474f 25%, #546e7a 30%, #697377 55%, #737475 80%, #606060 87%, #424242 94%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #697377;
+  display: inline-block;
+}
+
+.text-stainless_steel {
+  background: linear-gradient(to bottom, #757575 5%, #d4d4d4 15%, #8a8a8a 20%, #c7c7c7 25%, #9e9e9e 90%, #454545 95%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px #c7c7c7;
+  display: inline-block;
+}
+
 .platinum45deg {
   background: linear-gradient(45deg, #62d1f3 0%, #c8fbff 30%, #ffffff 50%, #aae3ff 80%, #476fbe 100%);
 }
@@ -464,19 +568,12 @@
   animation: fieryBg 4s ease-in-out infinite;
 }
 
-.upg.stone.can {
-  color: white
-}
-
-.upg.obsidian.can {
-  color: white
-}
-
-.upg.vis_crystal.can {
-  color: white
-}
-
-.upg.fiery.can {
+.upg.stone.can,
+.upg.obsidian.can,
+.upg.vis_crystal.can,
+.upg.fiery.can,
+.upg.shadow_bar.can,
+.upg.hellstone.can {
   color: white
 }
 
@@ -491,12 +588,25 @@
   min-height: 150px;
   width: 200px;
   border-radius: 5px;
+  margin-left: -7px;
+  margin-right: -7px;
 }
 
 .attackClickables {
   min-height: 150px;
   width: 200px;
   border-radius: 5px;
+  margin-left: -7px;
+  margin-right: -7px;
+}
+
+.battlestatusClickables {
+  min-height: 50px;
+  width: 100px;
+  border-radius: 5px;
+  font-size: 20px;
+  margin-left: -7px;
+  margin-right: -7px;
 }
 
 @keyframes rainbowText {
@@ -570,6 +680,24 @@
   color: #ffeeee;
 }
 
+.skillTree {
+  min-height: 100px;
+  width: 200px;
+  border-radius: 0;
+  border-width: 2px;
+}
+
+.skillTree.can {
+  border-color: white;
+  box-shadow: red 0 0 20px;
+}
+
+.skillTree.hellstone.bought {
+  background-color: #663421;
+  border-color: #77bf5f;
+  color: white;
+}
+
 /* 在左下角添加序列ID */
 .achievement::after {
   content: attr(data-id); /* 从data-id属性读取ID */
@@ -595,11 +723,36 @@
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
 }
 
+.treeNode::after {
+  content: attr(unlockInnerID); /* 从data-id属性读取ID */
+  position: absolute;
+  right: 4px;
+
+  
+  /* 文字样式 */
+  color: rgba(0, 0, 0, 0.01);
+  font-size: 25px; /* 小字体，不喧宾夺主 */
+  font-weight: 600;
+  text-align: right;
+  
+  /* 内边距和形状 */
+  padding: 2px 6px;
+  border-radius: 3px;
+  line-height: 1;
+  
+  /* 确保在最上层但又不干扰交互 */
+  z-index: 0;
+  
+  /* 轻微阴影提升可读性 */
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+}
+
 .star4_1,
 .star4_2,
 .star4_3,
 .star4_4,
-.star4_5 {
+.star4_5,
+.star4_6 {
 	position: relative;
 	display: inline-block;
 	width: 30px;
@@ -631,6 +784,10 @@
   background-color: orange;
 }
 
+.star4_6 {
+  background-color: #ff310c;
+}
+
 .star4_1::after {
   content: '1';
 }
@@ -649,4 +806,8 @@
 
 .star4_5::after {
   content: '5';
+}
+
+.star4_6::after {
+  content: '6';
 }

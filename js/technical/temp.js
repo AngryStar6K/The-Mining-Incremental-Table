@@ -121,22 +121,27 @@ function updateTemp() {
 	}
 }
 
-const temp_resources_layer_part1 = ['copper', 'tin', 'bronze', 'iron',
+const layer_pause_1 = ['copper', 'tin', 'bronze', 'iron',
     'nickel', 'aluminum', 'lead', 'constantan', 'invar', 'alumbrass', 'zinc', 'brass', 'steel', 'silver', 'gold', 'electrum', 'redstone', 'red_ele',
     'platinum', 'diamond', 'obsidian', 'emerald', 'experience', 'signalum', 'manasteel', 'terrasteel', 'elementium', 'alfsteel', 'twilight_gem', 'ironwood',
     'naga_scale', 'steeleaf', 'knight_metal', 'fracturite', 'fiery', 'carminite', 'soularium', 'quartz', 'glowstone', 'lumium', 'glowing_signalum']
 
+const resourceSet1 = new Set(layer_pause_1);
+const traversableSet = new Set(traversableClasses);
+
 function updateTempData(layerData, tmpData, funcsData, useThis) {
 	for (item in funcsData){
-		if (temp_resources_layer_part1.includes(item) && firstTickCheck && player.layer_select.layerPaused[1]) continue; // Skip resource calculations to improve performance
-		if (Array.isArray(layerData[item])) {
+		if (resourceSet1.has(item) && firstTickCheck && player.layer_select.layerPaused[1] && layerData.layer_select/* && player.tab != item*/) continue; // Skip resource calculations to improve performance
+		const val = layerData[item]
+		const type = typeof val
+		if (Array.isArray(val)) {
 			if (item !== "tabFormat" && item !== "content") // These are only updated when needed
 				updateTempData(layerData[item], tmpData[item], funcsData[item], useThis)
 		}
-		else if ((!!layerData[item]) && (layerData[item].constructor === Object) || (typeof layerData[item] === "object") && traversableClasses.includes(layerData[item].constructor.name)){
+		else if ((!!layerData[item]) && (layerData[item].constructor === Object) || (type === "object") && traversableClasses.includes(layerData[item].constructor.name)){
 			updateTempData(layerData[item], tmpData[item], funcsData[item], useThis)
 		}
-		else if (isFunction(layerData[item]) && !isFunction(tmpData[item])){
+		else if (isFunction(val) && !isFunction(tmpData[item])){
 			let value
 
 			if (useThis !== undefined) value = layerData[item].bind(useThis)()

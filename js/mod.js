@@ -20,7 +20,7 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.10",
+	num: "0.11 beta test",
 	name: "",
 }
 
@@ -28,6 +28,19 @@ function changelog() {
 	return (options.ch || modInfo.languageMod == false) ? `
 		<br><br><br><h1>更新日志:</h1><br>(含有<span style='color: red'>剧透</span>，请谨慎查看)<br><br>
 		<span style="font-size: 17px;">
+				<br><br>
+			<h3>v0.11 - 以身入局</h3><br>
+				- 版本终点：获得1不锈钢锭，F1.0e30,500,000经验<br>
+				- 成就总数：178 + 13<br>
+				- 添加世界1层级：碧铁、领域石、蓝银、阴影、铬、锰、锰钢<br>
+				- 添加世界4层级：罪恶<br>
+				- 添加世界6层级：不锈钢<br>
+				- 你现在可以按T键隐藏层级界面<br>
+				- 层级界面的层级现在会显示其解锁顺位<br>
+				- 你可以选择以解锁顺位排序层级<br>
+				- 允许使用自定义背景图，输入图片URL即可使用<br>
+				- 层级暂停现在对所有人开放！<br>
+				- 不同的滚动新闻数量：188<br>
 				<br><br>
 			<h3>v0.10 - 末影的流动</h3><br>
 				- 版本终点：解锁末影钢层级，F1.7976e308经验<br>
@@ -255,6 +268,7 @@ function addedPlayerData() {
 		offTime: { remain: 0 },
 		lastTimePlayed: Date.now(),
 		gameSpeed: 1,
+		devSpeed: 1, //?!!?
 		level: d(0),
 		tiers: [d(0), d(0)],
 		omegaTier: d(0),
@@ -279,6 +293,8 @@ function addedPlayerData() {
 		TPSwarn: false,
 		resourcePinned: [],
 		layerHidden: [],
+		breakReality: false, //超越Fe308
+		focusLayer: "",
 	}
 }
 
@@ -337,6 +353,7 @@ function displayThingsRes() {
 		d += player.sing_fus.availableSingularityText
 	}
 	d += '<br>' + getTpsDisplay()
+	if (player.navTab == 'none') d += `<br>提示：你当前隐藏了层级列表，按T键重新显示`
 	if (player.offTime.remain < 0) d += `<br>警告：玩家貌似使用了时光机回到了过去，因此游戏速度强制为0x。请关闭游戏并等待到${timestampToTime(Date.now() - player.offTime.remain * 1000)}。`
 	d = '<div class="res">' + d + '</div>'
 	r += d
@@ -346,7 +363,7 @@ function displayThingsRes() {
 
 // Determines when the game "ends"
 function isEndgame() {
-	return hasNormalAchievement(245) && player.points.gte('10^^1.7976e308')
+	return player.stainless_steel.points.gte(1)
 }
 
 var date = {
@@ -425,7 +442,7 @@ function getLevelDisplay() {
 	}
 	//hardcaps display
 	if (player.points.gte('e1.7976e308') && player.experience.crystal.lte(0)) a += `<br><br><span class="overlayThing">我不会让你走得更远了</span>`
-	if (player.points.gte('10^^1.7976e308')) a += `<br><br><span class="overlayThing">我不会让你走得更远了，这是第二次</span>`
+	if (player.points.gte('10^^1.7976e308') && !player.breakReality) a += `<br><br><span class="overlayThing">我不会让你走得更远了，这是第二次</span>`
 	return a
 }
 
@@ -435,13 +452,13 @@ function getPointsOompsDisplay() {
 	let mag = tmp.other.oompsMag
 	let operator = mag.operator
 	let HO = mag.highestOperator
-	if (HO < 1) return formatSmall(getPointGen()) + '/sec'
-	if (HO == 1) return format(oom) + " OoM" + (operator[0][1].gt(1) ? "^" + operator[0][1] : "") + "s/sec"
+	if (HO < 1) return format(getPointGen()) + '/sec'
+	if (HO == 1) return f(oom) + " OoM" + (operator[0][1].gt(1) ? "^" + operator[0][1] : "") + "s/sec"
 	else if (HO == 2) {
-		if (operator[0][1].eq(0) || operator[1][1].gt(10)) return format(oom) + " OoM^^" + (operator[1][1].add(1)) + "s/sec"
+		if (operator[0][1].eq(0) || operator[1][1].gt(10)) return f(oom) + " OoM^^" + (operator[1][1].add(1)) + "s/sec"
 		else {
 			if (operator[1][1].eq(1)) return format(oom) + " OoM^(OoM+" + operator[0][1] + ")s/sec"
-			else return format(oom) + " (OoM^)^" + (operator[1][1]) + ' ' + (operator[0][1].gt(0) ? "(OoM+" + (operator[0][1]) + ")" : "OoM") + "s/sec"
+			else return f(oom) + " (OoM^)^" + (operator[1][1]) + ' ' + (operator[0][1].gt(0) ? "(OoM+" + (operator[0][1]) + ")" : "OoM") + "s/sec"
 		}
 	}
 	//return ((tmp.other.oompsMag != 0 ? format(tmp.other.oomps) + " OoM" + (tmp.other.oompsMag < 0 ? "^^2" : tmp.other.oompsMag > 1 ? "^" + tmp.other.oompsMag : "") + "s" : formatSmall(getPointGen())) + '/sec')
@@ -541,7 +558,7 @@ function isUpgradeCovered(layer, id) {
 
 
 
-// from QwQe308，并做ExpantaNum适配，并移除已有的同样功能function
+// from QwQe308，并做ExpantaNum适配且拓展，并移除已有的同样功能function
 //快捷调用+提高运算速度
 var zero = new ExpantaNum(0)
 var one = new ExpantaNum(1)
@@ -554,6 +571,11 @@ var seven = new ExpantaNum(7)
 var eight = new ExpantaNum(8)
 var nine = new ExpantaNum(9)
 var ten = new ExpantaNum(10)
+var hundred = new ExpantaNum(100)
+var thousand = new ExpantaNum(1000)
+var million = new ExpantaNum(1e6)
+var billion = new ExpantaNum(1e9)
+var trillion = new ExpantaNum(1e12)
 //检测旁边的升级是否被购买
 function checkAroundUpg(UPGlayer, place) {
 	place = Number(place)
@@ -854,23 +876,33 @@ function updateTmpRes(diff) {
 		updateResourceOoMps(lumium, 'laser2', diff)
 	}
 	if (hasUpgrade(torridite, 12)) {
-		if (!tmpres.torridite) tmpres.torridite = { core: player.torridite.core }
+		if (!tmpres.torridite) tmpres.torridite = {
+			core: player.torridite.core,
+			refined: player.torridite.refined
+		}
 		updateResourceOoMps(torridite, 'core', diff)
 	}
 	if (hasCraftingItem(702)) {
-		if (!tmpres.torridite) tmpres.torridite = { core: player.torridite.core }
+		if (!tmpres.torridite) tmpres.torridite = {
+			core: player.torridite.core,
+			refined: player.torridite.refined
+		}
 		updateResourceOoMps(torridite, 'refined', diff)
 	}
 }
 
 function updateResourceOoMps(layer, res, diff) {
-	tmpres[layer + ' ' + res + ' mag'] = 0
+	tmpres[layer + ' ' + res + ' mag'] = {
+		operator: [[1, ExpantaNumZero], [2, ExpantaNumZero], [3, ExpantaNumZero], [4, ExpantaNumZero], [5, ExpantaNumZero], [6, ExpantaNumZero], [7, ExpantaNumZero], [8, ExpantaNumZero]],
+		highestOperator: 0,
+		expansion: 0
+	}
 	if (!tmpres[layer]) return;
 	else if (!tmpres[layer][res]) return;
 	else {
 		var lp = tmpres[layer][res] || new ExpantaNum(0)
 		var pp = player[layer][res]
-		if (pp.gt(lp)) {
+		/*if (pp.gt(lp)) {
 			if (pp.gte("10^^10")) {
 				pp = pp.slog(1e10)
 				lp = lp.slog(1e10)
@@ -884,6 +916,43 @@ function updateResourceOoMps(layer, res, diff) {
 					tmpres[layer + ' ' + res + ' mag']++;
 				}
 			}
+		}*/
+		if (pp.gt(lp)) {
+			if (pp.gte("10^^100")) {
+				var tetrationtower = plog(lp).sub(1.1142873094756345).floor()
+				var pentld = tetrationtower.neg()
+				var ppoomt2 = pentlayeradd(pp, pentld)
+				var lpoomt2 = pentlayeradd(lp, pentld)
+				var oomt2ps = ppoomt2.sub(lpoomt2).div(diff)
+				tmpres[layer + ' ' + res] = oomt2ps
+				if (lpoomt2.gte('e100') && tetrationtower.lte(10)) {
+					var powertower = lpoomt2.slog(10).sub(1.3010299956639813).floor()
+					var ld = powertower.neg()
+					var oomps = ppoomt2.layeradd(ld).sub(lpoomt2.layeradd(ld)).div(diff)
+					if (oomps.lt(1) && powertower.neq(0)) {
+						oomps = ppoomt2.layeradd(ld.add(1)).sub(lpoomt2.layeradd(ld.add(1))).div(diff)
+						powertower = powertower.sub(1)
+					}
+					tmpres[layer + ' ' + res] = oomps
+					tmpres[layer + ' ' + res + ' mag'].operator[0][1] = powertower
+				}
+				tmpres[layer + ' ' + res + ' mag'].operator[1][1] = tetrationtower
+				tmpres[layer + ' ' + res + ' mag'].highestOperator = 2
+			} else if (lp.gte('e100')) {
+				var powertower = lp.slog(10).sub(1.3010299956639813).floor()
+				var ld = powertower.neg()
+				var oomps = pp.layeradd(ld).sub(lp.layeradd(ld)).div(diff)
+				if (oomps.lt(10) && powertower.gte(2)) {
+					tmpres[layer + ' ' + res] = pp.layeradd(ld.add(1)).sub(lp.layeradd(ld.add(1))).div(diff)
+					tmpres[layer + ' ' + res + ' mag'].operator[0][1] = powertower.sub(1)
+					tmpres[layer + ' ' + res + ' mag'].highestOperator = 1
+				}
+				else if (oomps.gte(10)) {
+					tmpres[layer + ' ' + res] = oomps
+					tmpres[layer + ' ' + res + ' mag'].operator[0][1] = powertower
+					tmpres[layer + ' ' + res + ' mag'].highestOperator = 1
+				}
+			}
 		}
 		tmpres[layer][res] = player[layer][res]
 	}
@@ -891,11 +960,24 @@ function updateResourceOoMps(layer, res, diff) {
 
 function getOoMpsText(layer, res) {
 	if (!tmpres[layer]) return;
-	let resOomps = tmpres[layer + ' ' + res] || new ExpantaNum(0)
+	let oom = tmpres[layer + ' ' + res] || new ExpantaNum(0)
+	let mag = tmpres[layer + ' ' + res + ' mag']
+	let operator = mag.operator
+	let HO = mag.highestOperator
+	if (HO < 1) return f(getPointGen())
+	if (HO == 1) return f(oom) + " OoM" + (operator[0][1].gt(1) ? "^" + operator[0][1] : "") + "s"
+	else if (HO == 2) {
+		if (operator[0][1].eq(0) || operator[1][1].gt(10)) return f(oom) + " OoM^^" + (operator[1][1].add(1)) + "s"
+		else {
+			if (operator[1][1].eq(1)) return format(oom) + " OoM^(OoM+" + operator[0][1] + ")s"
+			else return f(oom) + " (OoM^)^" + (operator[1][1]) + ' ' + (operator[0][1].gt(0) ? "(OoM+" + (operator[0][1]) + ")" : "OoM") + "s"
+		}
+	}
+	/*let resOomps = tmpres[layer + ' ' + res] || new ExpantaNum(0)
 	let resOompsMag = tmpres[layer + ' ' + res + ' mag'] || 0
 	if (tmpres[layer][res] == 0) return
 	t = (format(resOomps) + " OoM" + (resOompsMag < 0 ? "^^2" : resOompsMag > 1 ? "^" + resOompsMag : "") + "s")
-	return t
+	return t*/
 }
 
 const Decimal = ExpantaNum
@@ -912,7 +994,50 @@ function achievementIDorder(id) {
 	return row * 7 + col
 }
 
+function getLayerInnerID(layer) {
+	if (!tmp[layer].innerID) return
+	return '#' + tmp[layer].innerID
+}
+
 function getMarkClass(marked) {
 	if (marked === true) return 'star'
 	else return marked
+}
+
+function checkExpantaNumFuncsPerformance(repeats, funcName, p1, p2, p3) {
+	let start = performance.now()
+	let func = ExpantaNum[funcName]
+	let testNum = d(0)
+	for (let i = 0; i < repeats; i++) {
+		testNum = func(p1, p2, p3)
+	}
+	let end = performance.now()
+	console.log("执行" + funcName + " " + repeats + "次耗时: " + (end - start) + "ms, 最后一次结果: " + f(testNum))
+}
+
+function countExpantaNum(obj, path = 'player', result = { count: 0, locations: [] }, showAmount = true, showLocations = false) {
+	function counting(obj, path, result = { count: 0, locations: [] }) {
+		if (obj === null || obj === undefined) return result;
+
+		// 如果当前值就是 ExpantaNum 实例
+		if (obj instanceof ExpantaNum) {
+			result.count++;
+			result.locations.push(path);
+			return result; // 不再继续遍历 ExpantaNum 内部（因为内部是数组，不是 ExpantaNum）
+		}
+
+		// 如果是数组或对象，递归遍历
+		if (Array.isArray(obj) || (typeof obj === 'object' && obj.constructor === Object)) {
+			for (const key in obj) {
+				if (obj.hasOwnProperty(key)) {
+					counting(obj[key], `${path}.${key}`, result);
+				}
+			}
+		}
+		return result;
+	}
+	result = counting(obj, path, result);
+	// 其他类型（字符串、数字、布尔等）忽略
+	if (showAmount) console.log(`总共发现 ${result.count} 个 ExpantaNum 实例`)
+	if (showLocations) console.log(`位置列表: ${result.locations}`)
 }

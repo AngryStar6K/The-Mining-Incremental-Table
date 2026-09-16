@@ -21,7 +21,7 @@ var texts =
         "不可思议 adj. incredible, num. ten vigintillion",
         "200 400 800 1000 2000 4000 8000 <span style=\"color:#00ff00\">1UP 1UP 1UP</span>",
         "你当前不在反物质宇宙中。", //20
-        "ExpantaNum.js: 我可以表示10{{1}}9e15！我是最大的！     PowiainaNum.js: 你好，我可以表示{10, 9e15, 1, 1, 1, 2}",
+        "ExpantaNum.js: 我可以表示10{{1}}9e15！我是最大的！     PowiainaNum.js: 你好，我可以表示{10, 9e15, 1, 1, 1, 2}     MetaNum.js：你们都不行，我可以表示{10, 9e15[1\\2]2}",
         `路易吉什么都没做就取得了胜利。这就是“路易不动定律”`,
         "5小时后更新，但是你在EC12里",
         "合金机制是被简化了的，不然完全可以将3铜锭熔融为432mB的熔融铜再将1锡锭熔融为144mB的熔融锡，然后合金为576mB熔融青铜，最后通过浇筑在锭铸模上凝固为4青铜锭。没错这是匠魂2",
@@ -76,7 +76,7 @@ var texts =
         "<a href=\"https://angrystar6k.github.io/The-Mario-Maker-2-Tree\" target=\"_blank\" style=\"color:#0080ff;text-decoration:underline\" onclick=\"; window.open(this.href, '_blank'); return false;\">点此</a>游玩作者的另一个增量游戏作品：The Mario Maker 2 Tree",
         "如果你第一次在存储够1小时的离线时间后打开100x游戏速度会有惊喜",
         "挖矿增量页暂无QQ群，但是有模组页QQ群，可以去信息页面找到",
-        "经验到F1.0000e309后才能发挥ExpantaNum.js的价值，虽然还很远，但是迟早会到的（v0.8加入，到了后会修改）",
+        "经验到F1.0000e309后才能发挥ExpantaNum.js的价值，不然从v0.11开始就做不下去了",
         "超大Spike",
         "你说得对，但是《挖矿增量》是由AngryStar6K制作的一款增量模组页游戏，使用Shinwmyste制作的模组页模板v3.0.10.0，并作了些许魔改。游戏发生在一个被称作「挖矿宇宙」的幻想世界，在这里，被创世之神选中的人将被给予「增量之力」，在挖矿宇宙中推进科技、魔法以及冒险进度，遇到各种见过和没见过的材料，获得指数膨胀甚至超过指数塔膨胀的资源——同时，逐步发掘「挖矿」的真相",
         "1.00000000L10经验怎么样，够多吗？ExpantaNum.js吃不下了",
@@ -135,7 +135,7 @@ var texts =
         "meow meow lol",
         "current_news_content = current_news_content.replace(/滚木/g, \"\")",
         "AAAAUUUUUUGGGGGGGHHHHHHHH!!!!",
-        function () { return "才" + fw(player.points) + "经验，太小了吧！" },
+        function () { return "才" + f(player.points) + "经验，太小了吧！" },
         function () { return "现在是" + new Date },
         function () { let r = Math.ceil(Math.random() * 10); return "你掷出了一个骰子，掷出了" + fw(r) + "点" + (r > 6 ? "&emsp;&emsp;诶？怎么还能比6还大的？但是马里奥派对的骰子是这样的，哦对，是我忘了说了这是马里奥派对" : "") },
         "能全程使用标准记数法通关挖矿增量的也是神人了",
@@ -168,16 +168,30 @@ var texts =
         "手速！啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊！！！！",
         "/gamemode creative",
         "星能液的流动速度好快啊",
-        "挖矿增量征集优化版本的ExpantaNum.js，以解决电竞帧率的问题",
+        "挖矿增量征集优化版本的ExpantaNum.js和其他的优化方案，以解决电竞帧率的问题，拯救TPS！",
         "泰拉常数：591,601,503",
         "按[W]开始思索",
         "暴击率+4%",
         "(`O`) ？！强强！？",
         "临时新闻：如果你想为挖矿增量页添加英语，请使用github issue联系作者/Temporary news: If you want to add English to TMIT, use github issue to contact me",
         "天空中正在下巨石雨！",
-        "<span style=\"color:red\">[Player name]的内脏变成了“外脏”，凶手是巨石</span>"
-
+        "<span style=\"color:red\">[Player name]的内脏变成了“外脏”，凶手是巨石</span>",
+        "<span style=\"color:#31b282\">MINI I-5 SPIN</span> PENTA &emsp;&emsp; ASC-DX真牛逼吧！",
+        "事故通报：有玩家在游玩机械动力：航空学mod时不慎将物理化后的末地主岛开进了虚空，导致这个世界无龙可打，请各位在物理化前做好保护措施，避免发生类似事故",
+        "由于整合包太坐牢，某玩家掏出了红扳手",
+        "six seveeeeeeen",
+        "卡死了卡死了我的TPS啊啊啊啊😭😭😭😭😭卡死了卡死了我的TPS啊啊啊啊😭😭😭😭😭卡死了卡死了我的TPS啊啊啊啊😭😭😭😭😭", //180
+        "小心拜谢入侵挖矿增量页",
+        "挖矿增量的矿工们，这里有一则通知：有一位矿工在下界挖掘泰伯利亚矿石的时候没做好随时发生爆炸的防护措施导致其被炸死，并且与背包里的泰伯利亚矿石和泰伯利亚锭发生连锁反应，导致其重生后失去了所有泰伯利亚矿石和泰伯利亚锭。安全第一！",
+        "如果你觉得打败末影龙就通关了挖矿增量，那你还是想太多了，还早着呢！",
+        "挖矿增量如果有自动机be like: auto smelt silver; auto alloy electrum; fuel change blazing_pyrotheum",
+        "挖矿增量必将做出全118化学元素的对应层级（顺利的话）",
+        "garbagewindup_4.ogg",
+        "增量千万条，导出第一条，存档不规范，丢档两行泪。",
+        "不仅第九维度不存在，九维方盒也是不存在的！",
+        
     ]
+const updatingNewsID = [134]
 var nt = ""
 var ntl = 0
 var p = 50 + document.body.clientWidth
@@ -197,6 +211,7 @@ var l = -50
 }, 50)*/
 var lastTime = performance.now();
 var invl = 50; // 目标间隔时间（毫秒）
+var newsChosen = 0
 
 function updateNews() {
     var currentTime = performance.now();
@@ -205,21 +220,19 @@ function updateNews() {
     if (deltaTime >= invl) {
         lastTime = currentTime - (deltaTime % invl); // 修正时间偏差
 
-        if (player && newsText) {
+        if (player && window.newsText) {
             if (player.tab == 'info-tab' || player.tab == 'changelog-tab' || player.tab == 'options-tab') return;
             p -= 7.5;
             if (p <= l || nt == "") {
                 let chosen = Math.floor(Math.random() * texts.length)
+                newsChosen = chosen
                 nt = (typeof texts[chosen] === 'function' ? texts[chosen]() : texts[chosen]);
                 newsText.style.width = (newsText.innerText.length * 16).toString() + "px";
                 l = -50 - (nt.length * 16);
                 p = 50 + document.body.clientWidth;
             }
+            if (updatingNewsID.includes(newsChosen)) nt = texts[newsChosen]();
             ntl = p.toFixed(1);
         }
     }
-
-    requestAnimationFrame(updateNews);
 }
-
-requestAnimationFrame(updateNews);

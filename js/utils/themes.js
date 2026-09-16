@@ -1,6 +1,6 @@
 // ************ Themes ************
-var themes = ["default", "aqua", "emerald", "castle", "galaxy", "athletic", "wonderful", "ocean"];
-var themesZH = ["默认", "水蓝", "绿宝石", "城堡", "星辰", "天空", "惊奇", "海洋"];
+var themes = ["default", "aqua", "emerald", "castle", "galaxy", "athletic", "wonderful", "white"/*, "ocean"*/];
+var themesZH = ["默认", "水蓝", "绿宝石", "城堡", "星辰", "天空", "惊奇", "白色"];
 
 var colors = {
 	button: {
@@ -79,7 +79,17 @@ var colors = {
 		background: "#ff8bf5",
 		background_tooltip: "rgba(220, 235, 255, 0.75)",
 	},
-	ocean: {
+	white: {
+		1: "#202020",
+		2: "#202020",
+		3: "#404040",
+		color: "#202020",
+		points: "#202020",
+		locked: "#bf8f8f",
+		background: "#ffffff",
+		background_tooltip: "rgba(220, 235, 255, 0.75)",
+	},
+	/*ocean: {
 		1: "#bfdfff",
 		2: "#8fa7bf",
 		3: "#5f6f7f",
@@ -88,7 +98,7 @@ var colors = {
 		locked: "#c4a7b3",
 		background: "linear-gradient(to bottom, #1a6fc9 0%, #0d47a1 50%, #002171 100%)",
 		background_tooltip: "rgba(220, 235, 255, 0.75)",
-	},
+	},*/
 }
 
 function changeTheme() {

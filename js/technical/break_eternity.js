@@ -155,122 +155,122 @@
     // 检查 other 是否具有 ExpantaNum 的核心特征
     var otherIsExpNum = false;
     var otherObj;
-    
+
     if (other && typeof other === 'object') {
-        // 快速检查：是否有 array 和 sign 属性（ExpantaNum 的核心特征）
-        if (other.array && other.sign !== undefined && other.layer !== undefined) {
-            otherIsExpNum = true;
-            otherObj = other;
-        }
+      // 快速检查：是否有 array 和 sign 属性（ExpantaNum 的核心特征）
+      if (other.array && other.sign !== undefined && other.layer !== undefined) {
+        otherIsExpNum = true;
+        otherObj = other;
+      }
     }
-    
+
     // ===== 2. 缓存 this 属性 =====
     var thisArr = this.array;
     var thisSign = this.sign;
     var thisLayer = this.layer;
     var thisArrLen = thisArr.length;
-    
+
     // ===== 3. 处理 other =====
     var otherArr, otherSign, otherLayer, otherArrLen;
-    
+
     if (otherIsExpNum) {
-        // 已经是类 ExpantaNum 对象，直接使用
+      // 已经是类 ExpantaNum 对象，直接使用
+      otherArr = otherObj.array;
+      otherSign = otherObj.sign;
+      otherLayer = otherObj.layer;
+      otherArrLen = otherArr.length;
+    } else {
+      // 需要转换，但尽量减少 new ExpantaNum 的调用
+      // 先尝试更轻量的检查
+      if (typeof other === 'number' || typeof other === 'string') {
+        // 对于数字或字符串，可以延迟转换
+        otherObj = new ExpantaNum(other);
         otherArr = otherObj.array;
         otherSign = otherObj.sign;
         otherLayer = otherObj.layer;
         otherArrLen = otherArr.length;
-    } else {
-        // 需要转换，但尽量减少 new ExpantaNum 的调用
-        // 先尝试更轻量的检查
-        if (typeof other === 'number' || typeof other === 'string') {
-            // 对于数字或字符串，可以延迟转换
-            otherObj = new ExpantaNum(other);
-            otherArr = otherObj.array;
-            otherSign = otherObj.sign;
-            otherLayer = otherObj.layer;
-            otherArrLen = otherArr.length;
-        } else {
-            // 其他类型，必须转换
-            otherObj = new ExpantaNum(other);
-            otherArr = otherObj.array;
-            otherSign = otherObj.sign;
-            otherLayer = otherObj.layer;
-            otherArrLen = otherArr.length;
-        }
+      } else {
+        // 其他类型，必须转换
+        otherObj = new ExpantaNum(other);
+        otherArr = otherObj.array;
+        otherSign = otherObj.sign;
+        otherLayer = otherObj.layer;
+        otherArrLen = otherArr.length;
+      }
     }
-    
+
     // ===== 4. 特殊值处理（保持原有逻辑但使用缓存）=====
     var thisMag = thisArr[0][1];
     var otherMag = otherArr[0][1];
-    
+
     if (isNaN(thisMag) || isNaN(otherMag)) return NaN;
-    
+
     var thisInf = thisMag === Infinity;
     var otherInf = otherMag === Infinity;
     if (thisInf || otherInf) {
-        if (thisInf && otherInf) return 0;
-        return thisInf ? thisSign : -otherSign;
+      if (thisInf && otherInf) return 0;
+      return thisInf ? thisSign : -otherSign;
     }
-    
+
     // ===== 5. 零值快速判断 =====
     if (thisSign === 1 && otherSign === 1 && thisLayer === 0 && otherLayer === 0) {
-        if (thisArrLen === 1 && thisMag === 0 && otherArrLen === 1 && otherMag === 0) {
-            return 0;
-        }
+      if (thisArrLen === 1 && thisMag === 0 && otherArrLen === 1 && otherMag === 0) {
+        return 0;
+      }
     }
-    
+
     // ===== 6. 符号比较 =====
     if (thisSign !== otherSign) {
-        return thisSign > otherSign ? 1 : -1;
+      return thisSign > otherSign ? 1 : -1;
     }
     var multiplier = thisSign;
-    
+
     // ===== 7. 层级比较 =====
     if (thisLayer !== otherLayer) {
-        return (thisLayer > otherLayer ? 1 : -1) * multiplier;
+      return (thisLayer > otherLayer ? 1 : -1) * multiplier;
     }
-    
+
     // ===== 8. 核心数组比较（保持原有优化）=====
     var r;
     var minLen = thisArrLen < otherArrLen ? thisArrLen : otherArrLen;
-    
+
     for (var i = 1; i <= minLen; ++i) {
-        var thisElem = thisArr[thisArrLen - i];
-        var otherElem = otherArr[otherArrLen - i];
-        
-        var thisExp = thisElem[0];
-        var otherExp = otherElem[0];
-        
-        if (thisExp !== otherExp) {
-            r = thisExp > otherExp ? 1 : -1;
-            break;
-        }
-        
-        var thisCoeff = thisElem[1];
-        var otherCoeff = otherElem[1];
-        if (thisCoeff !== otherCoeff) {
-            r = thisCoeff > otherCoeff ? 1 : -1;
-            break;
-        }
+      var thisElem = thisArr[thisArrLen - i];
+      var otherElem = otherArr[otherArrLen - i];
+
+      var thisExp = thisElem[0];
+      var otherExp = otherElem[0];
+
+      if (thisExp !== otherExp) {
+        r = thisExp > otherExp ? 1 : -1;
+        break;
+      }
+
+      var thisCoeff = thisElem[1];
+      var otherCoeff = otherElem[1];
+      if (thisCoeff !== otherCoeff) {
+        r = thisCoeff > otherCoeff ? 1 : -1;
+        break;
+      }
     }
-    
+
     // ===== 9. 处理未决情况 =====
     if (r === undefined) {
-        if (thisArrLen === otherArrLen) {
-            r = 0;
+      if (thisArrLen === otherArrLen) {
+        r = 0;
+      } else {
+        var longerArr = thisArrLen > otherArrLen ? thisArr : otherArr;
+        var extraElem = longerArr[longerArr.length - minLen - 1];
+        if (extraElem[0] >= 1 || extraElem[1] > 10) {
+          r = (thisArrLen > otherArrLen) ? 1 : -1;
         } else {
-            var longerArr = thisArrLen > otherArrLen ? thisArr : otherArr;
-            var extraElem = longerArr[longerArr.length - minLen - 1];
-            if (extraElem[0] >= 1 || extraElem[1] > 10) {
-                r = (thisArrLen > otherArrLen) ? 1 : -1;
-            } else {
-                r = (thisArrLen > otherArrLen) ? -1 : 1;
-            }
+          r = (thisArrLen > otherArrLen) ? -1 : 1;
         }
+      }
     }
-    
+
     return r * multiplier;
-};
+  };
   /*P.compareTo=P.cmp=function (other){
     if (!(other instanceof ExpantaNum)) other=new ExpantaNum(other);
     if (isNaN(this.array[0][1])||isNaN(other.array[0][1])) return NaN;
@@ -426,6 +426,14 @@
   };
   Q.round = function (x) {
     return new ExpantaNum(x).round();
+  };
+  P.nonNegative = function () {
+    // 如果当前值为负数，返回 0；否则克隆自身
+    return this.sign === -1 ? ExpantaNum.ZERO.clone() : this.clone();
+  };
+
+  Q.nonNegative = function (x) {
+    return new ExpantaNum(x).nonNegative();
   };
   // ===== 1. 使用函数获取常量，避免初始化顺序问题 =====
   function getConst(name) {
@@ -1170,6 +1178,30 @@
   Q.hexate = Q.hex = function (x, y) {
     return ExpantaNum.arrow(x, 4, y);
   };
+  P.heptate = P.hept = function (other) {
+    return this.arrow(5)(other);
+  };
+  Q.heptate = Q.hept = function (x, y) {
+    return ExpantaNum.arrow(x, 5, y);
+  };
+  P.octate = P.oct = function (other) {
+    return this.arrow(6)(other);
+  };
+  Q.octate = Q.oct = function (x, y) {
+    return ExpantaNum.arrow(x, 6, y);
+  };
+  P.enneate = P.enne = function (other) {
+    return this.arrow(7)(other);
+  };
+  Q.enneate = Q.enne = function (x, y) {
+    return ExpantaNum.arrow(x, 7, y);
+  };
+  P.decate = P.dec = function (other) {
+    return this.arrow(8)(other);
+  };
+  Q.decate = Q.dec = function (x, y) {
+    return ExpantaNum.arrow(x, 8, y);
+  };
   //Uses linear approximations for real height
   P.arrow = function (arrows) {
     var t = this.clone();
@@ -1342,7 +1374,7 @@
     return ExpantaNum.choose(this, other);
   };
   //end break_eternity.js excerpt
-  P.standardize = function () {
+  P.normalize = function () {
     var b;
     var x = this;
     if (ExpantaNum.debug >= ExpantaNum.ALL) console.log(x.toString());
@@ -1449,9 +1481,9 @@
           if (x.array[0][0] === 0) {
             x.array[0][1] = x.array[i][1] + 1;
           } else {
-            x.splice(0, 0, [0, x.array[i][1] + 1]);
+            x.array.splice(0, 0, [0, x.array[i][1] + 1]);
           }
-          x.splice(1, i);
+          x.array.splice(1, i);
           b = true;
         }
       }
@@ -1459,6 +1491,11 @@
     if (!x.array.length) x.array = [[0, 0]];
     return x;
   };
+  var standardizeMessageSent = false;
+  P.standardize = function () {
+    if (!standardizeMessageSent) console.warn(expantaNumError + "'standardize' method is being deprecated in favor of 'normalize' and will be removed in the future!"), standardizeMessageSent = true;
+    return this.normalize();
+  }
   P.toNumber = function () {
     //console.log(this.array);
     if (this.sign == -1) return -1 * this.abs();
@@ -1592,10 +1629,17 @@
   };
   Q.fromNumber = function (input) {
     if (typeof input != "number") throw Error(invalidArgument + "Expected Number");
-    var x = new ExpantaNum();
-    x.array[0][1] = Math.abs(input);
+    var x = Object.create(ExpantaNum.prototype);
+    x.layer = 0;
+    x.array = [[0, 0]];
+    var a = Math.abs(input);
+    if (a > MAX_SAFE_INTEGER) {
+      x.array[0][1] = Math.log10(a);
+      x.array.push([1, 1]);
+    }
+    else x.array[0][1] = Math.abs(input);
     x.sign = input < 0 ? -1 : 1;
-    x.standardize();
+    //x.standardize();
     return x;
   };
   Q.fromString = function (input) {
@@ -1891,6 +1935,21 @@
     else this.setOperator(i, value);
   };
   P.clone = function () {
+    var src = this.array;
+    var len = src.length;
+    var dst = new Array(len);
+    for (var i = 0; i < len; i++) {
+      var elem = src[i];
+      dst[i] = [elem[0], elem[1]]; // 深拷贝子数组
+    }
+    var temp = Object.create(ExpantaNum.prototype); //var temp = new ExpantaNum();
+    //会影响constructor，但不影响instanceof，暂未因此发现问题，节省性能
+    temp.array = dst;
+    temp.sign = this.sign;
+    temp.layer = this.layer;
+    return temp;
+  };
+  /*P.clone = function () {
     var temp = new ExpantaNum();
     var array = [];
     for (var i = 0; i < this.array.length; ++i) array.push([this.array[i][0], this.array[i][1]]);
@@ -1898,7 +1957,7 @@
     temp.sign = this.sign;
     temp.layer = this.layer;
     return temp;
-  };
+  };*/
   // ExpantaNum methods
 
   /*

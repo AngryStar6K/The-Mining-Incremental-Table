@@ -61,7 +61,7 @@ function updateWidth() {
 	tmp.other.screenWidth = screenWidth
 	tmp.other.screenHeight = window.innerHeight
 
-	if(splitScreen==false) document.body.style.setProperty('--tabWidth', '0px');
+	if(splitScreen==false||player.navTab=='none') document.body.style.setProperty('--tabWidth', '0px');
 	else{
 		document.body.style.setProperty('--tabWidth', colors.button.width)
 		document.body.style.setProperty('--tabHeight', colors.button.height)
@@ -95,6 +95,10 @@ function updateOomps(diff) {
 				var powertower = lpoomt2.slog(10).sub(1.3010299956639813).floor()
 				var ld = powertower.neg()
 				var oomps = ppoomt2.layeradd(ld).sub(lpoomt2.layeradd(ld)).div(diff)
+				if (oomps.lt(1) && powertower.neq(0)) {
+					oomps = ppoomt2.layeradd(ld.add(1)).sub(lpoomt2.layeradd(ld.add(1))).div(diff)
+					powertower = powertower.sub(1)
+				}
 				tmp.other.oomps = oomps
 				tmp.other.oompsMag.operator[0][1] = powertower
 			}

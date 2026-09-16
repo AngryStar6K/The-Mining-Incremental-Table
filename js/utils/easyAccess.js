@@ -215,10 +215,10 @@ function textAnimatedStyle(text, style = 'fiery', type = 'h2') {
 	return `<${type} style='color: #${colors.color}; text-shadow: 0 0 10px #${colors.shadow}'>${text}</${type}>`
 }
 
-function textStyle_story(text, color='ffffff', shadowcolor=color) {
+function textStyle_story(text, color=colors_theme[1], shadowcolor=color) {
 	let shadow = `0 0 10px #${shadowcolor}`
 	if (!options.textShadowShown) shadow = "none"
-	return `<h3 style='color: #${color}; text-shadow: ${shadow}; font-family: "Lucida Console", "Courier New", monospace'>${text}</h3>`
+	return `<h3 style='color: #${color}; text-shadow: ${shadow}; '>${text}</h3>`
 }
 
 function sortExpantaNumArray(arr, order = "desc") {

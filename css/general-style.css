@@ -6,6 +6,10 @@ body {
 	--color: #dfdfdf;
 	--points: #ffffff;
 	background: var(--background);
+	background-image: var(--backgroundImage);
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-size: cover;
 	font-family: var(--font);
 	touch-action: manipulation;
 }

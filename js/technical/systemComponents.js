@@ -54,7 +54,7 @@ var systemComponents = {
 		<button v-if="nodeShown(layer) && ((options.ch!==undefined && modInfo.otherLanguageMod==true) || modInfo.otherLanguageMod==false)"
 			v-on:mouseover="player.hoverTab = layer"
 			v-on:mouseleave="player.hoverTab = 'none'"
-			v-bind:id="layer"
+			v-bind:id="layer" v-bind:unlockInnerID=getLayerInnerID(layer)
 			v-on:click="function() {
 				if(layer=='Information'){
 					showTab('info-tab')
@@ -297,6 +297,8 @@ var systemComponents = {
 			<tr>
 				<td><h1>{{''}}&nbsp;&nbsp;&nbsp;</h1></td>
 				<td><button class="opt" onclick="switchPopupSize()">小提醒弹窗: {{ options.smallPopup ? "开" : "关" }}<br><h6></br></button></td>
+				<td><button class="opt" onclick="setBackgroundImage()">自定义背景图（输入URL）<br><h6></br></button></td>
+				<td><button class="opt" onclick="changeLayerTabShowingOrders()">层级排序方式: {{layerTabShowingOrdersZH[layerTabShowingOrders.indexOf(options.layerTabShowingOrder)]}}</button></td>
 			</tr><br>
 			<tr>
 				<td><button class="opt" v-if="modInfo.otherLanguageMod==true" onclick="

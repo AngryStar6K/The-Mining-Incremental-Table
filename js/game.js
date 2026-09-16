@@ -16,7 +16,7 @@ function getResetGain(layer, useType = null) {
 			return layers[layer].getResetGain()
 	} 
 	if(tmp[layer].type == "none")
-		return new ExpantaNum (0)
+		return ExpantaNumZero
 	if (tmp[layer].gainExp.eq(0)) return ExpantaNumZero
 	if (type=="static") {
 		if ((!tmp[layer].canBuyMax) || tmp[layer].baseAmount.lt(tmp[layer].requires)) return ExpantaNumOne
@@ -70,11 +70,11 @@ function getNextAt(layer, canMax=false, useType = null) {
 		return ExpantaNumZero
 	}}
 
-function softcap(value, cap, power = 0.5) {
+/*function softcap(value, cap, power = 0.5) {
 	if (value.lte(cap)) return value
 	else
 		return value.pow(power).times(cap.pow(ExpantaNumOne.sub(power)))
-}
+}*/ //TMIT暂不需要
 
 // Return true if the layer should be highlighted. By default checks for upgrades only.
 function shouldNotify(layer){
@@ -417,11 +417,34 @@ var startIntervalDelay = 0
 var startIntervalDelayCap = 1
 
 var gameruntime = 0
+
 //临时
 function isNativeFunction(fn) {
     return fn.toString().includes('[native code]');
 }
-var softcheat = false
+
+// 在游戏初始化完成后执行（确保 player 已经存在）
+function setupDevSpeedTrap() {
+    // 保存原始值（如果之前已有）
+    let _devSpeed = player.devSpeed;
+
+    // 重写 devSpeed 属性
+    Object.defineProperty(player, 'devSpeed', {
+        get: function() {
+            return _devSpeed;
+        },
+        set: function(newVal) {
+            // 检测到修改
+            console.warn('你被骗了！');
+            // 打开新窗口
+            window.open('https://www.bilibili.com/video/BV1GJ411x7h7', '_blank');
+            _devSpeed = 1;
+        },
+        configurable: false, // 防止再次被修改描述符
+        enumerable: true
+    });
+}
+
 var interval = setInterval(function() {
 	if (player===undefined||tmp===undefined) return;
 	if (ticking) return;
@@ -430,6 +453,7 @@ var interval = setInterval(function() {
 	let now = Date.now()
 	let diff = Math.max((now - player.time) / 1e3, 0)
 	let trueDiff = diff
+	player.time = now
 	diffout = diff
 	diffout = Math.min(diffout, maxTickLength ? maxTickLength() : 3600)
 	if (player.offTime !== undefined) {
@@ -448,7 +472,6 @@ var interval = setInterval(function() {
 		diffout = 0 //时间逆行惩罚
 	}
 	// if (player.devSpeed) diff *= Math.min(player.devSpeed, 1) 禁用devSpeed
-	player.time = now
 	if ((!isNativeFunction(Date.now) || !isNativeFunction(performance.now) || !isNativeFunction(setInterval)) && !softcheat) {
             // 触发反作弊
             alert("检测到脚本作弊，请禁用脚本重新开始游戏，如果你执意要作弊，请使用F12修改变量，我管不到你。离线时间被强行修改为-300秒");
@@ -456,6 +479,7 @@ var interval = setInterval(function() {
             softcheat = true
             save()
         }
+	var softcheat = false
 	if (needCanvasUpdate){ resizeCanvas();
 		needCanvasUpdate = false;
 	}
@@ -467,6 +491,7 @@ var interval = setInterval(function() {
 	updateTabFormats()
 	updateTmpRes(diff)
 	gameLoop(diff)
+	updateNews()
 	fixNaNs()
 	adjustPopupTime(trueDiff)
 	updateParticles(trueDiff)
@@ -475,9 +500,9 @@ var interval = setInterval(function() {
 	gameruntime += trueDiff
 
 	startIntervalDelay = startIntervalDelay + diff
-	if (startIntervalDelay >= startIntervalDelayCap) {
-		startInterval();
-	}
+	// 在适当时候调用
+	setupDevSpeedTrap();
+	startInterval();
 
 }, options.updatingRate || 50)
 
@@ -491,6 +516,7 @@ function startInterval() {
 		let now = Date.now()
 		let diff = Math.max((now - player.time) / 1e3, 0)
 		let trueDiff = diff
+		player.time = now
 		diffout = diff
 		diffout = Math.min(diffout, maxTickLength ? maxTickLength() : 3600)
 		if (player.offTime !== undefined) {
@@ -508,7 +534,6 @@ function startInterval() {
 			diff = 0,
 			diffout = 0 //时间逆行惩罚
 		}
-		player.time = now
 		if (needCanvasUpdate){ resizeCanvas();
 			needCanvasUpdate = false;
 		}
@@ -520,6 +545,7 @@ function startInterval() {
 		updateTabFormats()
 		updateTmpRes(diff)
 		gameLoop(diff)
+		updateNews()
 		fixNaNs()
 		adjustPopupTime(trueDiff)
 		updateParticles(trueDiff)

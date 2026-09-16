@@ -15,11 +15,11 @@ let MAX_LOGP1_REPEATS = 48
 let LOG5E = 0.6213349345596119 // 1 / Math.log(5)
 
 function commaFormat(num, precision) {
-    num = new ExpantaNum(num)
+    //num = new ExpantaNum(num)
     if (num === null || num === undefined) return "NaN"
     let zeroCheck = num.array ? num.array[0][1] : num
     if (zeroCheck < 0.001) return (0).toFixed(precision)
-    let init = num.round().toString()
+    let init = Math.round(num).toString()
     let portions = init.split(".")
     portions[0] = portions[0].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")
     return portions[0]
@@ -27,11 +27,11 @@ function commaFormat(num, precision) {
 
 function regularFormat(num, precision) {
     if (isNaN(num)) return "NaN"
-    let zeroCheck = num.array ? num.array[0][1] : num
-    if (zeroCheck < 0.001) return (0).toFixed(precision)
+    //let zeroCheck = num.array ? num.array[0][1] : num
+    if (num < 0.001) return (0).toFixed(precision)
     let fmt = num.toString()
     let f = fmt.split(".")
-    if (precision == 0) return commaFormat(num.round ? num.round() : Math.round(num))
+    if (precision == 0) return commaFormat(Math.round(num))
     else if (f.length == 1) return fmt + "." + "0".repeat(precision)
     else if (f[1].length <= precision) return fmt + "0".repeat(precision - f[1].length)
     else return f[0] + "." + f[1].substring(0, precision)
@@ -127,8 +127,8 @@ function setToZero(array, height) {
     if (i < array.length) array[i][1] = 0
 }
 
-function format(num, precision = 2) {
-    let notation = options.notation
+function format(num, precision = 2, notation) {
+    notation = notation || options.notation
     if (notation == 'Scientific') return scientific(num, precision)
     else if (notation == 'Hyper-E') return hyperE(num, precision)
     else if (notation == 'Letter') return letter(num, precision)
@@ -137,6 +137,7 @@ function format(num, precision = 2) {
     else if (notation == 'Standard') return standard(num, precision)
     else if (notation == 'Blind') return blind()
     else if (notation == 'Fixed Infinity') return fixedInfinity(num, precision)
+    else if (notation == 'Random Chaos') return format(num, precision, notations[Math.floor(Math.random() * notations.length)]) //你不会想用这个的
 }
 
 function scientific(num, precision = 2, small = false) {
@@ -149,10 +150,11 @@ function scientific(num, precision = 2, small = false) {
     if (num.abs().lt(1e-308)) return (0).toFixed(precision)
     if (num.sign < 0) return "-" + scientific(num.neg(), precision)
     if (num.isInfinite()) return "Infinity"
-    if (num.lt("0.0001")) { return scientific(num.rec(), precision) + "^(-1)" }
-    else if (num.lt(1)) return regularFormat(num, precision + (small ? 2 : 0))
-    else if (num.lt(1000)) return regularFormat(num, precision)
-    else if (num.lt(1e12)) return commaFormat(num)
+    let realnumber = num.toNumber()
+    if (realnumber < 1e-4) { return fesn(num.rec(), precision) }
+    else if (realnumber < 1) return regularFormat(num, precision + (small ? 2 : 0))
+    else if (realnumber < 1000) return regularFormat(num, precision)
+    else if (realnumber < 1e12) return commaFormat(num)
     else if (num.lt("10^^5")) { // 1e9 ~ 1F5
         let bottom = arraySearch(array, 0)
         let rep = arraySearch(array, 1) - 1

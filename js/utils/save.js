@@ -213,6 +213,7 @@ function load() {
 	changeTreeQuality();
 	cursiveSetting();
 	upgSizeSetting();
+	showBackgroundImage()
 	updateLayers();
 	setupModInfo();
 
@@ -264,33 +265,48 @@ function setupModInfo() {
 	modInfo.winText = winText();
 
 }
+
+function handleNaN(location) {
+    if (!NaNalert) {
+        clearInterval(interval);
+        console.log(`${location} is NaN!`);
+        NaNalert = true;
+        alert(`储存的游戏变量出现了NaN！位置在 ${location} 请联系开发者！你也可以刷新页面，恢复到NaN之前的状态`);
+    }
+}
 function fixNaNs() {
 	NaNcheck(player);
 }
-function NaNcheck(data, previous, name) {
-	for (item in data) {
-		if (data[item] == null) {
-		}
-		else if (Array.isArray(data[item])) {
-			NaNcheck(data[item], data, item);
-		}
-		else if (data[item] !== data[item] || checkExpantaNumNaN(data[item])) {
-			if (!NaNalert) {
-				clearInterval(interval);
-				console.log(previous)
-				console.log(name)
-				console.log(data)
-				NaNalert = true;
-				alert("Invalid value found in player, named '" + item + "'. Please let the creator of this mod know! You can refresh the page, and you will be un-NaNed.")
-				return
-			}
-		}
-		else if (data[item] instanceof ExpantaNum) {	
-		}
-		else if ((!!data[item]) && (data[item].constructor === Object)) {
-			NaNcheck(data[item], data, item);
-		}
-	}
+function NaNcheck(data, name = "player") {
+    // 快速跳过不可能为 NaN 的类型
+    if (data === null || data === undefined) return;
+    const type = typeof data;
+    if (type === "string" || type === "boolean") return;
+
+    // 检查普通数字
+    if (type === "number") {
+        if (isNaN(data)) {
+            handleNaN(name);
+        }
+        return;
+    }
+
+    // 检查 ExpantaNum 实例（不递归内部）
+    if (data instanceof ExpantaNum) {
+        if (data.isNaN()) {
+            handleNaN(name);
+        }
+        return;
+    }
+
+    // 如果是数组或对象，递归检查（但只检查可枚举属性）
+    if (Array.isArray(data) || (data && data.constructor === Object)) {
+        for (const key in data) {
+            if (data.hasOwnProperty(key)) {
+                NaNcheck(data[key], name + "." + key);
+            }
+        }
+    }
 }
 function exportSave() {
 	//if (NaNalert) return

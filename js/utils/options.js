@@ -25,6 +25,8 @@ function getStartOptions() {
 		newsShown: true,
 		unitLanguage: false,
 		smallPopup: false,
+		backgroundImage: "",
+		layerTabShowingOrder: 'default',
 	}
 }
 
@@ -157,8 +159,8 @@ function switchDefaultUpgSize() {
 	options.biggerUpgs = !options.biggerUpgs
 }
 
-var notations = ['Scientific', 'Hyper-E', 'Letter', 'Emoji', 'Chinese', 'Standard', 'Blind', 'Fixed Infinity'] //想在ExpantaNum.js里搓记数法还是很吃力的（
-var notationsZH = ['科学(FGH-JK)', '超-E', '字母', 'Emoji', '中文', '标准', '失明', '修复无限']
+var notations = ['Scientific', 'Hyper-E', 'Letter', 'Emoji', 'Chinese', 'Standard', 'Blind', 'Fixed Infinity', 'Random Chaos'] //想在ExpantaNum.js里搓记数法还是很吃力的（
+var notationsZH = ['科学(FGH-JK)', '超-E', '字母', 'Emoji', '中文', '标准', '失明', '修复无限', '混沌随机']
 function changeNotation() {//记数法没有修好 -- 25w34a进入测试状态
 	options.notation = notations[(notations.indexOf(options.notation) + 1) % notations.length]
 }
@@ -180,4 +182,29 @@ function unitLanguageSetting() {
 
 function switchPopupSize() {
 	options.smallPopup = !options.smallPopup
+}
+
+function setBackgroundImage() {
+	let keep = options.backgroundImage ? options.backgroundImage : "";
+	let url = prompt("请输入背景图片URL，留空以移除，你也可以使用多张图片的URL，使用\"|\"分隔，图片在每次刷新页面等概率随机出现", keep);
+	if (url === null) return;
+	options.backgroundImage = url;
+	let urls = url.split("|")
+	let chosen = urls[Math.floor(Math.random() * urls.length)]
+	document.body.style.setProperty('--backgroundImage', options.backgroundImage ? `url(${chosen})` : 'var(--background)');
+	console.log("背景图片已设置为 " + chosen + "\n图片总数：" + urls.length)
+}
+
+function showBackgroundImage() {
+	let urls = options.backgroundImage.split("|")
+	let chosen = urls[Math.floor(Math.random() * urls.length)]
+	document.body.style.setProperty('--backgroundImage', options.backgroundImage ? `url(${chosen})` : 'var(--background)');
+	console.log("背景图片已设置为 " + chosen + "\n图片总数：" + urls.length)
+}
+
+var layerTabShowingOrders = ['default', 'unlock order'/*, 'MC mods'*/]
+var layerTabShowingOrdersZH = ['默认', '解锁顺位'/*, 'MC模组'*/]
+function changeLayerTabShowingOrders() {
+	options.layerTabShowingOrder = layerTabShowingOrders[(layerTabShowingOrders.indexOf(options.layerTabShowingOrder) + 1) % layerTabShowingOrders.length]
+	updateLayers()
 }

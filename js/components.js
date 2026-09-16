@@ -173,7 +173,7 @@ function loadVue() {
 	Vue.component('upgrade', {
 		props: ['layer', 'data'],
 		template: `
-			<button v-if="tmp[layer].upgrades && tmp[layer].upgrades[data]!== undefined && tmp[layer].upgrades[data].unlocked" :id='"upgrade-" + layer + "-" + data' v-on:click="buyUpg(layer, data)" v-bind:class="[{ [layer]: true, tooltipBox: true, upg: true, bought: hasUpgrade(layer, data), locked: (!(canAffordUpgrade(layer, data))&&!hasUpgrade(layer, data)), can: (canAffordUpgrade(layer, data)&&!hasUpgrade(layer, data)), expired: (upgradeExpired(layer, data))}, tmp[layer].upgrades[data].styleClass]"
+			<button v-if="tmp[layer].upgrades && tmp[layer].upgrades[data]!== undefined && tmp[layer].upgrades[data].unlocked" :id='"upgrade-" + layer + "-" + data' v-on:click="buyUpg(layer, data)" v-bind:class="[{ [layer]: true, tooltipBox: true, upg: true, bought: hasUpgrade(layer, data), locked: ((!hasUpgrade(layer, data)&&!canAffordUpgrade(layer, data))), can: (!hasUpgrade(layer, data)&&canAffordUpgrade(layer, data)), expired: (upgradeExpired(layer, data))}, tmp[layer].upgrades[data].styleClass]"
 			v-bind:style="[((!hasUpgrade(layer, data) && canAffordUpgrade(layer, data)) ? {'background-color': tmp[layer].color} : {}), tmp[layer].upgrades[data].style]">
 			<span v-if="layers[layer].upgrades[data].fullDisplay" v-html="run(layers[layer].upgrades[data].fullDisplay, layers[layer].upgrades[data])"></span>
 			<span v-else>
@@ -393,6 +393,19 @@ function loadVue() {
 				this.time = 0
 			}
 		},
+	})
+
+	Vue.component('display-box', {
+		props: ['layer', 'data'],
+		template: `
+		<button 
+		v-bind:class="[{ [layer]: true, tooltipBox: true, upg: true}]"
+		v-bind:style="[{'font-size': '20px'}]"
+		>
+			<span class="instant" v-html="data"></span>
+
+		</button>
+		`,
 	})
 
 	Vue.component('master-button', {
@@ -708,16 +721,16 @@ const Modal = {
 					Modal
 				};
 			},
-			template: `<div class="modal" v-if="Modal.showing" style='Modal.data.style' v-bind:style='[{"border-color": Modal.data.color}]'>
-				<div class="modal-top" v-bind:style='[{"border-color": Modal.data.color}]'>
-					<span v-html="Modal.data.title()" style="padding-left: 7px; font-size: 20px"></span>
+			template: `<div class="modal" v-if="Modal.showing" style='Modal.data.style' v-bind:style='[{"border-color": Modal.data.color()}]'>
+				<div class="modal-top" v-bind:style='[{"border-color": Modal.data.color()}]'>
+					<span v-html="Modal.data.title()" style="padding-left: 7px; font-size: 20px" v-bind:style='[{"color": Modal.data.color()}]'></span>
 				</div>
 				<div v-if="Modal.data.bind" :is="Modal.data.bind" :data="Modal.data.bindData"></div>
 				<div v-html="Modal.data.text()" style="text-align: left; padding: 10px"></div>
 				<div style="position: absolute; bottom: 120px; left: 50%; width:100%; transform: translateX(-50%); text-align: center">
-					<button class='modalButton' v-for="(btn,i) in Modal.data.buttons" @click="btn.onClick" style="min-width: 5px; margin: 0 5px" v-bind:style='[{"border-color": Modal.data.color,"opacity": btn.unlocked()? "1":"0","visibility": btn.unlocked()? "visible":"hidden"}]'>{{btn.text}}</button>
+					<button class='modalButton' v-for="(btn,i) in Modal.data.buttons" @click="btn.onClick" style="min-width: 5px; margin: 0 5px" v-bind:style='[{"border-color": Modal.data.color(),"color": Modal.data.color(),"opacity": btn.unlocked()? "1":"0","visibility": btn.unlocked()? "visible":"hidden"}]'>{{btn.text}}</button>
 				</div>
-				<div v-bind:style='[{"border-color": Modal.data.color}]' style="border: 2px solid white;border-radius:5px; height: 25px; position: absolute; bottom: 10px; left: 44%; width: 100px; font-size:20px; padding:10px"
+				<div v-bind:style='[{"border-color": Modal.data.color()}]' class = "modalConfirm"
 					onclick="Modal.closeFunc()">确定
 				</div>
 			</div>`
