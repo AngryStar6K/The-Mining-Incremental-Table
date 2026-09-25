@@ -279,7 +279,7 @@ addLayer("general", {
                 d += "环境"
                 return d
             },
-            canClick() { return player.general.mine.specialEffect != "none" && !player.general.mine.destroying },
+            canClick() { return player.general.mine.specialEffect != "none" && !player.general.mine.destroying && player.map.battle.curHP.gt(0) },
             onClick() {
                 player.general.mine.destroying = false
                 player[player.general.mine.oreType].progress = zero //挖的过程中死了避免卡死
