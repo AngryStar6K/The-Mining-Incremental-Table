@@ -160,7 +160,7 @@ addLayer("general", {
                         break
                     }
                 }
-                return player.general.mine.ores == 0 && isAtLocation(correspondingLocation)
+                return (player.general.mine.ores == 0 || player.general.mine.findingCooldown == 0) && isAtLocation(correspondingLocation)
             },
             onClick() {
                 //初始化
@@ -281,6 +281,9 @@ addLayer("general", {
             },
             canClick() { return player.general.mine.specialEffect != "none" && !player.general.mine.destroying },
             onClick() {
+                player.general.mine.destroying = false
+                player[player.general.mine.oreType].progress = zero //挖的过程中死了避免卡死
+
                 let unused = gridSquare[10].map(p => p)
                 player.general.grid[player.general.mine.location] = 'you'
                 unused.splice(unused.indexOf(player.general.mine.location), 1)
