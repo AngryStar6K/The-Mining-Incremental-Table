@@ -4220,7 +4220,7 @@ addLayer("achievements", {
         },
         207: {
             name: "传送……失败了",
-            tooltip: "激活精灵传送门<br> 奖励：e1.00e1,000,000成就点数<br><br>解锁世界3层级：源质钢",
+            tooltip: "激活精灵传送门<br> 奖励：e1.00e1,000,000成就点数<br><br>解锁世界2层级：源质钢",
             done() { return player.botania.portal.complete && this.unlocked() },
             onComplete() {
                 return player.achievements.points = player.achievements.points.add('ee1000000')
