@@ -27347,10 +27347,10 @@ addLayer("elementium", {
         let nb = tmp.elementium.upgrades[22].base
         let cen = upgradeEffect(elementium, 32)
         switch (maxAmplifier) {
-            case 11: return et.pow(nb.times(22).add(10).add(cen.times(nb.times(6).add(1))))
-            case 12: return et.pow(nb.times(26).add(11).add(cen.times(nb.times(6).add(1))))
-            case 13: return et.pow(nb.times(30).add(12).add(cen.times(nb.times(6).add(1))))
-            case 14: return et.pow(nb.times(36).add(13).add(cen.times(nb.times(6).add(1))))
+            case 11: return et.pow(nb.times(24).add(10).add(cen.times(nb.times(6).add(1))))
+            case 12: return et.pow(nb.times(28).add(11).add(cen.times(nb.times(6).add(1))))
+            //case 13: return et.pow(nb.times(30).add(12).add(cen.times(nb.times(6).add(1))))
+            //case 14: return et.pow(nb.times(36).add(13).add(cen.times(nb.times(6).add(1))))
             default: return one
         }
     },
