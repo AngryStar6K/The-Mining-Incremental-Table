@@ -16837,7 +16837,7 @@ addLayer("gold", {
                     ["display-text", function () {
                         let t = ''
                         if (hasMilestone(electrum, 0)) t += '你达成了第1琥珀金里程碑，因此在“反向扭曲”中，“基础时间扭曲”购买项按住的效果改为购买最大<br>'
-                        if (hasMilestone(electrum, 0)) t += '你达成了第2琥珀金里程碑，因此在“反向扭曲”中，“黄金时间扭曲”购买项按住的效果改为购买最大<br>'
+                        if (hasMilestone(electrum, 1)) t += '你达成了第2琥珀金里程碑，因此在“反向扭曲”中，“黄金时间扭曲”购买项按住的效果改为购买最大<br>'
                         if (inChallenge(gold, 11)) return t
                     }],
                     //["display-text", function () { if (player.gold.stored_time.gte(tmp.gold.softcapStart)) return `由于时间储存超过了${ftl(tmp.gold.softcapStart)}，时钟时间扭曲/${f(tmp.gold.timeSoftcap)}！` }],
